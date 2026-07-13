@@ -23,16 +23,21 @@ export const metadata: Metadata = {
   description: "Frontend Developer",
 };
 
+// 페인트 전에 테마를 결정해 FOUC(잘못된 테마 깜빡임)를 막는다.
+// 저장된 값 우선, 없으면 OS 설정을 따른다.
+const themeInitScript = `(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();`;
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ko">
+    <html lang="ko" suppressHydrationWarning>
       <head>
         <link
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
         />
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body
         className={`${hankenGrotesk.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable}`}
