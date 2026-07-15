@@ -5,6 +5,89 @@ body {
   font-family: var(--font-hanken), "Pretendard Variable", ui-sans-serif, system-ui, sans-serif;
   background: var(--color-bg);
   color: var(--color-fg-body);
-  /* 라이트↔다크 전환을 부드럽게 (과하지 않게) */
-  transition: background-color 0.2s ease, color 0.2s ease;
+  /* 일반 텍스트 위에서는 기본 화살표 커서 */
+  cursor: default;
+}
+
+/* 편집 가능한 필드가 아닌 곳에서 텍스트 삽입 커서(깜빡이는 캐럿)를 숨긴다.
+   브라우저의 캐럿 브라우징(F7)이 켜져 있어도 캐럿이 보이지 않게 방어. */
+:root {
+  caret-color: transparent;
+}
+
+/* 이동/클릭 가능한 요소만 포인터 커서 */
+a[href],
+button,
+label,
+summary,
+[role="button"] {
+  cursor: pointer;
+}
+
+button:disabled,
+[aria-disabled="true"],
+:disabled {
+  cursor: not-allowed;
+}
+
+/* 실제 입력 필드만 텍스트 커서 + 캐럿 복원 */
+input,
+textarea,
+select,
+[contenteditable] {
+  cursor: text;
+  caret-color: var(--color-brand);
+}
+
+input[type="color"],
+input[type="checkbox"],
+input[type="radio"],
+input[type="range"],
+select {
+  cursor: pointer;
+}
+
+/* 라이트↔다크 전환을 색상 계열만 부드럽게. transform/opacity는 건드리지 않아
+   Framer Motion의 진입 애니메이션과 충돌하지 않는다. reduced-motion이면 끈다. */
+@media (prefers-reduced-motion: no-preference) {
+  *,
+  ::before,
+  ::after {
+    transition-property: background-color, border-color, color, fill, box-shadow;
+    transition-duration: 200ms;
+    transition-timing-function: ease;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Hero 타이핑 커서. em 기반이라 헤딩 크기를 그대로 따라간다. 색은 브랜드 토큰.
+   블링크는 reduced-motion이면 멈추고 그냥 켜진 채로 둔다. */
+.caret {
+  display: inline-block;
+  width: 0.09em;
+  height: 0.95em;
+  margin-left: 0.1em;
+  vertical-align: -0.06em;
+  border-radius: 1px;
+  background: var(--color-brand);
+}
+
+@keyframes caret-blink {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .caret {
+    animation: caret-blink 1.05s step-end infinite;
+  }
 }

@@ -51,7 +51,7 @@ const textVariants: Record<TextVariant, string> = {
 
 export interface TextProps extends HTMLAttributes<HTMLElement> {
   variant?: TextVariant;
-  as?: "p" | "span" | "div" | "label";
+  as?: "p" | "span" | "div" | "label" | "dt" | "dd";
 }
 
 export const Text = forwardRef<HTMLElement, TextProps>(

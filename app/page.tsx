@@ -1,203 +1,282 @@
-import {
-  Badge,
-  Button,
-  Card,
-  Container,
-  Heading,
-  Input,
-  Text,
-} from "@/design-system";
-import { ThemeToggle } from "./ThemeToggle";
+import Link from "next/link";
+import { Badge, Button, Container, Heading, Text } from "@/design-system";
+import { Nav } from "./_components/Nav";
+import { Hero } from "./_components/Hero";
+import { Reveal } from "./_components/Reveal";
+import { TokenPlayground } from "./_components/TokenPlayground";
+import { PROJECTS } from "./_data/projects";
 
-/* 쇼케이스용 로컬 헬퍼 — 디자인 시스템에 속하지 않는 페이지 전용 레이아웃 조각 */
-
+/* ─────────────────────────────────────────────
+   섹션 공통 껍데기: 왼쪽 라벨(.about / § 01) + 오른쪽 본문.
+   모바일에선 세로로 쌓인다. Reveal로 스크롤 진입 모션.
+   ───────────────────────────────────────────── */
 function Section({
-  title,
+  id,
+  label,
+  index,
   children,
 }: {
-  title: string;
+  id: string;
+  label: string;
+  index: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className="border-t border-border py-12">
-      <Heading level={3} className="mb-6">
-        {title}
-      </Heading>
-      {children}
-    </section>
+    <Reveal as="section">
+      <section id={id} className="scroll-mt-20 border-t border-border py-16 sm:py-24">
+        <Container size="lg">
+          <div className="grid gap-8 md:grid-cols-[7rem_1fr] md:gap-12">
+            <div className="md:pt-2">
+              <Text as="div" variant="muted" className="font-mono text-brand">
+                .{label}
+              </Text>
+              <Text as="div" variant="small" className="mt-1 font-mono">
+                § {index}
+              </Text>
+            </div>
+            <div>{children}</div>
+          </div>
+        </Container>
+      </section>
+    </Reveal>
   );
 }
 
-function Row({ children }: { children: React.ReactNode }) {
-  return <div className="flex flex-wrap items-center gap-3">{children}</div>;
-}
+/* ── 콘텐츠 데이터 ── */
 
-const swatches = [
-  { name: "bg", cls: "bg-bg" },
-  { name: "surface", cls: "bg-surface" },
-  { name: "border", cls: "bg-border" },
-  { name: "fg", cls: "bg-fg" },
-  { name: "fg-body", cls: "bg-fg-body" },
-  { name: "fg-muted", cls: "bg-fg-muted" },
-  { name: "brand", cls: "bg-brand" },
-  { name: "brand-hover", cls: "bg-brand-hover" },
-  { name: "brand-subtle", cls: "bg-brand-subtle" },
-  { name: "success", cls: "bg-success" },
-  { name: "warning", cls: "bg-warning" },
-  { name: "danger", cls: "bg-danger" },
+const EXPERIENCE = [
+  {
+    role: "StoreX Admin — 멀티테넌트 쇼핑몰 어드민",
+    org: "Sellmate · Global Team",
+    period: "재직 중",
+    desc: "기존 프로젝트를 인계받아 상품·브랜드·쿠폰·포인트·주문·리뷰 등 20개 이상의 관리 페이지를 단독으로 유지보수·신규 개발했습니다. 후임 합류 이후에는 온보딩과 코드 리뷰를 맡아 협업 체계로 전환했고, 테넌트별 마켓·다국어 구조를 대응해 2개 고객사 · 5개 마켓(일본·미국·한국·대만) · 72개 브랜드가 운영되는 플랫폼을 담당하고 있습니다.",
+    tags: ["React", "TypeScript", "디자인 시스템", "i18n"],
+  },
+  { role: "대규모 화면 리팩토링", org: "Sellmate", period: "준비 중", placeholder: true },
+  { role: "결제 중개 연동", org: "Sellmate", period: "준비 중", placeholder: true },
+  { role: "React 웹앱 신규 구축", org: "Sellmate", period: "준비 중", placeholder: true },
 ];
+
+/* 디자인 시스템 섹션의 정적 토큰 스와치 (라이트/다크 자동 전환) */
+const SWATCHES = [
+  { token: "bg", className: "bg-bg border border-border" },
+  { token: "surface", className: "bg-surface border border-border" },
+  { token: "border", className: "bg-border" },
+  { token: "brand", className: "bg-brand" },
+  { token: "brand-subtle", className: "bg-brand-subtle" },
+  { token: "success", className: "bg-success" },
+  { token: "warning", className: "bg-warning" },
+  { token: "danger", className: "bg-danger" },
+];
+
+const REPO_URL = "https://github.com/JeongTaehwan/usetaehwan";
+const EMAIL = "kt26625417@gmail.com";
+const MAIL_SUBJECT = "usetaehwan.page 문의";
+const GMAIL_COMPOSE = `https://mail.google.com/mail/?view=cm&fs=1&to=${EMAIL}&su=${encodeURIComponent(
+  MAIL_SUBJECT
+)}`;
 
 export default function Home() {
   return (
-    <main className="min-h-screen py-16">
-      <Container size="lg">
-        {/* ── Header ── */}
-        <header className="flex items-start justify-between gap-4">
-          <div>
-            <Heading level={1} className="mb-2">
-              useTaehwan()
-            </Heading>
-            <Text variant="lead">디자인 시스템 컴포넌트 쇼케이스 · 검증 페이지</Text>
-          </div>
-          <ThemeToggle />
-        </header>
+    <main className="min-h-dvh">
+      <Nav />
+      <Hero />
 
-        {/* ── Colors ── */}
-        <Section title="Colors">
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-            {swatches.map((s) => (
-              <div key={s.name} className="flex items-center gap-3">
-                <div
-                  className={`h-10 w-10 shrink-0 rounded-md border border-border ${s.cls}`}
-                />
-                <Text variant="muted" className="font-mono">
-                  {s.name}
-                </Text>
-              </div>
-            ))}
-          </div>
-        </Section>
+      {/* ── § 01 About ── */}
+      <Section id="about" label="about" index="01">
+        <Heading level={2}>잘 만든 코드는 잘 쓴 문서와 닮았습니다.</Heading>
+        <Text variant="body" className="mt-5">
+          4년차 프론트엔드 개발자입니다. 명확한 구조, 신중한 기본값, 다음 사람을 위한
+          설명 — 좋은 인터페이스와 좋은 문서는 같은 원리로 만들어진다고 생각합니다.
+          다국가 이커머스 어드민을 만들며 디자인 시스템과 아키텍처를 설계했고, 그 과정을
+          늘 기록으로 남깁니다.
+        </Text>
+        <Text variant="body" className="mt-4">
+          혼자 잘하는 것보다 함께 잘하는 걸 중요하게 생각합니다. 팀의 경계에서 오가는
+          소통이 결국 결과물의 품질을 만든다고 믿습니다.
+        </Text>
+      </Section>
 
-        {/* ── Typography ── */}
-        <Section title="Typography">
-          <div className="space-y-3">
-            <Heading level={1}>Heading level 1 — 세리프 헤딩</Heading>
-            <Heading level={2}>Heading level 2 — 에디토리얼 인상</Heading>
-            <Heading level={3}>Heading level 3</Heading>
-            <Heading level={4}>Heading level 4</Heading>
-            <Text variant="lead">
-              Lead — 저채도 웜 뉴트럴. 가을 느낌의 흐릿하고 차분한 색감으로 편안한
-              프로덕트 톤을 낸다.
-            </Text>
-            <Text variant="body">
-              Body — 본문 텍스트입니다. 한글은 Pretendard, 라틴은 Hanken Grotesk로
-              렌더링됩니다. The quick brown fox jumps over the lazy dog.
-            </Text>
-            <Text variant="muted">Muted — 캡션·힌트 전용 (본문 대비 낮음)</Text>
-            <Text variant="small">Small — 가장 작은 보조 텍스트</Text>
-          </div>
-        </Section>
-
-        {/* ── Buttons ── */}
-        <Section title="Buttons">
-          <div className="space-y-4">
-            <Row>
-              <Button variant="primary">Primary</Button>
-              <Button variant="secondary">Secondary</Button>
-              <Button variant="ghost">Ghost</Button>
-              <Button variant="primary" disabled>
-                Disabled
-              </Button>
-            </Row>
-            <Row>
-              <Button size="sm">Small</Button>
-              <Button size="md">Medium</Button>
-              <Button size="lg">Large</Button>
-            </Row>
-          </div>
-        </Section>
-
-        {/* ── Badges ── */}
-        <Section title="Badges">
-          <Row>
-            <Badge variant="neutral">Neutral</Badge>
-            <Badge variant="brand">Brand</Badge>
-          </Row>
-        </Section>
-
-        {/* ── Inputs ── */}
-        <Section title="Inputs">
-          <div className="grid max-w-md gap-4">
-            <label className="grid gap-1.5">
-              <Text as="span" variant="muted">
-                이메일
-              </Text>
-              <Input type="email" placeholder="you@example.com" />
-            </label>
-
-            <label className="grid gap-1.5">
-              <Text as="span" variant="muted">
-                유효하지 않은 값 (aria-invalid)
-              </Text>
-              <Input
-                defaultValue="not-an-email"
-                aria-invalid
-                aria-describedby="email-error"
+      {/* ── § 02 Experience ── */}
+      <Section id="experience" label="experience" index="02">
+        <Text variant="muted" className="mb-8">
+          Sellmate — 2022.11 ~ ing
+        </Text>
+        <ol className="flex flex-col gap-10 border-l border-border pl-6">
+          {EXPERIENCE.map((e, i) => (
+            <li key={i} className="relative">
+              <span
+                className={`absolute -left-[1.65rem] top-1.5 h-2.5 w-2.5 rounded-full ${
+                  e.placeholder ? "bg-border" : "bg-brand"
+                }`}
+                aria-hidden
               />
-              <Text as="span" variant="small" id="email-error" className="text-danger">
-                올바른 이메일 형식이 아닙니다.
-              </Text>
-            </label>
-
-            <label className="grid gap-1.5">
-              <Text as="span" variant="muted">
-                비활성
-              </Text>
-              <Input placeholder="disabled" disabled />
-            </label>
-          </div>
-        </Section>
-
-        {/* ── Cards ── */}
-        <Section title="Cards">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Card>
-              <div className="mb-2 flex items-center gap-2">
-                <Heading level={4}>디자인 시스템 MVP</Heading>
-                <Badge variant="brand">진행 중</Badge>
+              <div className={e.placeholder ? "opacity-60" : undefined}>
+                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                  <Heading level={4} as="h3">
+                    {e.role}
+                  </Heading>
+                  <Text as="span" variant="small" className="font-mono">
+                    {e.period}
+                  </Text>
+                </div>
+                <Text as="div" variant="muted" className="mt-1 text-brand">
+                  {e.org}
+                </Text>
+                {e.desc ? (
+                  <Text variant="body" className="mt-3">
+                    {e.desc}
+                  </Text>
+                ) : (
+                  <div className="mt-3 flex items-center gap-2">
+                    <Badge variant="neutral">준비 중</Badge>
+                    <Text as="span" variant="small">
+                      정리해서 곧 채워집니다.
+                    </Text>
+                  </div>
+                )}
+                {e.tags && (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {e.tags.map((t) => (
+                      <Badge key={t} variant="neutral">
+                        {t}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
               </div>
-              <Text className="mb-4">
-                사이트를 만들면서 실사용으로 API를 검증하고, 그다음에 별도 패키지로
-                추출한다.
-              </Text>
-              <Row>
-                <Button size="sm">자세히</Button>
-                <Button size="sm" variant="ghost">
-                  나중에
-                </Button>
-              </Row>
-            </Card>
+            </li>
+          ))}
+        </ol>
+      </Section>
 
-            <Card>
-              <div className="mb-2 flex items-center gap-2">
-                <Heading level={4}>다크모드</Heading>
-                <Badge variant="neutral">검증됨</Badge>
+      {/* ── § 03 Projects ── */}
+      <Section id="projects" label="projects" index="03">
+        <Heading level={2} className="mb-8">
+          Projects
+        </Heading>
+        <div className="divide-y divide-border border-y border-border">
+          {PROJECTS.map((p) => {
+            const row = (
+              <div className="grid gap-2 px-2 py-6 sm:grid-cols-[minmax(0,13rem)_1fr] sm:gap-8">
+                <div className="flex items-baseline gap-3">
+                  <Heading
+                    level={4}
+                    as="h3"
+                    className={p.placeholder ? undefined : "transition-colors group-hover:text-brand"}
+                  >
+                    {p.name}
+                  </Heading>
+                  <Text as="span" variant="small" className="font-mono">
+                    {p.year}
+                  </Text>
+                </div>
+                <div>
+                  <div className="flex items-start justify-between gap-4">
+                    <Text variant="body">{p.summary}</Text>
+                    {!p.placeholder && (
+                      <span
+                        aria-hidden
+                        className="mt-0.5 shrink-0 font-mono text-brand transition-transform group-hover:translate-x-1"
+                      >
+                        →
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {p.tags.map((t) => (
+                      <Badge key={t} variant={p.placeholder ? "neutral" : "brand"}>
+                        {t}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
               </div>
-              <Text className="mb-4">
-                Tailwind v4 <code className="font-mono text-sm">@custom-variant</code>{" "}
-                기반. 우측 상단 토글로 확인하세요.
-              </Text>
-              <Input placeholder="카드 안의 입력 필드" />
-            </Card>
-          </div>
-        </Section>
+            );
 
-        <footer className="border-t border-border py-8">
-          <Text variant="small">
-            design-system/ · 순수 React · 토큰 기반 · 추출 가능한 구조
+            return p.placeholder ? (
+              <div key={p.slug} className="opacity-60">
+                {row}
+              </div>
+            ) : (
+              <Link
+                key={p.slug}
+                href={`/projects/${p.slug}`}
+                className="group block transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+              >
+                {row}
+              </Link>
+            );
+          })}
+        </div>
+      </Section>
+
+      {/* ── § 04 Design System (기술적 하이라이트) ── */}
+      <Section id="system" label="designSystem" index="04">
+        <Heading level={2}>이 사이트를 만든 디자인 시스템</Heading>
+        <Text variant="body" className="mt-5">
+          <span className="font-mono text-fg">useTaehwan()/ui</span> — 저채도 웜 뉴트럴
+          토큰과 6개의 React 프리미티브로 구성된 작은 디자인 시스템입니다. 색 하나를
+          바꾸면 사이트 전체가 따라 바뀝니다. 아래에서 직접 만져보세요.
+        </Text>
+
+        {/* 토큰 스와치 */}
+        <div className="mt-8 flex flex-wrap gap-4">
+          {SWATCHES.map((s) => (
+            <div key={s.token} className="flex flex-col items-center gap-1.5">
+              <span className={`h-10 w-10 rounded-md ${s.className}`} aria-hidden />
+              <Text as="span" variant="small" className="font-mono">
+                {s.token}
+              </Text>
+            </div>
+          ))}
+        </div>
+
+        {/* 인터랙티브 데모 */}
+        <div className="mt-8">
+          <TokenPlayground />
+        </div>
+
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+          <Text as="span" variant="small" className="font-mono">
+            6 primitives · token-only · light + dark
           </Text>
-        </footer>
-      </Container>
+          <a
+            href={REPO_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="font-mono text-sm text-brand transition-colors hover:text-brand-hover"
+          >
+            read the docs →
+          </a>
+        </div>
+      </Section>
+
+      {/* ── § 05 Contact ── */}
+      <Section id="contact" label="contact" index="05">
+        <Heading level={2}>함께 만들 게 있다면</Heading>
+        <Text variant="body" className="mt-5">
+          제안, 협업, 혹은 그냥 인사도 좋아요. 편하게 메일 주시면 빠르게 회신드리겠습니다.
+        </Text>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <a href={GMAIL_COMPOSE} target="_blank" rel="noreferrer">
+            <Button variant="primary">메일 보내기</Button>
+          </a>
+          <a href={REPO_URL} target="_blank" rel="noreferrer">
+            <Button variant="ghost">GitHub ↗</Button>
+          </a>
+        </div>
+      </Section>
+
+      {/* ── Footer ── */}
+      <footer className="border-t border-border py-10">
+        <Container size="lg">
+          <Text as="span" variant="small" className="font-mono">
+            © 2026 Taehwan Jeong · built with{" "}
+            <span className="text-brand">useTaehwan()/ui</span>
+          </Text>
+        </Container>
+      </footer>
     </main>
   );
 }
