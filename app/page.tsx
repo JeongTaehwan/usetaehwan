@@ -25,7 +25,7 @@ function Section({
     <Reveal as="section">
       <section id={id} className="scroll-mt-20 border-t border-border py-16 sm:py-24">
         <Container size="lg">
-          <div className="grid gap-8 md:grid-cols-[7rem_1fr] md:gap-12">
+          <div className="grid gap-8 md:grid-cols-[7rem_minmax(0,1fr)_7rem] md:gap-8">
             <div className="md:pt-2">
               <Text as="div" variant="muted" className="font-mono text-brand">
                 .{label}
@@ -35,6 +35,8 @@ function Section({
               </Text>
             </div>
             <div>{children}</div>
+            {/* 오른쪽 대칭 거터: 왼쪽 라벨 폭만큼 비워 본문을 페이지 중앙에 정렬 */}
+            <div aria-hidden className="hidden md:block" />
           </div>
         </Container>
       </section>
@@ -136,14 +138,18 @@ export default function Home() {
           Projects
         </Heading>
         <div className="divide-y divide-border border-y border-border">
-          {PROJECTS.map((p) => {
-            const row = (
+          {PROJECTS.filter((p) => !p.placeholder).map((p) => (
+            <Link
+              key={p.slug}
+              href={`/projects/${p.slug}`}
+              className="group block transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+            >
               <div className="grid gap-2 px-2 py-6 sm:grid-cols-[minmax(0,13rem)_1fr] sm:gap-8">
                 <div className="flex items-baseline gap-3">
                   <Heading
                     level={4}
                     as="h3"
-                    className={p.placeholder ? undefined : "transition-colors group-hover:text-brand"}
+                    className="transition-colors group-hover:text-brand"
                   >
                     {p.name}
                   </Heading>
@@ -154,40 +160,32 @@ export default function Home() {
                 <div>
                   <div className="flex items-start justify-between gap-4">
                     <Text variant="body">{p.summary}</Text>
-                    {!p.placeholder && (
-                      <span
-                        aria-hidden
-                        className="mt-0.5 shrink-0 font-mono text-brand transition-transform group-hover:translate-x-1"
-                      >
-                        →
-                      </span>
-                    )}
+                    <span
+                      aria-hidden
+                      className="mt-0.5 shrink-0 font-mono text-brand transition-transform group-hover:translate-x-1"
+                    >
+                      →
+                    </span>
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {p.tags.map((t) => (
-                      <Badge key={t} variant={p.placeholder ? "neutral" : "brand"}>
+                      <Badge key={t} variant="brand">
                         {t}
                       </Badge>
                     ))}
                   </div>
                 </div>
               </div>
-            );
+            </Link>
+          ))}
+        </div>
 
-            return p.placeholder ? (
-              <div key={p.slug} className="opacity-60">
-                {row}
-              </div>
-            ) : (
-              <Link
-                key={p.slug}
-                href={`/projects/${p.slug}`}
-                className="group block transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
-              >
-                {row}
-              </Link>
-            );
-          })}
+        {/* 준비 중인 프로젝트는 여러 placeholder 대신 절제된 안내 한 줄로 */}
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <Badge variant="neutral">곧 공개</Badge>
+          <Text as="span" variant="muted">
+            시스템을 소비하는 새 프로젝트를 준비하고 있습니다.
+          </Text>
         </div>
       </Section>
 

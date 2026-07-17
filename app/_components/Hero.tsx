@@ -17,13 +17,13 @@ const item: Variants = {
 
 export function Hero() {
   return (
-    <section id="top" className="py-20 sm:py-28">
+    <section id="top" className="py-28 sm:py-40 lg:py-48">
       <Container size="lg">
         <motion.div
           variants={container}
           initial="hidden"
           animate="show"
-          className="max-w-3xl"
+          className="max-w-4xl"
         >
           <motion.div variants={item}>
             <Text as="span" variant="muted" className="font-mono">
@@ -31,7 +31,7 @@ export function Hero() {
             </Text>
           </motion.div>
 
-          <Heading level={1} className="mt-5 text-4xl sm:text-5xl">
+          <Heading level={1} className="mt-6 text-5xl sm:text-6xl md:text-7xl">
             <motion.span variants={item} className="block">
               A frontend engineer,
             </motion.span>
@@ -42,14 +42,14 @@ export function Hero() {
           </Heading>
 
           <motion.div variants={item}>
-            <Text variant="lead" className="mt-6 max-w-xl">
+            <Text variant="lead" className="mt-7 max-w-2xl">
               구조를 설계하고, 문서로 남기는 프론트엔드 개발자 정태환입니다.
               <br />
               컴포넌트 하나부터 시스템 전체까지 읽을 수 있게 만듭니다.
             </Text>
           </motion.div>
 
-          <motion.div variants={item} className="mt-8 flex flex-wrap gap-3">
+          <motion.div variants={item} className="mt-10 flex flex-wrap gap-3">
             <a href="#projects">
               <Button variant="primary" size="lg">
                 View work
