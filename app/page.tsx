@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Badge, Button, Card, Container, Heading, Text } from "@/design-system";
+import { Badge, Button, Container, Heading, Text } from "@/design-system";
 import { Nav } from "./_components/Nav";
 import { Hero } from "./_components/Hero";
 import { Reveal } from "./_components/Reveal";
@@ -117,35 +117,36 @@ export default function Home() {
 
       {/* ── § 02 Experience ── */}
       <Section id="experience" label="experience" index="02">
-        <div className="mb-8">
-          <Text as="div" variant="muted" className="text-brand">
-            Sellmate · Global Team
-          </Text>
-          <Text as="div" variant="small" className="mt-1 font-mono">
-            StoreX Admin, STO · 2022.11 – 재직 중
-          </Text>
-        </div>
-        <ol className="flex flex-col gap-6">
+        <Text variant="muted" className="mb-8">
+          (주)셀메이트 · 2022.11 – 재직 중
+        </Text>
+        <ol className="flex flex-col gap-10 border-l border-border pl-6">
           {EXPERIENCE.map((e, i) => (
-            <li key={i}>
-              <Card className={e.featured ? "border-brand" : undefined}>
-                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                  <Heading level={4} as="h3">
-                    {e.title}
-                  </Heading>
-                  {e.featured && <Badge variant="brand">대표 프로젝트</Badge>}
-                </div>
-                <Text variant="body" className="mt-3">
-                  {e.summary}
-                </Text>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {e.tags.map((t) => (
-                    <Badge key={t} variant={e.featured ? "brand" : "neutral"}>
-                      {t}
-                    </Badge>
-                  ))}
-                </div>
-              </Card>
+            <li key={i} className="relative">
+              <span
+                className="absolute -left-[1.65rem] top-1.5 h-2.5 w-2.5 rounded-full bg-brand"
+                aria-hidden
+              />
+              <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                <Heading level={4} as="h3">
+                  {e.title}
+                </Heading>
+                {e.featured && (
+                  <Text as="span" variant="small" className="font-mono text-brand">
+                    대표 프로젝트
+                  </Text>
+                )}
+              </div>
+              <Text variant="body" className="mt-3">
+                {e.summary}
+              </Text>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {e.tags.map((t) => (
+                  <Badge key={t} variant={e.featured ? "brand" : "neutral"}>
+                    {t}
+                  </Badge>
+                ))}
+              </div>
             </li>
           ))}
         </ol>
