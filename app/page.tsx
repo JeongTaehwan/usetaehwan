@@ -167,13 +167,6 @@ export default function Home() {
                       →
                     </span>
                   </div>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {p.tags.map((t) => (
-                      <Badge key={t} variant="brand">
-                        {t}
-                      </Badge>
-                    ))}
-                  </div>
                 </div>
               </div>
             </Link>
