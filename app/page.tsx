@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Badge, Button, Container, Heading, Text } from "@/design-system";
+import { Badge, Button, Card, Container, Heading, Text } from "@/design-system";
 import { Nav } from "./_components/Nav";
 import { Hero } from "./_components/Hero";
 import { Reveal } from "./_components/Reveal";
@@ -46,15 +46,33 @@ function Section({
 
 const EXPERIENCE = [
   {
-    role: "StoreX Admin — 멀티테넌트 쇼핑몰 어드민",
-    org: "Sellmate · Global Team",
-    period: "재직 중",
-    desc: "기존 프로젝트를 인계받아 상품·브랜드·쿠폰·포인트·주문·리뷰 등 20개 이상의 관리 페이지를 단독으로 유지보수·신규 개발했습니다. 후임 합류 이후에는 온보딩과 코드 리뷰를 맡아 협업 체계로 전환했고, 테넌트별 마켓·다국어 구조를 대응해 2개 고객사 · 5개 마켓(일본·미국·한국·대만) · 72개 브랜드가 운영되는 플랫폼을 담당하고 있습니다.",
-    tags: ["React", "TypeScript", "디자인 시스템", "i18n"],
+    title: "StoreX Admin — 멀티테넌트 쇼핑몰 어드민 프론트엔드",
+    summary:
+      "기존 프로젝트를 인계받아 상품·브랜드·쿠폰·포인트·주문·리뷰 등 20개 이상의 관리 페이지를 단독으로 유지보수·신규 개발했습니다. 이후 후임 합류에 맞춰 온보딩과 코드 리뷰를 맡아 협업 체계로 전환했고, 테넌트별 마켓·다국어 구조를 대응해 현재 2개 고객사 · 5개 마켓(일본·미국·한국·대만) · 72개 브랜드가 운영되는 플랫폼을 담당하고 있습니다.",
+    tags: ["React", "TypeScript", "멀티테넌트", "i18n"],
+    featured: false,
   },
-  { role: "대규모 화면 리팩토링", org: "Sellmate", period: "준비 중", placeholder: true },
-  { role: "결제 중개 연동", org: "Sellmate", period: "준비 중", placeholder: true },
-  { role: "React 웹앱 신규 구축", org: "Sellmate", period: "준비 중", placeholder: true },
+  {
+    title: "어드민 대시보드 리팩토링 — Clean Architecture + AI 워크플로우",
+    summary:
+      "Vue 3 커머스 관리자 대시보드(페이지 145개 · 컴포넌트 187개)의 God Component 문제를 Entity → UseCase → Store → Page 4계층으로 재구조화했습니다. UI·상태·로직·API가 뒤섞인 1,000줄 이상의 페이지를 계층으로 분리하고, API를 Repository 패턴으로 통일해 테넌트 경로를 캡슐화했으며, 반복되는 관심사를 20여 개 composable로 추출했습니다. 4계층 규칙과 코딩 컨벤션을 CLAUDE.md·커스텀 스킬로 코드화해 AI가 규칙을 벗어나지 못하게 통제하고, 리팩토링 → 테스트 → 리뷰를 한 사이클로 설계했습니다. God Component를 평균 65% 축소(OrderManagement.vue 1,375 → 325줄, 76%↓)하고 단위·E2E 테스트를 도입했습니다.",
+    tags: ["Vue 3", "Clean Architecture", "Repository 패턴", "AI 워크플로우"],
+    featured: true,
+  },
+  {
+    title: "결제 중개 시스템 — 5개 결제사 통합",
+    summary:
+      "앱·웹앱과 여러 결제사(PG) 사이에서, 결제사별로 제각각인 연동·인증·리턴 방식을 하나의 표준 흐름으로 통합하는 중개 페이지를 설계·구현했습니다(Toss·Inicis·Eximbay·LINE Pay·PayPal, 10여 개 결제수단, 5개국 운영). 토큰 기반으로 국가별 PG 인증정보·결제수단을 동적으로 조립하고, 결제 콜백을 웹앱 팝업(postMessage)·네이티브 WebView 브리지·일반 웹 리다이렉트 3개 환경으로 분기 처리해, 결제사 추가·변경 시 앱 재배포 없이 서버 배포만으로 확장할 수 있게 설계했습니다. 405 에러(메서드 불일치)는 POST·GET 핸들러 이중 등록으로 해결하고, 크로스오리진 등 결제 특유의 예외는 3중 폴백으로 안정화했습니다.",
+    tags: ["PG 통합", "postMessage", "WebView 브리지", "폴백 설계"],
+    featured: false,
+  },
+  {
+    title: "STO 웹앱 — Flutter → React 마이그레이션 (단독)",
+    summary:
+      "일본 패션 이커머스 앱(STO)의 웹 버전 전체를 Flutter에서 React로 마이그레이션했습니다. 모바일 앱만 있던 서비스에 PC 웹의 필요성과 웹 환경의 속도 이점을 고려해 전환을 주도했고, 상품 탐색부터 결제·주문관리·마이페이지까지 커머스 전 여정을 단독으로 기획·설계·구현했습니다. 화면(WebApp-front)과 비즈니스 로직(@storex/web-core)을 2계층으로 분리하는 아키텍처를 직접 설계하고, 로직 코어는 독립 npm 패키지(사내 레지스트리, 시맨틱 버저닝)로 배포했습니다. 페이지 약 70개 · 약 89,000 LOC, 커스텀 훅 120여 개, E2E 39 spec + 단위 테스트 168개 규모이며, 결제 금액 계산(세율·면세 판정)을 원 단위까지 정합하게 재현했습니다. 화면 마이그레이션은 Claude Code로 초안을 생성한 뒤 민감한 로직은 백엔드 코드와 대조·검증하는 워크플로우로 진행했고, 전 여정 구현 완료 후 신규 기능을 지속 확장하고 있습니다.",
+    tags: ["React", "Flutter → React", "npm 패키지", "E2E"],
+    featured: true,
+  },
 ];
 
 /* 디자인 시스템 섹션의 정적 토큰 스와치 (라이트/다크 자동 전환) */
@@ -99,52 +117,35 @@ export default function Home() {
 
       {/* ── § 02 Experience ── */}
       <Section id="experience" label="experience" index="02">
-        <Text variant="muted" className="mb-8">
-          Sellmate — 2022.11 ~ ing
-        </Text>
-        <ol className="flex flex-col gap-10 border-l border-border pl-6">
+        <div className="mb-8">
+          <Text as="div" variant="muted" className="text-brand">
+            Sellmate · Global Team
+          </Text>
+          <Text as="div" variant="small" className="mt-1 font-mono">
+            StoreX Admin, STO · 2022.11 – 재직 중
+          </Text>
+        </div>
+        <ol className="flex flex-col gap-6">
           {EXPERIENCE.map((e, i) => (
-            <li key={i} className="relative">
-              <span
-                className={`absolute -left-[1.65rem] top-1.5 h-2.5 w-2.5 rounded-full ${
-                  e.placeholder ? "bg-border" : "bg-brand"
-                }`}
-                aria-hidden
-              />
-              <div className={e.placeholder ? "opacity-60" : undefined}>
+            <li key={i}>
+              <Card className={e.featured ? "border-brand" : undefined}>
                 <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
                   <Heading level={4} as="h3">
-                    {e.role}
+                    {e.title}
                   </Heading>
-                  <Text as="span" variant="small" className="font-mono">
-                    {e.period}
-                  </Text>
+                  {e.featured && <Badge variant="brand">대표 프로젝트</Badge>}
                 </div>
-                <Text as="div" variant="muted" className="mt-1 text-brand">
-                  {e.org}
+                <Text variant="body" className="mt-3">
+                  {e.summary}
                 </Text>
-                {e.desc ? (
-                  <Text variant="body" className="mt-3">
-                    {e.desc}
-                  </Text>
-                ) : (
-                  <div className="mt-3 flex items-center gap-2">
-                    <Badge variant="neutral">준비 중</Badge>
-                    <Text as="span" variant="small">
-                      정리해서 곧 채워집니다.
-                    </Text>
-                  </div>
-                )}
-                {e.tags && (
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {e.tags.map((t) => (
-                      <Badge key={t} variant="neutral">
-                        {t}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {e.tags.map((t) => (
+                    <Badge key={t} variant={e.featured ? "brand" : "neutral"}>
+                      {t}
+                    </Badge>
+                  ))}
+                </div>
+              </Card>
             </li>
           ))}
         </ol>
