@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Badge, Button, Container, Heading, Text } from "@/design-system";
+import { Badge, Button, Container, Heading, Text } from "@usetaehwan/ui";
 import { Nav } from "./_components/Nav";
 import { Hero } from "./_components/Hero";
 import { Reveal } from "./_components/Reveal";
@@ -82,6 +82,7 @@ const SWATCHES = [
 ];
 
 const REPO_URL = "https://github.com/JeongTaehwan/usetaehwan";
+const PACKAGE_URL = "https://www.npmjs.com/package/@usetaehwan/ui";
 const EMAIL = "kt26625417@gmail.com";
 const MAIL_SUBJECT = "usetaehwan.page 문의";
 const GMAIL_COMPOSE = `https://mail.google.com/mail/?view=cm&fs=1&to=${EMAIL}&su=${encodeURIComponent(
@@ -213,7 +214,7 @@ export default function Home() {
             6 primitives · token-only · light + dark
           </Text>
           <a
-            href={REPO_URL}
+            href={PACKAGE_URL}
             target="_blank"
             rel="noreferrer"
             className="font-mono text-sm text-brand transition-colors hover:text-brand-hover"

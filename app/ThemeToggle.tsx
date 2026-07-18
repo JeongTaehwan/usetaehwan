@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button } from "@/design-system";
+import { Button } from "@usetaehwan/ui";
 
 /**
  * 라이트/다크 토글. html.dark 클래스를 켜고 끄며 localStorage에 선택을 저장한다.

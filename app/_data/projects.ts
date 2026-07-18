@@ -21,7 +21,8 @@ export type Project = {
   };
 };
 
-const REPO_URL = "https://github.com/JeongTaehwan/usetaehwan";
+/** 디자인 시스템(useTaehwan()/ui)의 저장소 — 사이트 저장소와 별개 */
+const DS_REPO_URL = "https://github.com/JeongTaehwan/usetaehwan-ui";
 
 export const PROJECTS: Project[] = [
   {
@@ -56,7 +57,7 @@ export const PROJECTS: Project[] = [
         },
       ],
       stack: ["TypeScript", "Tailwind v4", "React 19", "Next.js 16", "Framer Motion"],
-      links: [{ label: "GitHub", href: REPO_URL }],
+      links: [{ label: "GitHub", href: DS_REPO_URL }],
     },
   },
   {

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Badge, Button, Card, Container, Heading, Text } from "@/design-system";
+import { Badge, Button, Card, Container, Heading, Text } from "@usetaehwan/ui";
 import { Reveal } from "../../_components/Reveal";
 import { ThemeToggle } from "../../ThemeToggle";
 import { PROJECTS, getProject } from "../../_data/projects";
