@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, type Variants } from "framer-motion";
-import { Button, Container, Heading, Text } from "@/design-system";
+import { Button, Container, Heading, Text } from "@usetaehwan/ui";
 
 const container: Variants = {
   hidden: {},

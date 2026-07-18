@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Container, cn } from "@/design-system";
+import { Container, cn } from "@usetaehwan/ui";
 import { ThemeToggle } from "../ThemeToggle";
 
 const LINKS = [

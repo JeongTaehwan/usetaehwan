@@ -9,7 +9,7 @@
 **`usetaehwan.page`** — 프론트엔드 개발자 정태환의 개인 포트폴리오 사이트.
 
 - **브랜딩:** `useTaehwan()` — React 훅 컨셉의 언어유희
-- **스택:** Next.js 16 (App Router, Turbopack) + TypeScript + Tailwind v4 + Vercel
+- **스택:** Next.js 16 (App Router, Turbopack) + TypeScript + Tailwind v4 + `@usetaehwan/ui`(자체 디자인 시스템 패키지) + Vercel
 - **도메인:** `usetaehwan.page` (구매·연결 완료, push 시 자동 배포)
 - **레포:** `JeongTaehwan/usetaehwan` (현재 private, 완성 후 public 전환 예정)
 
@@ -45,19 +45,23 @@
 
 ---
 
-## 절대 규칙 (추출 가능성 유지)
+## 디자인 시스템: 별도 패키지로 분리 완료
 
-`design-system/` 폴더는 나중에 통째로 들어내 별도 패키지가 된다. 그래서:
+`design-system/` 폴더는 **추출이 끝났다.** 이제 npm 패키지 `@usetaehwan/ui`로 배포되어 있고, 이 저장소는 그것을 **설치해서 소비**한다. (같은 패키지를 Orbit 등 다른 프로젝트에서도 사용 — 단일 소스 유지가 목적.)
 
-1. **`design-system/`은 사이트 코드를 절대 import 하지 않는다.**
-   의존은 단방향. 사이트 → 시스템은 OK. 시스템 → 사이트는 금지.
+- **디자인 시스템 수정은 이 저장소에서 하지 않는다.** 컴포넌트·토큰을 고치려면 별도 저장소 [`usetaehwan-ui`](https://github.com/JeongTaehwan/usetaehwan-ui)에서 작업하고, 버전을 올려 배포한 뒤 여기서 `npm update @usetaehwan/ui` 한다.
+- 아래 3규칙은 그 `usetaehwan-ui` 저장소로 **이관**됐다 (이 저장소가 아니라 패키지가 지키는 규칙):
+  1. 시스템은 소비처(사이트) 코드를 import 하지 않는다 — 단방향 의존.
+  2. 색·간격 하드코딩 금지 — 토큰(Tailwind 유틸리티)만 참조.
+  3. `next/*` 의존 금지 — 순수 React (다른 환경에서도 쓰기 위해).
 
-2. **색·간격 하드코딩 금지.**
-   반드시 토큰(Tailwind 유틸리티)만 참조. `bg-[#A55E45]` 같은 임의값 금지.
+### 이 저장소(소비처)에서 지킬 것
 
-3. **`next/*` 의존 금지.**
-   `next/link`, `next/image` 등을 시스템 컴포넌트 안에서 쓰지 않는다. 순수 React만.
-   (나중에 Vite 등 다른 환경에서도 써야 하므로)
+- 컴포넌트·토큰은 `@usetaehwan/ui`에서 import한다. 로컬 `@/design-system` 경로는 더 이상 없다.
+- **Tailwind v4 `@source` 필수.** v4는 node_modules를 스캔하지 않으므로, `app/globals.css`에
+  `@source "../node_modules/@usetaehwan/ui/dist";` 가 있어야 패키지 컴포넌트의 유틸리티가 생성된다.
+  이 설정이 빠지면 컴포넌트가 **무스타일로 렌더**된다. (겪을 수 있는 함정)
+- 토큰은 `@import "@usetaehwan/ui/tokens.css";` 로 불러온다.
 
 ---
 
@@ -66,17 +70,14 @@
 ```
 usetaehwan/
 ├── app/                      # 사이트 (Next.js)
-│   ├── globals.css           # @import tailwindcss + tokens.css
+│   ├── globals.css           # @import tailwindcss + @usetaehwan/ui/tokens.css + @source(패키지 dist)
 │   ├── layout.tsx            # 폰트 로드 (Hanken/Instrument/JetBrains + Pretendard)
 │   └── page.tsx
-├── design-system/            # ← 추출 대상 영역
-│   ├── tokens/
-│   │   └── tokens.css        # @theme 토큰 정의
-│   ├── components/           # Button, Input, Card, Badge, Typography, Container
-│   └── index.ts              # 배럴 익스포트
-├── package.json
+├── package.json              # deps: @usetaehwan/ui (디자인 시스템을 여기서 소비)
 └── tsconfig.json             # paths: { "@/*": ["./*"] }
 ```
+
+> 디자인 시스템 소스는 이 저장소에 없다. 별도 저장소 `usetaehwan-ui` → npm `@usetaehwan/ui` 로 관리한다.
 
 ---
 
@@ -89,7 +90,7 @@ usetaehwan/
 - 딱딱한 개발자 사이트가 아닌, 따뜻하고 편안한 프로덕트 톤
 - 세리프 헤딩(Instrument Serif)으로 에디토리얼한 인상
 
-### 토큰 (design-system/tokens/tokens.css)
+### 토큰 (`@usetaehwan/ui/tokens.css` — 패키지에서 제공)
 
 - **베이스:** 크림/베이지 계열 (`--color-bg: #FDFBF7`)
 - **브랜드:** 흐린 벽돌색 (`--color-brand: #A55E45`)
@@ -131,7 +132,7 @@ usetaehwan/
 
 - 도메인 구매 + Vercel 연결 (`git push` → 자동 배포)
 - 깃허브 정리 (public: `TIL`, `JeongTaehwan` 프로필 레포만)
-- `design-system/` 폴더 구조 + 3규칙 확립
+- `design-system/` 폴더 구조 + 3규칙 확립 → **`@usetaehwan/ui@0.1.0`으로 추출·npm 배포 완료** (이 저장소는 패키지를 소비)
 - 토큰 시스템 구축 (컬러/타이포/스페이싱/라운드/섀도우)
 - 폰트 연결 (한글 Pretendard fallback 포함)
 - 블로그 1편 원고 작성

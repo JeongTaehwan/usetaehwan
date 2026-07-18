@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type CSSProperties } from "react";
-import { Badge, Button, Card, Heading, Input, Text, cn } from "@/design-system";
+import { Badge, Button, Card, Heading, Input, Text, cn } from "@usetaehwan/ui";
 
 /* ── 브랜드 프리셋 (저채도 웜 뉴트럴 계열) ── */
 const BRAND_PRESETS = [
