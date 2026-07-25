@@ -178,7 +178,7 @@ export default function Home() {
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <Badge variant="neutral">곧 공개</Badge>
           <Text as="span" variant="muted">
-            시스템을 소비하는 새 프로젝트를 준비하고 있습니다.
+            다음 프로젝트를 준비하고 있습니다.
           </Text>
         </div>
       </Section>

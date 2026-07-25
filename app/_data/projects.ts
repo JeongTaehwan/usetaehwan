@@ -24,6 +24,10 @@ export type Project = {
 /** 디자인 시스템(useTaehwan()/ui)의 저장소 — 사이트 저장소와 별개 */
 const DS_REPO_URL = "https://github.com/JeongTaehwan/usetaehwan-ui";
 
+/** Orbit — 디자인 시스템을 소비하는 첫 풀스택 프로젝트 */
+const ORBIT_LIVE_URL = "https://orbit-ten-inky.vercel.app";
+const ORBIT_REPO_URL = "https://github.com/JeongTaehwan/Orbit";
+
 export const PROJECTS: Project[] = [
   {
     slug: "usetaehwan-ui",
@@ -61,20 +65,54 @@ export const PROJECTS: Project[] = [
     },
   },
   {
-    slug: "project-2",
-    name: "Project 준비 중",
-    year: "—",
-    summary: "시스템을 소비하는 첫 프로젝트를 준비하고 있습니다.",
-    tags: ["TBD"],
-    placeholder: true,
-  },
-  {
-    slug: "project-3",
-    name: "Project 준비 중",
-    year: "—",
-    summary: "두 번째 소비 프로젝트 자리입니다.",
-    tags: ["TBD"],
-    placeholder: true,
+    slug: "orbit",
+    name: "Orbit",
+    year: "2026",
+    summary:
+      "공부하면 내 우주가 자라나는 학습 동기부여 웹앱. 기록을 남길수록 행성이 테라포밍됩니다.",
+    tags: ["Next.js", "FastAPI", "Three.js"],
+    detail: {
+      tagline: "공부한 만큼 행성이 자라는, 학습 동기부여 웹앱",
+      role: "기획 · 풀스택 개발 (개인)",
+      period: "2026 —",
+      overview:
+        "학습 주제를 하나의 행성으로 만들고, 공부 기록을 남길수록 그 행성이 조금씩 테라포밍되는 웹앱입니다. 프론트엔드 개발자로서 화면만이 아니라 백엔드·DB·인프라·배포까지 직접 구성하며 웹 서비스의 전체 구조를 손으로 이해하는 것을 목표로 만들었습니다. 이 사이트를 구동하는 디자인 시스템 @usetaehwan/ui를 우주 테마로 재사용해, 하나의 시스템이 서로 다른 결의 프로덕트를 어떻게 지탱하는지도 함께 검증했습니다.",
+      highlights: [
+        {
+          title: "우주 테마로 재사용한 디자인 시스템",
+          body: "이 사이트와 같은 @usetaehwan/ui 패키지를 설치해, 토큰만 우주 테마로 덮어 재사용했습니다. 같은 프리미티브가 전혀 다른 무드의 프로덕트를 지탱하며 시스템의 이식성을 검증했습니다.",
+        },
+        {
+          title: "3D 행성 테라포밍",
+          body: "React Three Fiber로 행성을 실시간 렌더링하고, 학습 진행도에 따라 표면이 단계적으로 테라포밍되도록 구현했습니다. 기록이라는 추상적 행위에 눈에 보이는 성장의 피드백을 붙였습니다.",
+        },
+        {
+          title: "계층형 백엔드 + 테스트",
+          body: "FastAPI 백엔드를 api → services → models 계층으로 분리해 관심사를 나누고, PostgreSQL과 연결했습니다. 핵심 로직에 테스트를 붙여 프론트 밖의 안정성도 직접 책임졌습니다.",
+        },
+        {
+          title: "인증 · 배포",
+          body: "구글 OAuth와 크로스 도메인 쿠키 인증을 구성하고, 로컬 DB로 시작한 데이터를 클라우드(Neon)로 이전했습니다. Vercel·Railway·Cloudinary로 프론트·백엔드·에셋을 나눠 배포하며 풀스택 파이프라인을 완성했습니다.",
+        },
+      ],
+      stack: [
+        "Next.js",
+        "React",
+        "TypeScript",
+        "Three.js (R3F)",
+        "FastAPI",
+        "PostgreSQL",
+        "Google OAuth",
+        "Vercel",
+        "Railway",
+        "Neon",
+        "Cloudinary",
+      ],
+      links: [
+        { label: "Live", href: ORBIT_LIVE_URL },
+        { label: "GitHub", href: ORBIT_REPO_URL },
+      ],
+    },
   },
 ];
 
