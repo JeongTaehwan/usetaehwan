@@ -136,7 +136,12 @@ export default async function ProjectDetail({
             {detail.links && detail.links.length > 0 && (
               <div className="mt-10 flex flex-wrap gap-3">
                 {detail.links.map((l) => (
-                  <a key={l.href} href={l.href} target="_blank" rel="noreferrer">
+                  <a
+                    key={l.href}
+                    href={l.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <Button variant="secondary" size="sm">
                       {l.label} ↗
                     </Button>
