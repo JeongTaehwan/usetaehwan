@@ -69,6 +69,28 @@ const EXPERIENCE = [
   },
 ];
 
+/* 학력 — 최신순(대학 먼저). Experience처럼 좌측 타임라인으로. */
+const EDUCATION = [
+  {
+    school: "배화여자대학교",
+    period: "2024.02 – 2026.02",
+    program: "고숙련 일학습병행 P-TECH · 모바일소프트웨어과",
+    credential: "전문학사 취득",
+  },
+  {
+    school: "광주소프트웨어마이스터고등학교",
+    period: "2020.03 – 2023.01",
+    program: "졸업",
+    credential: null,
+  },
+];
+
+/* 자격증 — 최신순. code는 종목 코드(개인 자격번호 아님). */
+const CERTIFICATIONS = [
+  { name: "일학습병행자격 SW개발 L5", code: "SW개발_L5_20V1", date: "2025.12" },
+  { name: "프로그래밍기능사", code: null, date: "2021.10" },
+];
+
 /* 디자인 시스템 섹션의 정적 토큰 스와치 (라이트/다크 자동 전환) */
 const SWATCHES = [
   { token: "bg", className: "bg-bg border border-border" },
@@ -133,8 +155,69 @@ export default function Home() {
         </ol>
       </Section>
 
-      {/* ── § 03 Projects ── */}
-      <Section id="projects" label="projects" index="03">
+      {/* ── § 03 Background (학력 · 자격증) ── */}
+      <Section id="background" label="background" index="03">
+        {/* 학력 — 경력과 같은 타임라인 언어로 (연대순 콘텐츠라 결이 맞는다) */}
+        <Heading level={3} as="h2">
+          Education
+        </Heading>
+        <ol className="mt-6 flex flex-col gap-8 border-l border-border pl-6">
+          {EDUCATION.map((e) => (
+            <li key={e.school} className="relative">
+              <span
+                className="absolute -left-[1.65rem] top-1.5 h-2.5 w-2.5 rounded-full bg-brand"
+                aria-hidden
+              />
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <Heading level={4} as="h3">
+                  {e.school}
+                </Heading>
+                <Text as="span" variant="small" className="font-mono">
+                  {e.period}
+                </Text>
+              </div>
+              <Text variant="body" className="mt-2">
+                {e.program}
+              </Text>
+              {e.credential && (
+                <Text variant="muted" className="mt-1">
+                  {e.credential}
+                </Text>
+              )}
+            </li>
+          ))}
+        </ol>
+
+        {/* 자격증 — 항목이 짧아 절제된 분리 리스트로 (이름 좌 / 취득 시기 우) */}
+        <Heading level={3} as="h2" className="mt-14">
+          Certifications
+        </Heading>
+        <ul className="mt-6 divide-y divide-border border-y border-border">
+          {CERTIFICATIONS.map((c) => (
+            <li
+              key={c.name}
+              className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-4"
+            >
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <Heading level={4} as="h3">
+                  {c.name}
+                </Heading>
+                {c.code && (
+                  <Text as="span" variant="muted" className="font-mono">
+                    {c.code}
+                  </Text>
+                )}
+              </div>
+              <Text as="span" variant="small" className="font-mono">
+                {c.date}
+              </Text>
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      {/* ── § 04 Projects ── */}
+      <Section id="projects" label="projects" index="04">
         <Heading level={2} className="mb-8">
           Projects
         </Heading>
@@ -183,8 +266,8 @@ export default function Home() {
         </div>
       </Section>
 
-      {/* ── § 04 Design System (기술적 하이라이트) ── */}
-      <Section id="system" label="designSystem" index="04">
+      {/* ── § 05 Design System (기술적 하이라이트) ── */}
+      <Section id="system" label="designSystem" index="05">
         <Heading level={2}>이 사이트를 만든 디자인 시스템</Heading>
         <Text variant="body" className="mt-5">
           <span className="font-mono text-fg">useTaehwan()/ui</span> — 저채도 웜 뉴트럴
@@ -224,8 +307,8 @@ export default function Home() {
         </div>
       </Section>
 
-      {/* ── § 05 Contact ── */}
-      <Section id="contact" label="contact" index="05">
+      {/* ── § 06 Contact ── */}
+      <Section id="contact" label="contact" index="06">
         <Heading level={2}>함께 만들 게 있다면</Heading>
         <Text variant="body" className="mt-5">
           제안, 협업, 혹은 그냥 인사도 좋아요. 편하게 메일 주시면 빠르게 회신드리겠습니다.

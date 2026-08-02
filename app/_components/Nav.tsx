@@ -8,10 +8,49 @@ import { ThemeToggle } from "../ThemeToggle";
 const LINKS = [
   { id: "about", label: "About" },
   { id: "experience", label: "Experience" },
+  { id: "background", label: "Background" },
   { id: "projects", label: "Projects" },
   { id: "system", label: "Design System" },
   { id: "contact", label: "Contact" },
 ];
+
+const BLOG_URL = "https://taepuwan.tistory.com/";
+
+/**
+ * 티스토리 블로그로 나가는 외부 링크. 섹션 앵커가 아니므로 LINKS(스크롤 스파이)와
+ * 분리해 헤더 우측 유틸리티 영역에 둔다. 좁은 화면에서는 텍스트를 접고 아이콘만 남긴다.
+ */
+function BlogLink({ className }: { className?: string }) {
+  return (
+    <a
+      href={BLOG_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="블로그 (새 탭에서 열림)"
+      className={cn(
+        "inline-flex h-9 items-center gap-1.5 rounded-full px-3 font-mono text-sm text-fg-body transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",
+        className
+      )}
+    >
+      {/* 펜(글쓰기) 아이콘 — 옆 햄버거(≡)와 헷갈리지 않게 라인 아이콘 대신 사용 */}
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden
+      >
+        <path d="M12 20h9" />
+        <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+      </svg>
+      <span className="hidden sm:inline">Blog</span>
+    </a>
+  );
+}
 
 function Wordmark() {
   return (
@@ -101,7 +140,8 @@ export function Nav() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
+            <BlogLink />
             <ThemeToggle />
             {/* 모바일 메뉴 토글 */}
             <button
