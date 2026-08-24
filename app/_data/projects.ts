@@ -55,7 +55,7 @@ export const PROJECTS: Project[] = [
         },
         {
           title: "10개 컴포넌트",
-          body: "Button · Input · Card · Badge · Typography · Container 등 10개. native 속성 상속 + cn(clsx+tailwind-merge)으로 외부 className 병합, focus-visible·aria-invalid 접근성 대응.",
+          body: "Button · Input · Card · Badge · Typography · Container · Modal · ProgressBar · OrbitLoader · EmptyState. native 속성 상속 + cn(clsx+tailwind-merge)으로 외부 className 병합, focus-visible·aria-invalid 접근성 대응.",
         },
         {
           title: "인터랙티브 토큰 데모",
