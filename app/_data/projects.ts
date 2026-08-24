@@ -23,6 +23,8 @@ export type Project = {
 
 /** 디자인 시스템(useTaehwan()/ui)의 저장소 — 사이트 저장소와 별개 */
 const DS_REPO_URL = "https://github.com/JeongTaehwan/usetaehwan-ui";
+const DS_LIVE_URL = "https://ui.usetaehwan.page";
+const DS_NPM_URL = "https://www.npmjs.com/package/@usetaehwan/ui";
 
 /** Orbit — 디자인 시스템을 소비하는 첫 풀스택 프로젝트 */
 const ORBIT_LIVE_URL = "https://orbit-ten-inky.vercel.app";
@@ -34,7 +36,7 @@ export const PROJECTS: Project[] = [
     name: "useTaehwan()/ui",
     year: "2026",
     summary:
-      "이 사이트를 구동하는 저채도 웜 뉴트럴 디자인 시스템. 토큰 레이어와 6개의 타입 지정 React 프리미티브로 구성됩니다.",
+      "이 사이트를 구동하는 토큰 기반 React 디자인 시스템. 10개의 컴포넌트로 구성되고, 토큰만 덮어쓰면 프로젝트마다 다른 테마를 입힐 수 있습니다.",
     tags: ["TypeScript", "Tailwind v4", "React"],
     detail: {
       tagline: "읽고 있는 이 문서, 그 문서가 만든 화면",
@@ -48,12 +50,12 @@ export const PROJECTS: Project[] = [
           body: "컬러·타이포·스페이싱·라운드·섀도우를 Tailwind v4 @theme 토큰으로 정의. 컴포넌트는 var(--color-*)만 참조하므로 토큰 하나를 바꾸면 화면 전체가 따라 바뀝니다.",
         },
         {
-          title: "color-mix 기반 다크모드",
-          body: ".dark에서 토큰 값만 덮어쓰는 방식. on-brand 글자색은 배경 밝기로 자동 계산해 라이트/다크 각각 WCAG 대비를 유지합니다.",
+          title: "프로젝트별 테마",
+          body: "컴포넌트가 토큰만 참조하므로, 소비 프로젝트에서 토큰을 덮어쓰는 것만으로 전혀 다른 무드의 테마가 됩니다. 이 사이트(웜 뉴트럴)와 Orbit(우주 테마)이 실제로 같은 패키지를 씁니다. 다크모드도 같은 원리 — .dark에서 토큰 값만 덮고, on-brand 글자색은 배경 밝기로 자동 계산해 WCAG 대비를 유지합니다.",
         },
         {
-          title: "6개 프리미티브",
-          body: "Button · Input · Card · Badge · Typography · Container. native 속성 상속 + cn(clsx+tailwind-merge)으로 외부 className 병합, focus-visible·aria-invalid 접근성 대응.",
+          title: "10개 컴포넌트",
+          body: "Button · Input · Card · Badge · Typography · Container 등 10개. native 속성 상속 + cn(clsx+tailwind-merge)으로 외부 className 병합, focus-visible·aria-invalid 접근성 대응.",
         },
         {
           title: "인터랙티브 토큰 데모",
@@ -61,7 +63,11 @@ export const PROJECTS: Project[] = [
         },
       ],
       stack: ["TypeScript", "Tailwind v4", "React 19", "Next.js 16", "Framer Motion"],
-      links: [{ label: "GitHub", href: DS_REPO_URL }],
+      links: [
+        { label: "Live", href: DS_LIVE_URL },
+        { label: "npm", href: DS_NPM_URL },
+        { label: "GitHub", href: DS_REPO_URL },
+      ],
     },
   },
   {

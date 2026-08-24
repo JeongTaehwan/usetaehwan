@@ -105,6 +105,7 @@ const SWATCHES = [
 
 const REPO_URL = "https://github.com/JeongTaehwan/usetaehwan";
 const PACKAGE_URL = "https://www.npmjs.com/package/@usetaehwan/ui";
+const DS_DEMO_URL = "https://ui.usetaehwan.page";
 const EMAIL = "kt26625417@gmail.com";
 const MAIL_SUBJECT = "usetaehwan.page 문의";
 const GMAIL_COMPOSE = `https://mail.google.com/mail/?view=cm&fs=1&to=${EMAIL}&su=${encodeURIComponent(
@@ -270,9 +271,10 @@ export default function Home() {
       <Section id="system" label="designSystem" index="05">
         <Heading level={2}>이 사이트를 만든 디자인 시스템</Heading>
         <Text variant="body" className="mt-5">
-          <span className="font-mono text-fg">useTaehwan()/ui</span> — 저채도 웜 뉴트럴
-          토큰과 6개의 React 프리미티브로 구성된 작은 디자인 시스템입니다. 색 하나를
-          바꾸면 사이트 전체가 따라 바뀝니다. 아래에서 직접 만져보세요.
+          <span className="font-mono text-fg">useTaehwan()/ui</span> — 토큰 기반 React
+          디자인 시스템입니다. 지금 보고 있는 이 사이트도 이 시스템의 10개 컴포넌트로
+          만들었고, 토큰만 덮어쓰면 프로젝트마다 전혀 다른 테마를 입힐 수 있습니다. 색
+          하나를 바꾸면 사이트 전체가 따라 바뀝니다. 아래에서 직접 만져보세요.
         </Text>
 
         {/* 토큰 스와치 */}
@@ -294,16 +296,26 @@ export default function Home() {
 
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
           <Text as="span" variant="small" className="font-mono">
-            6 primitives · token-only · light + dark
+            10 components · token-only · theme per project
           </Text>
-          <a
-            href={PACKAGE_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="font-mono text-sm text-brand transition-colors hover:text-brand-hover"
-          >
-            read the docs →
-          </a>
+          <div className="flex flex-wrap items-center gap-4">
+            <a
+              href={DS_DEMO_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="font-mono text-sm text-brand transition-colors hover:text-brand-hover"
+            >
+              live demo →
+            </a>
+            <a
+              href={PACKAGE_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="font-mono text-sm text-brand transition-colors hover:text-brand-hover"
+            >
+              npm →
+            </a>
+          </div>
         </div>
       </Section>
 
