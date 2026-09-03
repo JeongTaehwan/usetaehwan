@@ -30,6 +30,9 @@ const DS_NPM_URL = "https://www.npmjs.com/package/@usetaehwan/ui";
 const ORBIT_LIVE_URL = "https://orbit-ten-inky.vercel.app";
 const ORBIT_REPO_URL = "https://github.com/JeongTaehwan/Orbit";
 
+/** 각(Gak) — 사람·구현 AI·검증 AI 역할을 분리한 파이프라인으로 만든 두 번째 소비 프로젝트 */
+const GAK_REPO_URL = "https://github.com/JeongTaehwan/Gak";
+
 export const PROJECTS: Project[] = [
   {
     slug: "usetaehwan-ui",
@@ -68,6 +71,50 @@ export const PROJECTS: Project[] = [
         { label: "npm", href: DS_NPM_URL },
         { label: "GitHub", href: DS_REPO_URL },
       ],
+    },
+  },
+  {
+    slug: "gak",
+    name: "각(Gak)",
+    year: "2026",
+    summary:
+      "축구 팀의 일정 밀집도로 부진을 진단하고 다음 경기를 예측하는 웹앱. 사람·구현 AI·검증 AI의 역할을 나눈 파이프라인으로 만들었습니다.",
+    tags: ["Spring Boot", "Next.js", "PostgreSQL"],
+    detail: {
+      tagline: "일정을 통합해 부진을 진단하고, 다음 경기를 예측하는 축구 분석 웹앱",
+      role: "기획 · 풀스택 개발 (개인)",
+      period: "2026.07 —",
+      overview:
+        "리그·컵·유럽대항전에 흩어진 팀 일정을 한 축으로 통합해 밀집도·폼 같은 지표를 서버에서 계산하고, LLM은 그 계산 결과를 문장으로 옮기는 역할만 맡는 진단·예측 앱입니다. 사람 판단 / 구현 AI(Claude Code) / 다른 벤더의 검증 AI로 역할을 나눈 10단계 파이프라인으로, 화면 5개 중 3개를 요구사항 정의 → 인수 테스트 109건 → 구현 → 교차 리뷰 순으로 완주했습니다. 이 사이트와 같은 @usetaehwan/ui를 볼트 그린 테마로 재사용합니다.",
+      highlights: [
+        {
+          title: "API 예산 아래 동기화",
+          body: "외부 데이터 API 무료 티어가 하루 100요청이라, 실호출 원본을 캡처한 뒤 기본 모드를 replay로 두었습니다. 캡처 이후 개발 중 실 API 호출은 0회입니다.",
+        },
+        {
+          title: "LLM 환각 세 겹 억제",
+          body: "재료 통제 → 코드 게이트(표본 5건 미만이면 호출하지 않음) → 응답 검증. 스키마의 required가 키 존재만 보장해 빈 문자열로 채운 응답이 '성공'으로 판정되던 결함을 코드 레벨 검증으로 막았습니다.",
+        },
+        {
+          title: "프롬프트 결정론",
+          body: "Map.copyOf가 JVM 기동마다 순회 순서를 바꿔 프롬프트 지문이 흔들리고, 저장된 진단이 조용히 버려지던 문제를 30회 기동에서 7가지 순서로 실측해 확인했습니다. enum 순서 고정과 회귀 테스트로 봉인했습니다.",
+        },
+        {
+          title: "역할 분리 파이프라인",
+          body: "요구사항 승인 전 구현 금지, 기계 검사 통과 전 리뷰 금지 같은 게이트로 절차를 강제했습니다. 백엔드 자동 테스트 289개를 갖췄고, 무료 플랜을 유지하도록 저장된 진단은 API 키 없이도 서빙되게 설계했습니다.",
+        },
+      ],
+      stack: [
+        "Spring Boot 3.5",
+        "Java 21",
+        "Next.js 15",
+        "TypeScript",
+        "Tailwind v4",
+        "PostgreSQL",
+        "Neon",
+        "Anthropic API",
+      ],
+      links: [{ label: "GitHub", href: GAK_REPO_URL }],
     },
   },
   {
