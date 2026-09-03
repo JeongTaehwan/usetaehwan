@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# 이력서 원천 데이터·발표 자료 (내부 URL·티켓 포함, 커밋 금지)
+mrs-filled.json
+my-mrs.json
+storex-titles.txt
+storex-my-titles.txt
+*.pptx
