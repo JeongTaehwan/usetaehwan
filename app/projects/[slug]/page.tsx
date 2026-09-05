@@ -101,10 +101,49 @@ export default async function ProjectDetail({
               <Text variant="body">{detail.overview}</Text>
             </div>
 
-            {/* 하이라이트 */}
+            {/* 작업 사례 — 문제 → 파악 → 해결. 홈 카드와 같은 구조 */}
+            {project.cases && project.cases.length > 0 && (
+              <div className="mt-10">
+                <Heading level={3} className="mb-4">
+                  작업 사례
+                </Heading>
+                <ol className="flex flex-col gap-8">
+                  {project.cases.map((c, i) => (
+                    <li key={c.title} className="border-l-2 border-border pl-5">
+                      <div className="flex items-baseline gap-3">
+                        <Text as="span" variant="small" className="font-mono text-brand">
+                          {String(i + 1).padStart(2, "0")}
+                        </Text>
+                        <Heading level={4} as="h4">
+                          {c.title}
+                        </Heading>
+                      </div>
+                      <dl className="mt-3 grid gap-y-2 sm:grid-cols-[3rem_1fr] sm:gap-x-4">
+                        {[
+                          { k: "문제", v: c.problem },
+                          { k: "파악", v: c.diagnosis },
+                          { k: "해결", v: c.solution },
+                        ].map((row) => (
+                          <div key={row.k} className="contents">
+                            <Text as="dt" variant="small" className="font-mono text-brand sm:pt-0.5">
+                              {row.k}
+                            </Text>
+                            <Text as="dd" variant="body">
+                              {row.v}
+                            </Text>
+                          </div>
+                        ))}
+                      </dl>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
+
+            {/* 핵심 기능 — 사례에 안 들어간 구성 요소를 짧게 */}
             <div className="mt-10">
               <Heading level={3} className="mb-4">
-                Highlights
+                핵심 기능
               </Heading>
               <div className="grid gap-4 sm:grid-cols-2">
                 {detail.highlights.map((h) => (
