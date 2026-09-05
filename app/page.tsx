@@ -317,19 +317,32 @@ export default function Home() {
               {/* 오른쪽: 요약 → 핵심 포인트 → 링크. 상세로 안 들어가도 읽히게 */}
               <div>
                 <Text variant="body">{p.summary}</Text>
-                {p.points && (
-                  <ul className="mt-4 flex flex-col gap-2">
-                    {p.points.map((pt) => (
-                      <li key={pt} className="flex gap-3">
-                        <span aria-hidden className="mt-0.5 shrink-0 font-mono text-brand">
-                          –
-                        </span>
-                        <Text as="span" variant="muted" className="text-fg">
-                          {pt}
+                {p.cases && (
+                  <ol className="mt-6 flex flex-col gap-6">
+                    {p.cases.map((c) => (
+                      <li key={c.title} className="border-l-2 border-border pl-4">
+                        <Text as="div" variant="body" className="font-medium text-fg">
+                          {c.title}
                         </Text>
+                        <dl className="mt-2 grid gap-y-1.5 sm:grid-cols-[3rem_1fr] sm:gap-x-3">
+                          {[
+                            { k: "문제", v: c.problem },
+                            { k: "파악", v: c.diagnosis },
+                            { k: "해결", v: c.solution },
+                          ].map((row) => (
+                            <div key={row.k} className="contents">
+                              <Text as="dt" variant="small" className="font-mono text-brand sm:pt-0.5">
+                                {row.k}
+                              </Text>
+                              <Text as="dd" variant="muted" className="text-fg">
+                                {row.v}
+                              </Text>
+                            </div>
+                          ))}
+                        </dl>
                       </li>
                     ))}
-                  </ul>
+                  </ol>
                 )}
                 <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 font-mono text-sm">
                   {p.detail?.links?.map((l) => (
