@@ -6,6 +6,8 @@ export type Project = {
   year: string;
   /** 카드에 보이는 한 줄 요약 */
   summary: string;
+  /** 카드에 바로 보이는 핵심 포인트 3~4줄 (상세로 안 들어가도 읽히게) */
+  points?: string[];
   tags: string[];
   /** 콘텐츠 미준비 — 카드 자리만 잡고 상세로는 연결하지 않는다 */
   placeholder?: boolean;
@@ -41,6 +43,12 @@ export const PROJECTS: Project[] = [
     summary:
       "이 사이트를 구동하는 토큰 기반 React 디자인 시스템. 10개의 컴포넌트로 구성되고, 토큰만 덮어쓰면 프로젝트마다 다른 테마를 입힐 수 있습니다.",
     tags: ["TypeScript", "Tailwind v4", "React"],
+    points: [
+      "토큰 단일 소스 — 컴포넌트는 var(--color-*)만 참조하므로 토큰 하나를 바꾸면 화면 전체가 따라 바뀝니다",
+      "토큰 오버라이드만으로 이 사이트(웜 뉴트럴)·Orbit(우주)·각(볼트 그린)이 같은 컴포넌트를 다른 무드로 씁니다",
+      "컴포넌트 10개 · npm 배포 · 라이브 데모는 빌드된 dist를 실제 소비자와 같은 방식으로 import",
+      "Tailwind v4가 그림자를 빌드타임에 인라인해 테마를 따라가지 못하는 한계를 발견하고 문서화",
+    ],
     detail: {
       tagline: "읽고 있는 이 문서, 그 문서가 만든 화면",
       role: "설계 · 구현 (개인)",
@@ -80,6 +88,12 @@ export const PROJECTS: Project[] = [
     summary:
       "축구 팀의 일정 밀집도로 부진을 진단하고 다음 경기를 예측하는 웹앱. 사람·구현 AI·검증 AI의 역할을 나눈 파이프라인으로 만들었습니다.",
     tags: ["Spring Boot", "Next.js", "PostgreSQL"],
+    points: [
+      "사람 판단 / 구현 AI / 다른 벤더 검증 AI로 역할을 나눈 10단계 파이프라인 — 화면 3개 완주, 인수 테스트 109건",
+      "하루 100요청 API 예산 → 실호출 원본을 캡처해 replay로 동기화, 개발 중 실 API 호출 0회",
+      "LLM 환각 세 겹 억제 — 빈 문자열로 채운 응답이 '성공'으로 판정되던 결함을 코드 검증으로 차단",
+      "Map.copyOf의 JVM SALT로 흔들리던 프롬프트 지문을 30회 기동·7가지 순서로 실측하고 규칙 + 회귀 테스트로 봉인",
+    ],
     detail: {
       tagline: "일정을 통합해 부진을 진단하고, 다음 경기를 예측하는 축구 분석 웹앱",
       role: "기획 · 풀스택 개발 (개인)",
@@ -124,6 +138,12 @@ export const PROJECTS: Project[] = [
     summary:
       "공부하면 내 우주가 자라나는 학습 동기부여 웹앱. 기록을 남길수록 행성이 테라포밍됩니다.",
     tags: ["Next.js", "FastAPI", "Three.js"],
+    points: [
+      "FastAPI + PostgreSQL 백엔드, Google OAuth, Vercel·Railway·Neon·Cloudinary 분리 배포까지 직접 구성",
+      "프론트·백엔드가 다른 사이트라 iOS Safari에서 세션 쿠키가 차단되던 문제를 Next.js rewrites 프록시로 해결",
+      "진행도·스트릭을 저장하지 않고 기록에서 파생 계산해 삭제 시 불일치 상태를 원천 차단",
+      "React Three Fiber 3D 행성 · pytest 65 · Vitest 102 · Playwright e2e 29를 CI에서 실행",
+    ],
     detail: {
       tagline: "공부한 만큼 행성이 자라는, 학습 동기부여 웹앱",
       role: "기획 · 풀스택 개발 (개인)",

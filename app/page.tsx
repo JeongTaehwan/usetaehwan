@@ -289,37 +289,69 @@ export default function Home() {
         </Heading>
         <div className="divide-y divide-border border-y border-border">
           {PROJECTS.filter((p) => !p.placeholder).map((p) => (
-            <Link
-              key={p.slug}
-              href={`/projects/${p.slug}`}
-              className="group block transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
-            >
-              <div className="grid gap-2 px-2 py-6 sm:grid-cols-[minmax(0,13rem)_1fr] sm:gap-8">
+            <article key={p.slug} className="grid gap-3 px-2 py-8 sm:grid-cols-[minmax(0,13rem)_1fr] sm:gap-8">
+              {/* 왼쪽: 이름·연도·태그. 이름만 상세로 링크 */}
+              <div>
                 <div className="flex items-baseline gap-3">
-                  <Heading
-                    level={4}
-                    as="h3"
-                    className="transition-colors group-hover:text-brand"
+                  <Link
+                    href={`/projects/${p.slug}`}
+                    className="group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
                   >
-                    {p.name}
-                  </Heading>
+                    <Heading level={4} as="h3" className="transition-colors group-hover:text-brand">
+                      {p.name}
+                    </Heading>
+                  </Link>
                   <Text as="span" variant="small" className="font-mono">
                     {p.year}
                   </Text>
                 </div>
-                <div>
-                  <div className="flex items-start justify-between gap-4">
-                    <Text variant="body">{p.summary}</Text>
-                    <span
-                      aria-hidden
-                      className="mt-0.5 shrink-0 font-mono text-brand transition-transform group-hover:translate-x-1"
-                    >
-                      →
-                    </span>
-                  </div>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {p.tags.map((tag) => (
+                    <Badge key={tag} variant="neutral">
+                      {tag}
+                    </Badge>
+                  ))}
                 </div>
               </div>
-            </Link>
+
+              {/* 오른쪽: 요약 → 핵심 포인트 → 링크. 상세로 안 들어가도 읽히게 */}
+              <div>
+                <Text variant="body">{p.summary}</Text>
+                {p.points && (
+                  <ul className="mt-4 flex flex-col gap-2">
+                    {p.points.map((pt) => (
+                      <li key={pt} className="flex gap-3">
+                        <span aria-hidden className="mt-0.5 shrink-0 font-mono text-brand">
+                          –
+                        </span>
+                        <Text as="span" variant="muted" className="text-fg">
+                          {pt}
+                        </Text>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 font-mono text-sm">
+                  {p.detail?.links?.map((l) => (
+                    <a
+                      key={l.href}
+                      href={l.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-brand transition-colors hover:text-brand-hover"
+                    >
+                      {l.label} ↗
+                    </a>
+                  ))}
+                  <Link
+                    href={`/projects/${p.slug}`}
+                    className="text-fg-muted transition-colors hover:text-brand"
+                  >
+                    자세히 보기 →
+                  </Link>
+                </div>
+              </div>
+            </article>
           ))}
         </div>
 
