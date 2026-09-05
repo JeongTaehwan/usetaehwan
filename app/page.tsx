@@ -69,6 +69,24 @@ const EXPERIENCE = [
   },
 ];
 
+/* 사내 발표 — 최신순. 자료 상세는 싣지 않고 주제·대상·시기만. */
+const TALKS = [
+  {
+    title: "Claude Code 기반 E2E 테스트 자동화",
+    venue: "사내 AI 활용 공유 세션 (7회차)",
+    date: "2026.05",
+    summary:
+      "정답을 참조 앱의 파일:라인으로 먼저 고정하는 증거 기반 시나리오 작성법. 77개 페이지 시나리오 약 700건, Cypress 케이스 515건, QA 체크리스트 83항목 기준선을 만든 과정을 공유했습니다.",
+  },
+  {
+    title: "브라우저 렌더링 원리와 SSR·CSR / SPA·MPA",
+    venue: "전사 개발자 컨퍼런스 · 프론트엔드팀 연사",
+    date: null,
+    summary:
+      "다른 직군 개발자가 신규 SPA 프론트 구조를 이해할 수 있도록, 렌더링 과정부터 SSR·CSR과 SPA·MPA의 차이까지 설명했습니다.",
+  },
+];
+
 /* 학력 — 최신순(대학 먼저). Experience처럼 좌측 타임라인으로. */
 const EDUCATION = [
   {
@@ -150,6 +168,37 @@ export default function Home() {
               </Heading>
               <Text variant="body" className="mt-3">
                 {e.summary}
+              </Text>
+            </li>
+          ))}
+        </ol>
+
+        {/* 발표 — 경력과 같은 타임라인 언어로, 제목 옆에 시기 */}
+        <Heading level={3} as="h2" className="mt-14">
+          Talks
+        </Heading>
+        <ol className="mt-6 flex flex-col gap-8 border-l border-border pl-6">
+          {TALKS.map((t) => (
+            <li key={t.title} className="relative">
+              <span
+                className="absolute -left-[1.65rem] top-1.5 h-2.5 w-2.5 rounded-full bg-brand"
+                aria-hidden
+              />
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <Heading level={4} as="h3">
+                  {t.title}
+                </Heading>
+                {t.date && (
+                  <Text as="span" variant="small" className="font-mono">
+                    {t.date}
+                  </Text>
+                )}
+              </div>
+              <Text variant="muted" className="mt-1">
+                {t.venue}
+              </Text>
+              <Text variant="body" className="mt-2">
+                {t.summary}
               </Text>
             </li>
           ))}
