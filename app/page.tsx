@@ -429,42 +429,63 @@ export default function Home() {
           정답을 먼저 고정하고, 체감 대신 숫자로 판단한 기록을 네 편으로 정리했습니다. 회사
           코드베이스와 개인 프로젝트 양쪽에서 실측한 값만 씁니다.
         </Text>
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          {PRACTICES.map((d) => (
-            <Link
-              key={d.slug}
-              href={`/ai/${d.slug}`}
-              className="group flex flex-col gap-3 rounded-lg border border-border bg-surface p-5 transition-colors hover:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
-            >
-              <div className="flex flex-wrap gap-1.5">
-                {d.tags.map((tag) => (
-                  <Badge key={tag} variant="neutral">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-              <Heading level={4} as="h3" className="transition-colors group-hover:text-brand">
-                {d.title}
-              </Heading>
-              <Text variant="body">{d.summary}</Text>
-              <ul className="mt-1 flex flex-col gap-1">
-                {d.items.map((it) => (
-                  <li key={it.title} className="flex gap-2">
-                    <span aria-hidden className="shrink-0 font-mono text-brand">
-                      –
-                    </span>
-                    <Text as="span" variant="muted" className="text-fg">
-                      {it.title}
+        {/* 목차형 원장 — 번호 · 제목/요약/대표 규칙 · 실측치 하나. 카드 그리드가 아닌 읽는 리스트 */}
+        <ol className="mt-10 border-t border-border">
+          {PRACTICES.map((d, i) => (
+            <li key={d.slug} className="border-b border-border">
+              <Link
+                href={`/ai/${d.slug}`}
+                className="group grid gap-5 py-8 transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand sm:grid-cols-[3.5rem_minmax(0,1fr)_11rem] sm:gap-8 sm:px-2"
+              >
+                {/* 번호 — 세리프 큰 숫자 */}
+                <span
+                  aria-hidden
+                  className="font-serif text-4xl leading-none text-fg-muted transition-colors group-hover:text-brand sm:text-5xl"
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+
+                {/* 제목 · 요약 · 대표 규칙 */}
+                <div className="min-w-0">
+                  <Heading level={3} as="h3" className="transition-colors group-hover:text-brand">
+                    {d.title}
+                  </Heading>
+                  <Text variant="body" className="mt-2">
+                    {d.summary}
+                  </Text>
+                  <blockquote className="mt-4 border-l-2 border-brand pl-4">
+                    <Text as="p" variant="body" className="font-serif italic text-fg">
+                      “{d.keyRule}”
                     </Text>
-                  </li>
-                ))}
-              </ul>
-              <span className="mt-auto pt-2 font-mono text-sm text-brand transition-transform group-hover:translate-x-1">
-                읽기 →
-              </span>
-            </Link>
+                  </blockquote>
+                  <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-sm">
+                    {d.tags.map((tag) => (
+                      <Text key={tag} as="span" variant="small" className="font-mono">
+                        #{tag}
+                      </Text>
+                    ))}
+                    <span className="ml-auto text-brand transition-transform group-hover:translate-x-1">
+                      읽기 →
+                    </span>
+                  </div>
+                </div>
+
+                {/* 실측치 하나 — 오른쪽 스탯 레일 */}
+                <div className="sm:border-l sm:border-border sm:pl-6">
+                  <Text as="div" variant="small" className="font-mono">
+                    measured
+                  </Text>
+                  <div className="mt-1 font-serif text-3xl leading-tight text-fg sm:text-4xl">
+                    {d.stat.value}
+                  </div>
+                  <Text as="div" variant="muted" className="mt-2">
+                    {d.stat.label}
+                  </Text>
+                </div>
+              </Link>
+            </li>
           ))}
-        </div>
+        </ol>
       </Section>
 
       {/* ── § 07 Contact ── */}
