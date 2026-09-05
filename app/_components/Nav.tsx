@@ -11,6 +11,7 @@ const LINKS = [
   { id: "background", label: "Background" },
   { id: "projects", label: "Projects" },
   { id: "system", label: "Design System" },
+  { id: "ai", label: "AI" },
   { id: "contact", label: "Contact" },
 ];
 

@@ -5,6 +5,8 @@ import { Hero } from "./_components/Hero";
 import { Reveal } from "./_components/Reveal";
 import { TokenPlayground } from "./_components/TokenPlayground";
 import { PROJECTS } from "./_data/projects";
+import { TALKS } from "./_data/talks";
+import { PRACTICES } from "./_data/ai-practices";
 
 /* ─────────────────────────────────────────────
    섹션 공통 껍데기: 왼쪽 라벨(.about / § 01) + 오른쪽 본문.
@@ -81,24 +83,6 @@ const EXPERIENCE = [
     title: "POS 웹 서비스 · 사내 디자인시스템(Quasar UI킷) (2022.11 – 2023.04)",
     summary:
       "AngularJS 1.x + Laravel Blade 레거시에서 회원가입 퍼널과 매장별 매출통계 차트를 만들었고, 같은 시기 사내 Quasar 기반 UI킷의 컴포넌트를 제작하면서 어드민에서 소비하는 양쪽을 담당했습니다. 이 경험이 이후 @usetaehwan/ui의 '소비처에서 먼저 검증하고 추출한다'는 순서로 이어졌습니다.",
-  },
-];
-
-/* 사내 발표 — 최신순. 자료 상세는 싣지 않고 주제·대상·시기만. */
-const TALKS = [
-  {
-    title: "Claude Code 기반 E2E 테스트 자동화",
-    venue: "사내 AI 활용 공유 세션 (7회차)",
-    date: "2026.05",
-    summary:
-      "정답을 참조 앱의 파일:라인으로 먼저 고정하는 증거 기반 시나리오 작성법. 77개 페이지 시나리오 약 700건, Cypress 케이스 515건, QA 체크리스트 83항목 기준선을 만든 과정을 공유했습니다.",
-  },
-  {
-    title: "브라우저 렌더링 원리와 SSR·CSR / SPA·MPA",
-    venue: "전사 개발자 컨퍼런스 · 프론트엔드팀 연사",
-    date: "2024",
-    summary:
-      "다른 직군 개발자가 신규 SPA 프론트 구조를 이해할 수 있도록, 렌더링 과정부터 SSR·CSR과 SPA·MPA의 차이까지 설명했습니다.",
   },
 ];
 
@@ -194,20 +178,23 @@ export default function Home() {
         </Heading>
         <ol className="mt-6 flex flex-col gap-8 border-l border-border pl-6">
           {TALKS.map((t) => (
-            <li key={t.title} className="relative">
+            <li key={t.slug} className="relative">
               <span
                 className="absolute -left-[1.65rem] top-1.5 h-2.5 w-2.5 rounded-full bg-brand"
                 aria-hidden
               />
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <Heading level={4} as="h3">
-                  {t.title}
-                </Heading>
-                {t.date && (
-                  <Text as="span" variant="small" className="font-mono">
-                    {t.date}
-                  </Text>
-                )}
+                <Link
+                  href={`/talks/${t.slug}`}
+                  className="group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                >
+                  <Heading level={4} as="h3" className="transition-colors group-hover:text-brand">
+                    {t.title}
+                  </Heading>
+                </Link>
+                <Text as="span" variant="small" className="font-mono">
+                  {t.date}
+                </Text>
               </div>
               <Text variant="muted" className="mt-1">
                 {t.venue}
@@ -215,6 +202,12 @@ export default function Home() {
               <Text variant="body" className="mt-2">
                 {t.summary}
               </Text>
+              <Link
+                href={`/talks/${t.slug}`}
+                className="mt-3 inline-block font-mono text-sm text-brand transition-colors hover:text-brand-hover"
+              >
+                발표 문서 →
+              </Link>
             </li>
           ))}
         </ol>
@@ -428,8 +421,54 @@ export default function Home() {
         </div>
       </Section>
 
-      {/* ── § 06 Contact ── */}
-      <Section id="contact" label="contact" index="06">
+      {/* ── § 06 AI 활용 — 구조·규칙·측정 문서 ── */}
+      <Section id="ai" label="ai" index="06">
+        <Heading level={2}>AI를 통제 대상으로 다룹니다</Heading>
+        <Text variant="body" className="mt-5">
+          코드 생성기가 아니라 절차 안에 두는 것. 역할을 나누고, 환각을 코드로 막고, 테스트의
+          정답을 먼저 고정하고, 체감 대신 숫자로 판단한 기록을 네 편으로 정리했습니다. 회사
+          코드베이스와 개인 프로젝트 양쪽에서 실측한 값만 씁니다.
+        </Text>
+        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+          {PRACTICES.map((d) => (
+            <Link
+              key={d.slug}
+              href={`/ai/${d.slug}`}
+              className="group flex flex-col gap-3 rounded-lg border border-border bg-surface p-5 transition-colors hover:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+            >
+              <div className="flex flex-wrap gap-1.5">
+                {d.tags.map((tag) => (
+                  <Badge key={tag} variant="neutral">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+              <Heading level={4} as="h3" className="transition-colors group-hover:text-brand">
+                {d.title}
+              </Heading>
+              <Text variant="body">{d.summary}</Text>
+              <ul className="mt-1 flex flex-col gap-1">
+                {d.items.map((it) => (
+                  <li key={it.title} className="flex gap-2">
+                    <span aria-hidden className="shrink-0 font-mono text-brand">
+                      –
+                    </span>
+                    <Text as="span" variant="muted" className="text-fg">
+                      {it.title}
+                    </Text>
+                  </li>
+                ))}
+              </ul>
+              <span className="mt-auto pt-2 font-mono text-sm text-brand transition-transform group-hover:translate-x-1">
+                읽기 →
+              </span>
+            </Link>
+          ))}
+        </div>
+      </Section>
+
+      {/* ── § 07 Contact ── */}
+      <Section id="contact" label="contact" index="07">
         <Heading level={2}>함께 만들 게 있다면</Heading>
         <Text variant="body" className="mt-5">
           제안, 협업, 혹은 그냥 인사도 좋아요. 편하게 메일 주시면 빠르게 회신드리겠습니다.
