@@ -45,7 +45,8 @@ export function Hero() {
             <Text variant="lead" className="mt-7 max-w-2xl">
               구조를 설계하고, 문서로 남기는 프론트엔드 개발자 정태환입니다.
               <br />
-              컴포넌트 하나부터 시스템 전체까지 읽을 수 있게 만듭니다.
+              AI는 절차 안에 두고 씁니다 — 역할을 나누고, 결과를 코드로 검증하고, 체감 대신
+              숫자로 판단합니다.
             </Text>
           </motion.div>
 

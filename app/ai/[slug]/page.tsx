@@ -19,8 +19,8 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const doc = getPractice(slug);
-  if (!doc) return { title: "AI — useTaehwan()" };
-  return { title: `${doc.title} — useTaehwan()`, description: doc.summary };
+  if (!doc) return { title: "AI" };
+  return { title: doc.title, description: doc.summary };
 }
 
 export default async function PracticeDetail({ params }: { params: Promise<Params> }) {

@@ -19,8 +19,8 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const talk = getTalk(slug);
-  if (!talk) return { title: "Talk — useTaehwan()" };
-  return { title: `${talk.title} — useTaehwan()`, description: talk.summary };
+  if (!talk) return { title: "Talk" };
+  return { title: talk.title, description: talk.summary };
 }
 
 export default async function TalkDetail({ params }: { params: Promise<Params> }) {

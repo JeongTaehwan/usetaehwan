@@ -19,10 +19,31 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
+const SITE_URL = "https://usetaehwan.page";
+const SITE_TITLE = "useTaehwan() — A frontend engineer, documented.";
+const SITE_DESCRIPTION =
+  "커머스 프론트엔드 3년 10개월 — 결제·정산·쿠폰 등 금액 도메인과 외부 시스템 연동. AI는 역할을 나누고 코드로 검증하고 숫자로 판단하는 통제 대상으로 다룹니다. 직접 만든 디자인 시스템 @usetaehwan/ui로 구축.";
+
 export const metadata: Metadata = {
-  title: "useTaehwan() — A frontend engineer, documented.",
-  description:
-    "구조를 설계하고 문서로 남기는 프론트엔드 개발자 정태환의 포트폴리오. 직접 만든 디자인 시스템 useTaehwan()/ui로 구축.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_TITLE,
+    template: "%s — useTaehwan()",
+  },
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    type: "website",
+    locale: "ko_KR",
+    url: SITE_URL,
+    siteName: "useTaehwan()",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
 };
 
 // 페인트 전에 테마를 결정해 FOUC(잘못된 테마 깜빡임)를 막는다.
