@@ -10,8 +10,15 @@ export type ProjectCase = {
   solution: string;
 };
 
+/** 프로젝트가 실제로 쓰는 색 — 홈 카드·상세 페이지가 이 팔레트로 그려진다 (globals.css의 .theme-<slug>와 짝) */
+export type ProjectPalette = {
+  label: string;
+  swatches: { name: string; value: string }[];
+};
+
 export type Project = {
   slug: string;
+  palette: ProjectPalette;
   name: string;
   year: string;
   /** 카드에 보이는 한 줄 요약 */
@@ -48,10 +55,20 @@ const GAK_REPO_URL = "https://github.com/JeongTaehwan/Gak";
 export const PROJECTS: Project[] = [
   {
     slug: "usetaehwan-ui",
+    palette: {
+      label: "Warm neutral",
+      swatches: [
+        { name: "bg", value: "#FDFBF7" },
+        { name: "surface", value: "#EBE7DC" },
+        { name: "fg", value: "#33302A" },
+        { name: "brand", value: "#A55E45" },
+        { name: "success", value: "#6E7B53" },
+      ],
+    },
     name: "useTaehwan()/ui",
     year: "2026",
     summary:
-      "이 사이트를 구동하는 토큰 기반 React 디자인 시스템. 10개의 컴포넌트로 구성되고, 토큰만 덮어쓰면 프로젝트마다 다른 테마를 입힐 수 있습니다.",
+      "직접 만들어 npm에 배포한 토큰 기반 React 디자인 시스템. 10개의 컴포넌트로 구성되고, 토큰만 덮어쓰면 프로젝트마다 다른 테마를 입힐 수 있어 Orbit(우주)·각(볼트 그린) 두 프로덕트가 같은 패키지를 씁니다.",
     tags: ["TypeScript", "Tailwind v4", "React"],
     cases: [
       {
@@ -61,7 +78,7 @@ export const PROJECTS: Project[] = [
         diagnosis:
           "API가 틀리는 지점은 설계 단계가 아니라 실제 화면에 붙이는 순간에 드러납니다. 소비처가 없는 컴포넌트는 검증할 방법이 없었습니다.",
         solution:
-          "이 사이트를 첫 소비처로 두고 6개 프리미티브로 시작해 실사용으로 API를 검증한 뒤 별도 저장소로 추출, npm 0.1.0(2026.07.18) → 0.2.0(07.26)으로 배포했습니다. 이후 Orbit·각(Gak)이 같은 패키지를 설치해 쓰면서 컴포넌트가 10개로 늘었습니다.",
+          "이 사이트의 v1을 첫 소비처로 두고 6개 프리미티브로 시작해 실사용으로 API를 검증한 뒤 별도 저장소로 추출, npm 0.1.0(2026.07.18) → 0.2.0(07.26)으로 배포했습니다. 이후 Orbit·각(Gak)이 같은 패키지를 설치해 쓰면서 컴포넌트가 10개로 늘었습니다.",
       },
       {
         title: "테마가 그림자를 따라오지 않는다",
@@ -87,7 +104,7 @@ export const PROJECTS: Project[] = [
       role: "설계 · 구현 (개인)",
       period: "2026 —",
       overview:
-        "디자인 시스템을 처음부터 별도 패키지로 만들면, 무엇이 필요한지 모르는 상태에서 API를 고정하게 되어 거의 항상 틀립니다. 그래서 이 사이트를 '첫 소비처'로 두고 실사용으로 API를 검증한 뒤 추출하는 전략을 택했습니다. 이 페이지 전체가 그 시스템의 첫 검증 결과입니다.",
+        "디자인 시스템을 처음부터 별도 패키지로 만들면, 무엇이 필요한지 모르는 상태에서 API를 고정하게 되어 거의 항상 틀립니다. 그래서 이 사이트의 v1을 '첫 소비처'로 두고 실사용으로 API를 검증한 뒤 추출하는 전략을 택했습니다. 검증이 끝난 뒤 사이트는 v2에서 자체 도면 테마로 독립했고, 시스템은 Orbit·각(Gak)이 씁니다.",
       highlights: [
         {
           title: "토큰 단일 소스(SSOT)",
@@ -95,7 +112,7 @@ export const PROJECTS: Project[] = [
         },
         {
           title: "프로젝트별 테마",
-          body: "컴포넌트가 토큰만 참조하므로, 소비 프로젝트에서 토큰을 덮어쓰는 것만으로 전혀 다른 무드의 테마가 됩니다. 이 사이트(웜 뉴트럴)·Orbit(우주)·각(볼트 그린) 세 프로젝트가 실제로 같은 패키지를 씁니다. 다크모드도 같은 원리 — .dark에서 토큰 값만 덮고, on-brand 글자색은 배경 밝기로 자동 계산해 WCAG 대비를 유지합니다.",
+          body: "컴포넌트가 토큰만 참조하므로, 소비 프로젝트에서 토큰을 덮어쓰는 것만으로 전혀 다른 무드의 테마가 됩니다. 이 사이트 v1(웜 뉴트럴)·Orbit(우주)·각(볼트 그린)이 같은 패키지로 세 가지 무드를 냈습니다. 다크모드도 같은 원리 — .dark에서 토큰 값만 덮고, on-brand 글자색은 배경 밝기로 자동 계산해 WCAG 대비를 유지합니다.",
         },
         {
           title: "10개 컴포넌트",
@@ -116,6 +133,16 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: "gak",
+    palette: {
+      label: "Volt night",
+      swatches: [
+        { name: "bg", value: "#04060A" },
+        { name: "surface", value: "#111722" },
+        { name: "fg", value: "#EAF0F8" },
+        { name: "brand", value: "#C8FF1E" },
+        { name: "muted", value: "#55647A" },
+      ],
+    },
     name: "각(Gak)",
     year: "2026",
     summary:
@@ -164,7 +191,7 @@ export const PROJECTS: Project[] = [
       role: "기획 · 풀스택 개발 (개인)",
       period: "2026.07 —",
       overview:
-        "리그·컵·유럽대항전에 흩어진 팀 일정을 한 축으로 통합해 밀집도·폼 같은 지표를 서버에서 계산하고, LLM은 그 계산 결과를 문장으로 옮기는 역할만 맡는 진단·예측 앱입니다. 사람 판단 / 구현 AI(Claude Code) / 다른 벤더의 검증 AI로 역할을 나눈 10단계 파이프라인으로, 화면 5개 중 3개를 요구사항 정의 → 인수 테스트 109건 → 구현 → 교차 리뷰 순으로 완주했습니다. 이 사이트와 같은 @usetaehwan/ui를 볼트 그린 테마로 재사용합니다.",
+        "리그·컵·유럽대항전에 흩어진 팀 일정을 한 축으로 통합해 밀집도·폼 같은 지표를 서버에서 계산하고, LLM은 그 계산 결과를 문장으로 옮기는 역할만 맡는 진단·예측 앱입니다. 사람 판단 / 구현 AI(Claude Code) / 다른 벤더의 검증 AI로 역할을 나눈 10단계 파이프라인으로, 화면 5개 중 3개를 요구사항 정의 → 인수 테스트 109건 → 구현 → 교차 리뷰 순으로 완주했습니다. 직접 만든 @usetaehwan/ui를 볼트 그린 테마로 재사용합니다.",
       highlights: [
         {
           title: "API 예산 아래 동기화",
@@ -198,6 +225,16 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: "orbit",
+    palette: {
+      label: "Deep space",
+      swatches: [
+        { name: "bg", value: "#0A0D16" },
+        { name: "surface", value: "#141A2A" },
+        { name: "fg", value: "#EAEEF7" },
+        { name: "brand", value: "#5CC9D6" },
+        { name: "muted", value: "#6A7488" },
+      ],
+    },
     name: "Orbit",
     year: "2026",
     summary:
@@ -237,11 +274,11 @@ export const PROJECTS: Project[] = [
       role: "기획 · 풀스택 개발 (개인)",
       period: "2026 —",
       overview:
-        "학습 주제를 하나의 행성으로 만들고, 공부 기록을 남길수록 그 행성이 조금씩 테라포밍되는 웹앱입니다. 프론트엔드 개발자로서 화면만이 아니라 백엔드·DB·인프라·배포까지 직접 구성하며 웹 서비스의 전체 구조를 손으로 이해하는 것을 목표로 만들었습니다. 이 사이트를 구동하는 디자인 시스템 @usetaehwan/ui를 우주 테마로 재사용해, 하나의 시스템이 서로 다른 결의 프로덕트를 어떻게 지탱하는지도 함께 검증했습니다.",
+        "학습 주제를 하나의 행성으로 만들고, 공부 기록을 남길수록 그 행성이 조금씩 테라포밍되는 웹앱입니다. 프론트엔드 개발자로서 화면만이 아니라 백엔드·DB·인프라·배포까지 직접 구성하며 웹 서비스의 전체 구조를 손으로 이해하는 것을 목표로 만들었습니다. 직접 만든 디자인 시스템 @usetaehwan/ui를 우주 테마로 재사용해, 하나의 시스템이 서로 다른 결의 프로덕트를 어떻게 지탱하는지도 함께 검증했습니다.",
       highlights: [
         {
           title: "우주 테마로 재사용한 디자인 시스템",
-          body: "이 사이트와 같은 @usetaehwan/ui 패키지를 설치해, 토큰만 우주 테마로 덮어 재사용했습니다. 같은 프리미티브가 전혀 다른 무드의 프로덕트를 지탱하며 시스템의 이식성을 검증했습니다.",
+          body: "@usetaehwan/ui 패키지를 설치해, 토큰만 우주 테마로 덮어 재사용했습니다. 같은 프리미티브가 전혀 다른 무드의 프로덕트를 지탱하며 시스템의 이식성을 검증했습니다.",
         },
         {
           title: "3D 행성 테라포밍",

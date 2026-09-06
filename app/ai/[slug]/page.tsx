@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Badge, Button, Container, Heading, Text } from "@usetaehwan/ui";
-import { Reveal } from "../../_components/Reveal";
-import { SubpageHeader } from "../../_components/SubpageHeader";
+import { Reveal } from "../../_ui/Reveal";
+import { SubHead, Rows } from "../../_ui/Sheet";
+import { Label } from "../../_ui/Label";
+import { Btn } from "../../_ui/Btn";
+import { DetailSheet, SubpageHeader } from "../../_components/SubpageFrame";
 import { PRACTICES, getPractice } from "../../_data/ai-practices";
 
 type Params = { slug: string };
@@ -27,112 +28,82 @@ export default async function PracticeDetail({ params }: { params: Promise<Param
   const { slug } = await params;
   const doc = getPractice(slug);
   if (!doc) notFound();
+  const no = PRACTICES.findIndex((p) => p.slug === slug) + 1;
 
   return (
-    <main className="min-h-dvh">
-      <SubpageHeader backHref="/#ai" backLabel="AI" />
+    <main className="page paper-grid min-h-dvh">
+      <SubpageHeader backHref="/#ai" backLabel="AI Notes" sheetNo="05" />
 
-      <Reveal as="section">
-        <article className="py-16 sm:py-24">
-          <Container size="md">
-            <Text as="div" variant="muted" className="font-mono text-brand">
-              .ai / {doc.slug}
-            </Text>
-            <Heading level={1} className="mt-3 text-4xl sm:text-5xl">
-              {doc.title}
-            </Heading>
-            <Text variant="lead" className="mt-4">
-              {doc.summary}
-            </Text>
-            <div className="mt-6 flex flex-wrap gap-2">
-              {doc.tags.map((t) => (
-                <Badge key={t} variant="brand">
-                  {t}
-                </Badge>
+      <Reveal>
+        <DetailSheet crumb={`Note ${no} · ${doc.slug}`} sheet={`Sheet 05 · Note ${no}`} title={doc.title} lead={doc.summary}>
+          <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2">
+            {doc.tags.map((t) => (
+              <Label key={t}>#{t}</Label>
+            ))}
+            <div className="ml-auto flex items-baseline gap-3">
+              <Label mark>Measured</Label>
+              <span className="figure-no text-2xl">{doc.stat.value}</span>
+            </div>
+          </div>
+
+          <div className="mt-10 border-t border-line pt-8">
+            <p className="prose-draft">{doc.intro}</p>
+          </div>
+
+          <div className="mt-12">
+            <SubHead no="1.">사례</SubHead>
+            <ol className="mt-6 flex flex-col gap-8">
+              {doc.items.map((it, i) => (
+                <li key={it.title} className="border-t border-line pt-5">
+                  <div className="flex items-baseline gap-3">
+                    <span className="figure-no text-sm text-mark">
+                      {no}-{i + 1}
+                    </span>
+                    <h4 className="text-base font-semibold text-ink">{it.title}</h4>
+                  </div>
+                  <Rows
+                    className="mt-4"
+                    rows={[
+                      { k: "문제", v: it.problem },
+                      { k: "설계", v: it.design },
+                      { k: "결과", v: it.result },
+                    ]}
+                  />
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <div className="mt-12">
+            <SubHead no="2.">남은 규칙</SubHead>
+            <ol className="mt-6 divide-y divide-line-soft border-y border-line">
+              {doc.rules.map((r, i) => (
+                <li key={r} className="flex gap-5 py-4">
+                  <span className="figure-no w-8 shrink-0 text-sm text-mark">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="prose-draft text-ink">{r}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          {doc.links && doc.links.length > 0 && (
+            <div className="mt-12 flex flex-wrap gap-3">
+              {doc.links.map((l) => (
+                <Btn key={l.href} href={l.href}>
+                  {l.label} ↗
+                </Btn>
               ))}
             </div>
+          )}
 
-            <div className="mt-10 border-t border-border pt-8">
-              <Text variant="body">{doc.intro}</Text>
-            </div>
-
-            {/* 사례 — 문제 → 설계 → 결과 */}
-            <div className="mt-10">
-              <Heading level={3} className="mb-4">
-                사례
-              </Heading>
-              <ol className="flex flex-col gap-8">
-                {doc.items.map((it, i) => (
-                  <li key={it.title} className="border-l-2 border-border pl-5">
-                    <div className="flex items-baseline gap-3">
-                      <Text as="span" variant="small" className="font-mono text-brand">
-                        {String(i + 1).padStart(2, "0")}
-                      </Text>
-                      <Heading level={4} as="h4">
-                        {it.title}
-                      </Heading>
-                    </div>
-                    <dl className="mt-3 grid gap-y-2 sm:grid-cols-[3rem_1fr] sm:gap-x-4">
-                      {[
-                        { k: "문제", v: it.problem },
-                        { k: "설계", v: it.design },
-                        { k: "결과", v: it.result },
-                      ].map((row) => (
-                        <div key={row.k} className="contents">
-                          <Text as="dt" variant="small" className="font-mono text-brand sm:pt-0.5">
-                            {row.k}
-                          </Text>
-                          <Text as="dd" variant="body">
-                            {row.v}
-                          </Text>
-                        </div>
-                      ))}
-                    </dl>
-                  </li>
-                ))}
-              </ol>
-            </div>
-
-            {/* 규칙 — 실패에서 역산한 결론 */}
-            <div className="mt-10">
-              <Heading level={3} className="mb-4">
-                남은 규칙
-              </Heading>
-              <ol className="flex flex-col gap-3">
-                {doc.rules.map((r, i) => (
-                  <li key={r} className="flex gap-4">
-                    <Text as="span" variant="small" className="w-6 shrink-0 font-mono text-brand">
-                      {String(i + 1).padStart(2, "0")}
-                    </Text>
-                    <Text as="span" variant="body" className="text-fg">
-                      {r}
-                    </Text>
-                  </li>
-                ))}
-              </ol>
-            </div>
-
-            {doc.links && doc.links.length > 0 && (
-              <div className="mt-10 flex flex-wrap gap-3">
-                {doc.links.map((l) => (
-                  <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer">
-                    <Button variant="secondary" size="sm">
-                      {l.label} ↗
-                    </Button>
-                  </a>
-                ))}
-              </div>
-            )}
-
-            <div className="mt-14 border-t border-border pt-8">
-              <Link href="/#ai">
-                <Button variant="ghost" size="sm">
-                  ← 모든 AI 활용 문서
-                </Button>
-              </Link>
-            </div>
-          </Container>
-        </article>
+          <div className="cut mt-14 pt-6">
+            <Btn href="/#ai" variant="text">
+              ← Sheet 05 · 모든 AI 노트
+            </Btn>
+          </div>
+        </DetailSheet>
       </Reveal>
     </main>
   );

@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Button, Container, Heading, Text } from "@usetaehwan/ui";
-import { Reveal } from "../../_components/Reveal";
-import { SubpageHeader } from "../../_components/SubpageHeader";
+import { Reveal } from "../../_ui/Reveal";
+import { SubHead } from "../../_ui/Sheet";
+import { Btn } from "../../_ui/Btn";
+import { DetailSheet, MetaTable, SubpageHeader } from "../../_components/SubpageFrame";
 import { TALKS, getTalk } from "../../_data/talks";
 
 type Params = { slug: string };
@@ -27,120 +27,80 @@ export default async function TalkDetail({ params }: { params: Promise<Params> }
   const { slug } = await params;
   const talk = getTalk(slug);
   if (!talk) notFound();
+  const ref = TALKS.findIndex((t) => t.slug === slug) + 1;
 
   return (
-    <main className="min-h-dvh">
-      <SubpageHeader backHref="/#experience" backLabel="Experience" />
+    <main className="page paper-grid min-h-dvh">
+      <SubpageHeader backHref="/#experience" backLabel="Experience" sheetNo="02" />
 
-      <Reveal as="section">
-        <article className="py-16 sm:py-24">
-          <Container size="md">
-            <Text as="div" variant="muted" className="font-mono text-brand">
-              .talks / {talk.slug}
-            </Text>
-            <Heading level={1} className="mt-3 text-4xl sm:text-5xl">
-              {talk.title}
-            </Heading>
-            <Text variant="lead" className="mt-4">
-              {talk.summary}
-            </Text>
+      <Reveal>
+        <DetailSheet crumb={`Ref. [${ref}] · ${talk.slug}`} sheet={`Sheet 02 · Ref. [${ref}]`} title={talk.title} lead={talk.summary}>
+          <MetaTable
+            items={[
+              { k: "Venue", v: talk.venue },
+              { k: "Date", v: talk.date },
+            ]}
+          />
 
-            <dl className="mt-8 grid grid-cols-2 gap-4 border-y border-border py-6">
-              {[
-                { k: "Venue", v: talk.venue },
-                { k: "Date", v: talk.date },
-              ].map((m) => (
-                <div key={m.k}>
-                  <Text as="dt" variant="small" className="font-mono">
-                    {m.k}
-                  </Text>
-                  <Text as="dd" variant="body" className="mt-1 text-fg">
-                    {m.v}
-                  </Text>
-                </div>
+          <div className="mt-12">
+            <SubHead no="1.">배경</SubHead>
+            <p className="prose-draft mt-4">{talk.context}</p>
+          </div>
+
+          <div className="mt-12">
+            <SubHead no="2.">구성</SubHead>
+            <ol className="mt-6 divide-y divide-line-soft border-y border-line">
+              {talk.outline.map((o, i) => (
+                <li key={o} className="flex gap-5 py-4">
+                  <span className="figure-no w-8 shrink-0 text-sm text-mark">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="prose-draft">{o}</span>
+                </li>
               ))}
-            </dl>
+            </ol>
+          </div>
 
-            <div className="mt-10">
-              <Heading level={3} className="mb-3">
-                배경
-              </Heading>
-              <Text variant="body">{talk.context}</Text>
-            </div>
+          <div className="mt-12">
+            <SubHead no="3.">핵심 메시지</SubHead>
+            <ul className="mt-6 flex flex-col gap-4">
+              {talk.takeaways.map((t) => (
+                <li key={t} className="border-l-2 border-mark pl-4">
+                  <p className="prose-draft text-ink">{t}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-            <div className="mt-10">
-              <Heading level={3} className="mb-4">
-                구성
-              </Heading>
-              <ol className="flex flex-col gap-3">
-                {talk.outline.map((o, i) => (
-                  <li key={o} className="flex gap-4">
-                    <Text as="span" variant="small" className="w-6 shrink-0 font-mono text-brand">
-                      {String(i + 1).padStart(2, "0")}
-                    </Text>
-                    <Text as="span" variant="body">
-                      {o}
-                    </Text>
-                  </li>
+          {talk.numbers && talk.numbers.length > 0 && (
+            <div className="mt-12">
+              <SubHead no="4.">발표에서 인용한 수치</SubHead>
+              <dl className="mt-6 divide-y divide-line-soft border-y border-line">
+                {talk.numbers.map((n) => (
+                  <div
+                    key={n.label}
+                    className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-3"
+                  >
+                    <dt className="text-sm text-ink-2">{n.label}</dt>
+                    <dd className="figure-no text-sm">{n.value}</dd>
+                  </div>
                 ))}
-              </ol>
+              </dl>
             </div>
+          )}
 
-            <div className="mt-10">
-              <Heading level={3} className="mb-4">
-                핵심 메시지
-              </Heading>
-              <ul className="flex flex-col gap-3">
-                {talk.takeaways.map((t) => (
-                  <li key={t} className="border-l-2 border-brand pl-4">
-                    <Text variant="body">{t}</Text>
-                  </li>
-                ))}
-              </ul>
+          {talk.href && (
+            <div className="mt-12">
+              <Btn href={talk.href}>발표 자료 ↗</Btn>
             </div>
+          )}
 
-            {talk.numbers && talk.numbers.length > 0 && (
-              <div className="mt-10">
-                <Heading level={3} className="mb-4">
-                  발표에서 인용한 수치
-                </Heading>
-                <dl className="divide-y divide-border border-y border-border">
-                  {talk.numbers.map((n) => (
-                    <div
-                      key={n.label}
-                      className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-3"
-                    >
-                      <Text as="dt" variant="body">
-                        {n.label}
-                      </Text>
-                      <Text as="dd" variant="body" className="font-mono text-fg">
-                        {n.value}
-                      </Text>
-                    </div>
-                  ))}
-                </dl>
-              </div>
-            )}
-
-            {talk.href && (
-              <div className="mt-10">
-                <a href={talk.href} target="_blank" rel="noopener noreferrer">
-                  <Button variant="secondary" size="sm">
-                    발표 자료 ↗
-                  </Button>
-                </a>
-              </div>
-            )}
-
-            <div className="mt-14 border-t border-border pt-8">
-              <Link href="/#experience">
-                <Button variant="ghost" size="sm">
-                  ← Experience로
-                </Button>
-              </Link>
-            </div>
-          </Container>
-        </article>
+          <div className="cut mt-14 pt-6">
+            <Btn href="/#experience" variant="text">
+              ← Sheet 02 · Experience
+            </Btn>
+          </div>
+        </DetailSheet>
       </Reveal>
     </main>
   );

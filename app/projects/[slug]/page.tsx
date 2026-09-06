@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Badge, Button, Card, Container, Heading, Text } from "@usetaehwan/ui";
-import { Reveal } from "../../_components/Reveal";
-import { ThemeToggle } from "../../ThemeToggle";
+import { Reveal } from "../../_ui/Reveal";
+import { SubHead, Rows } from "../../_ui/Sheet";
+import { Label } from "../../_ui/Label";
+import { Btn } from "../../_ui/Btn";
+import { DetailSheet, MetaTable, SubpageHeader } from "../../_components/SubpageFrame";
+import { PaletteLegend, PaletteScope } from "../../_components/Palette";
 import { PROJECTS, getProject } from "../../_data/projects";
 
 type Params = { slug: string };
@@ -21,183 +23,114 @@ export async function generateMetadata({
   const { slug } = await params;
   const project = getProject(slug);
   if (!project?.detail) return { title: "Project" };
-  return {
-    title: project.name,
-    description: project.detail.tagline,
-  };
+  return { title: project.name, description: project.detail.tagline };
 }
 
-export default async function ProjectDetail({
-  params,
-}: {
-  params: Promise<Params>;
-}) {
+const LETTERS = ["A", "B", "C", "D", "E", "F"];
+
+export default async function ProjectDetail({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
   const project = getProject(slug);
-
-  // 미준비/없는 slug는 404
   if (!project || !project.detail) notFound();
   const { detail } = project;
+  const letter = LETTERS[PROJECTS.filter((p) => !p.placeholder).findIndex((p) => p.slug === slug)] ?? "A";
 
   return (
-    <main className="min-h-dvh">
-      {/* 상세용 경량 헤더 */}
-      <header className="sticky top-0 z-50 border-b border-border bg-bg/80 backdrop-blur-md">
-        <Container size="lg">
-          <div className="flex h-16 items-center justify-between gap-4">
-            <Link href="/" className="text-lg text-fg">
-              <span className="font-serif">useTaehwan</span>
-              <span className="font-mono text-brand">()</span>
-            </Link>
-            <div className="flex items-center gap-2">
-              <Link href="/#projects">
-                <Button variant="ghost" size="sm">
-                  ← Projects
-                </Button>
-              </Link>
-              <ThemeToggle />
-            </div>
+    <main className={`page paper-grid theme-${project.slug} min-h-dvh`}>
+      <PaletteScope slug={project.slug} />
+      <SubpageHeader
+        backHref="/#projects"
+        backLabel="Projects"
+        sheetNo="04"
+        right={<PaletteLegend palette={project.palette} />}
+      />
+
+      <Reveal>
+        <DetailSheet
+          crumb={`Detail ${letter} · ${project.slug}`}
+          sheet={`Sheet 04 · Detail ${letter}`}
+          title={project.name}
+          lead={detail.tagline}
+        >
+          <MetaTable
+            items={[
+              { k: "Role", v: detail.role },
+              { k: "Period", v: detail.period },
+              { k: "Year", v: project.year },
+            ]}
+          />
+
+          <div className="mt-12">
+            <SubHead no="1.">Overview</SubHead>
+            <p className="prose-draft mt-4">{detail.overview}</p>
           </div>
-        </Container>
-      </header>
 
-      <Reveal as="section">
-        <article className="py-16 sm:py-24">
-          <Container size="md">
-            {/* 헤드 */}
-            <Text as="div" variant="muted" className="font-mono text-brand">
-              .projects / {project.slug}
-            </Text>
-            <Heading level={1} className="mt-3 text-4xl sm:text-5xl">
-              {project.name}
-            </Heading>
-            <Text variant="lead" className="mt-4">
-              {detail.tagline}
-            </Text>
+          {project.cases && project.cases.length > 0 && (
+            <div className="mt-12">
+              <SubHead no="2.">작업 사례 — Section views</SubHead>
+              <ol className="mt-6 flex flex-col gap-8">
+                {project.cases.map((c, i) => (
+                  <li key={c.title} className="border-t border-line pt-5">
+                    <div className="flex items-baseline gap-3">
+                      <span className="figure-no text-sm text-mark">
+                        {letter}-{i + 1}
+                      </span>
+                      <h4 className="text-base font-semibold text-ink">{c.title}</h4>
+                    </div>
+                    <Rows
+                      className="mt-4"
+                      rows={[
+                        { k: "문제", v: c.problem },
+                        { k: "파악", v: c.diagnosis },
+                        { k: "해결", v: c.solution },
+                      ]}
+                    />
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
 
-            {/* 메타 */}
-            <dl className="mt-8 grid grid-cols-2 gap-4 border-y border-border py-6 sm:grid-cols-3">
-              {[
-                { k: "Role", v: detail.role },
-                { k: "Period", v: detail.period },
-                { k: "Year", v: project.year },
-              ].map((m) => (
-                <div key={m.k}>
-                  <Text as="dt" variant="small" className="font-mono">
-                    {m.k}
-                  </Text>
-                  <Text as="dd" variant="body" className="mt-1 text-fg">
-                    {m.v}
-                  </Text>
+          <div className="mt-12">
+            <SubHead no="3.">핵심 기능</SubHead>
+            <div className="mt-6 grid gap-px border border-line bg-line-soft sm:grid-cols-2">
+              {detail.highlights.map((h, i) => (
+                <div key={h.title} className="bg-paper p-5">
+                  <Label mark>{String(i + 1).padStart(2, "0")}</Label>
+                  <h4 className="mt-2 font-semibold text-ink">{h.title}</h4>
+                  <p className="prose-draft mt-2 text-sm">{h.body}</p>
                 </div>
               ))}
-            </dl>
-
-            {/* 개요 */}
-            <div className="mt-10">
-              <Heading level={3} className="mb-3">
-                Overview
-              </Heading>
-              <Text variant="body">{detail.overview}</Text>
             </div>
+          </div>
 
-            {/* 작업 사례 — 문제 → 파악 → 해결. 홈 카드와 같은 구조 */}
-            {project.cases && project.cases.length > 0 && (
-              <div className="mt-10">
-                <Heading level={3} className="mb-4">
-                  작업 사례
-                </Heading>
-                <ol className="flex flex-col gap-8">
-                  {project.cases.map((c, i) => (
-                    <li key={c.title} className="border-l-2 border-border pl-5">
-                      <div className="flex items-baseline gap-3">
-                        <Text as="span" variant="small" className="font-mono text-brand">
-                          {String(i + 1).padStart(2, "0")}
-                        </Text>
-                        <Heading level={4} as="h4">
-                          {c.title}
-                        </Heading>
-                      </div>
-                      <dl className="mt-3 grid gap-y-2 sm:grid-cols-[3rem_1fr] sm:gap-x-4">
-                        {[
-                          { k: "문제", v: c.problem },
-                          { k: "파악", v: c.diagnosis },
-                          { k: "해결", v: c.solution },
-                        ].map((row) => (
-                          <div key={row.k} className="contents">
-                            <Text as="dt" variant="small" className="font-mono text-brand sm:pt-0.5">
-                              {row.k}
-                            </Text>
-                            <Text as="dd" variant="body">
-                              {row.v}
-                            </Text>
-                          </div>
-                        ))}
-                      </dl>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            )}
+          <div className="mt-12">
+            <SubHead no="4.">Stack</SubHead>
+            <ul className="mt-4 flex flex-wrap gap-2">
+              {detail.stack.map((s) => (
+                <li key={s} className="border border-line px-2.5 py-1 font-mono text-xs text-ink">
+                  {s}
+                </li>
+              ))}
+            </ul>
+          </div>
 
-            {/* 핵심 기능 — 사례에 안 들어간 구성 요소를 짧게 */}
-            <div className="mt-10">
-              <Heading level={3} className="mb-4">
-                핵심 기능
-              </Heading>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {detail.highlights.map((h) => (
-                  <Card key={h.title} className="flex flex-col gap-2">
-                    <Heading level={4} as="h4">
-                      {h.title}
-                    </Heading>
-                    <Text variant="body">{h.body}</Text>
-                  </Card>
-                ))}
-              </div>
+          {detail.links && detail.links.length > 0 && (
+            <div className="mt-12 flex flex-wrap gap-3">
+              {detail.links.map((l) => (
+                <Btn key={l.href} href={l.href}>
+                  {l.label} ↗
+                </Btn>
+              ))}
             </div>
+          )}
 
-            {/* 스택 */}
-            <div className="mt-10">
-              <Heading level={3} className="mb-4">
-                Stack
-              </Heading>
-              <div className="flex flex-wrap gap-2">
-                {detail.stack.map((s) => (
-                  <Badge key={s} variant="brand">
-                    {s}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            {/* 링크 */}
-            {detail.links && detail.links.length > 0 && (
-              <div className="mt-10 flex flex-wrap gap-3">
-                {detail.links.map((l) => (
-                  <a
-                    key={l.href}
-                    href={l.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Button variant="secondary" size="sm">
-                      {l.label} ↗
-                    </Button>
-                  </a>
-                ))}
-              </div>
-            )}
-
-            <div className="mt-14 border-t border-border pt-8">
-              <Link href="/#projects">
-                <Button variant="ghost" size="sm">
-                  ← 모든 프로젝트
-                </Button>
-              </Link>
-            </div>
-          </Container>
-        </article>
+          <div className="cut mt-14 pt-6">
+            <Btn href="/#projects" variant="text">
+              ← Sheet 04 · 모든 프로젝트
+            </Btn>
+          </div>
+        </DetailSheet>
       </Reveal>
     </main>
   );

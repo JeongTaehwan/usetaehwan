@@ -9,7 +9,7 @@
 **`usetaehwan.page`** — 프론트엔드 개발자 정태환의 개인 포트폴리오 사이트.
 
 - **브랜딩:** `useTaehwan()` — React 훅 컨셉의 언어유희
-- **스택:** Next.js 16 (App Router, Turbopack) + TypeScript + Tailwind v4 + `@usetaehwan/ui`(자체 디자인 시스템 패키지) + Vercel
+- **스택:** Next.js 16 (App Router, Turbopack) + TypeScript + Tailwind v4 + Framer Motion + Vercel (v2부터 디자인 시스템 패키지 미사용)
 - **도메인:** `usetaehwan.page` (구매·연결 완료, push 시 자동 배포)
 - **레포:** `JeongTaehwan/usetaehwan` (현재 private, 완성 후 public 전환 예정)
 
@@ -45,66 +45,38 @@
 
 ---
 
-## 디자인 시스템: 별도 패키지로 분리 완료
+## 디자인: 도면(drafting sheet) 테마 — 디자인 시스템을 쓰지 않는다 (v2, 2026-09)
 
-`design-system/` 폴더는 **추출이 끝났다.** 이제 npm 패키지 `@usetaehwan/ui`로 배포되어 있고, 이 저장소는 그것을 **설치해서 소비**한다. (같은 패키지를 Orbit 등 다른 프로젝트에서도 사용 — 단일 소스 유지가 목적.)
+v2에서 사이트는 `@usetaehwan/ui`를 **더 이상 설치·사용하지 않는다.** 디자인 시스템은 프로젝트 목록의 한 항목(Detail A)이자 Orbit·각(Gak)의 소비 대상으로만 남는다. 시스템 자체는 별도 저장소 [`usetaehwan-ui`](https://github.com/JeongTaehwan/usetaehwan-ui)에서 관리한다.
 
-- **디자인 시스템 수정은 이 저장소에서 하지 않는다.** 컴포넌트·토큰을 고치려면 별도 저장소 [`usetaehwan-ui`](https://github.com/JeongTaehwan/usetaehwan-ui)에서 작업하고, 버전을 올려 배포한 뒤 여기서 `npm update @usetaehwan/ui` 한다.
-- 아래 3규칙은 그 `usetaehwan-ui` 저장소로 **이관**됐다 (이 저장소가 아니라 패키지가 지키는 규칙):
-  1. 시스템은 소비처(사이트) 코드를 import 하지 않는다 — 단방향 의존.
-  2. 색·간격 하드코딩 금지 — 토큰(Tailwind 유틸리티)만 참조.
-  3. `next/*` 의존 금지 — 순수 React (다른 환경에서도 쓰기 위해).
+### 컨셉
 
-### 이 저장소(소비처)에서 지킬 것
+- 사이트 전체가 **한 세트의 기술 도면**이다. 홈의 섹션 = Sheet 01~06, 프로젝트 = Detail A/B/C, 작업 사례 = 단면도 A-1…, AI 활용 = General notes, Contact = 승인란.
+- 라이트 = **Paper**(미색 제도 용지 + 옅은 청색 격자 + 남색 잉크 + 적색 마킹), 다크 = **Blueprint**(프러시안 블루 + 흰 선 + 황색 마킹). 토글 라벨도 Paper / Blueprint.
+- 내비게이션은 상단 바가 아니라 **우하단 표제란(TitleBlock)**. 데스크톱은 hover/focus로 펼쳐지고 모바일은 하단 띠 + 드로어.
+- **프로젝트별 팔레트.** 각 프로젝트가 실제로 쓰는 색(`.theme-<slug>`)이 홈 카드와 상세 페이지에 그대로 입혀진다. 카드의 "전체 도면에 입히기"를 누르면 `html.theme-<slug>`가 켜져 사이트 전체가 그 팔레트로 바뀐다. Paper/Blueprint와 독립.
 
-- 컴포넌트·토큰은 `@usetaehwan/ui`에서 import한다. 로컬 `@/design-system` 경로는 더 이상 없다.
-- **Tailwind v4 `@source` 필수.** v4는 node_modules를 스캔하지 않으므로, `app/globals.css`에
-  `@source "../node_modules/@usetaehwan/ui/dist";` 가 있어야 패키지 컴포넌트의 유틸리티가 생성된다.
-  이 설정이 빠지면 컴포넌트가 **무스타일로 렌더**된다. (겪을 수 있는 함정)
-- 토큰은 `@import "@usetaehwan/ui/tokens.css";` 로 불러온다.
-
----
-
-## 폴더 구조
+### 구조
 
 ```
-usetaehwan/
-├── app/                      # 사이트 (Next.js)
-│   ├── globals.css           # @import tailwindcss + @usetaehwan/ui/tokens.css + @source(패키지 dist)
-│   ├── layout.tsx            # 폰트 로드 (Hanken/Instrument/JetBrains + Pretendard)
-│   └── page.tsx
-├── package.json              # deps: @usetaehwan/ui (디자인 시스템을 여기서 소비)
-└── tsconfig.json             # paths: { "@/*": ["./*"] }
+app/
+├── globals.css          # @theme 토큰(paper/ink/line/grid/mark) · .dark · 제도 유틸리티(@layer components) · .theme-<slug>
+├── _ui/                 # 로컬 프리미티브 — Sheet/SubHead/Rows · Label · Dim(치수선) · Stamp · Marker · Btn · Reveal/Rule · palette(html.classList 스토어)
+├── _components/         # Hero · TitleBlock(내비) · ThemeToggle · Palette(Swatches/PaletteBleed/PaletteScope/PaletteLegend) · SubpageFrame
+└── _data/               # projects(palette 필드 포함) · talks · ai-practices
 ```
 
-> 디자인 시스템 소스는 이 저장소에 없다. 별도 저장소 `usetaehwan-ui` → npm `@usetaehwan/ui` 로 관리한다.
+### 지킬 것
 
----
-
-## 디자인 시스템
-
-### 톤 & 무드
-
-**저채도 웜 뉴트럴.** 가을 느낌의 흐릿하고 차분한 색감.
-- 터미널·해커 클리셰 배제 (고채도 대비, 순검정 배경, 모노스페이스 남발 금지)
-- 딱딱한 개발자 사이트가 아닌, 따뜻하고 편안한 프로덕트 톤
-- 세리프 헤딩(Instrument Serif)으로 에디토리얼한 인상
-
-### 토큰 (`@usetaehwan/ui/tokens.css` — 패키지에서 제공)
-
-- **베이스:** 크림/베이지 계열 (`--color-bg: #FDFBF7`)
-- **브랜드:** 흐린 벽돌색 (`--color-brand: #A55E45`)
-- **다크모드:** 순검정 금지. 웜 브라운 그레이 (`#201D19`)
-- **폰트:** Instrument Serif(헤딩) / Hanken Grotesk(본문) / JetBrains Mono(코드) / Pretendard(한글)
-- **스페이싱:** 4px 그리드
-- **라운드:** sm 6 / md 10 / lg 16 / full
-- **섀도우:** 3단계, 웜 틴트, 아주 은은하게
-
-### 원칙
-
-- **과하게 만들지 않는다.** 색 50단계, 섀도우 8종 같은 건 만들지 않는다. 실제로 쓸 것만.
-- **필요해지면 추가한다.** Style Dictionary, Storybook, Figma 연동 — 전부 지금은 안 쓴다. 개인 프로젝트에서는 오버헤드. 코드가 SSOT.
-- **시맨틱 네이밍.** `--color-red`가 아니라 `--color-brand`, `--color-danger`.
+- 색은 반드시 `globals.css` 토큰만 쓴다 (`text-ink`, `border-line`, `text-mark`, `bg-paper` …). 임의 hex 금지 — 예외는 `_data/projects.ts`의 `palette.swatches`(실제 프로젝트 색 표시용)와 `opengraph-image.tsx`(CSS 변수 사용 불가).
+- 커스텀 클래스(`.label`, `.display`, `.sheet`, `.prose-draft` 등)는 `@layer components` 안에 둔다. 밖에 두면 Tailwind 유틸리티가 덮어쓰지 못한다 (겪은 함정).
+- 프로젝트별 팔레트를 추가할 때는 `globals.css`의 `.theme-<slug>`와 `projects.ts`의 `palette`를 함께 만든다. 어두운 팔레트는 `--scheme: dark; color-scheme: dark`를 같이 준다.
+- 테마/팔레트 상태의 진실은 `html.classList`(`.dark`, `.theme-*`)다. React state로 복제하지 말고 `_ui/palette.ts`의 `useDark/usePalette/setDark/setPalette`를 쓴다.
+- 폰트: Space Grotesk(디스플레이) · IBM Plex Mono(주기·수치) · Pretendard(한글 본문, CDN).
+- 모션은 Reveal(fade+12px)과 Rule(선 긋기)만. reduced-motion이면 MotionConfig가 이동을 제거한다.
+- **십자선 커서**(`_components/Crosshair.tsx`): 기본 꺼짐. 마우스 환경에서 표제란 ✛ 버튼으로 켜면 localStorage `crosshair=on`, 상태는 `html.no-crosshair` 클래스. React state 없이 rAF로 transform만 갱신한다. 좌표는 8px 격자 1칸 = 1.
+- 커버·상세 시트의 존 마커(`.zones`)와 상단 띠(Drawing no. / Sheet / Scale / Rev)는 모든 도면에 같은 형식으로 둔다. 푸터의 REV 표(`SITE_REVISIONS`)는 사이트 자체의 개정 이력이며 큰 재설계 때마다 한 줄 추가한다.
+- 인쇄(`@media print`)는 흰 종이 + 잉크만. 표제란·헤더는 `data-print="hide"`로 숨긴다.
 
 ---
 
@@ -150,13 +122,11 @@ usetaehwan/
 
 ## 알려진 이슈 / 주의사항
 
-- **Tailwind v4 preflight**가 `--default-font-family`를 사용하므로, `@theme`에서 이 변수를 `var(--font-sans)`로 덮어야 폰트가 적용됨. (겪었던 함정)
-- **`--color-fg-muted: #8A8577`** 은 크림 배경에서 WCAG AA(4.5:1) 미달 가능성. 캡션·힌트 전용으로만 사용할 것. 본문에 쓰지 말 것.
-- ~~**다크모드 미검증.**~~ 검증 완료 — `.dark` 클래스 방식이 v4에서 정상 동작.
-  유틸리티가 `var(--color-*)`를 참조하므로 `.dark`에서 토큰 값만 덮으면 전체가 따라온다.
-  (`text-on-brand` 토큰으로 채움 버튼 글자색을 라이트/다크 각각 AA 대비로 유지)
-
----
+- **Tailwind v4 preflight**가 `--default-font-family`를 사용하므로, `@theme`에서 이 변수를 `var(--font-body)`로 덮어야 폰트가 적용됨. (겪었던 함정)
+- `--color-ink-3`는 보조 주기 전용. 본문에는 `ink-2` 이상을 쓴다.
+- 다크(Blueprint)는 `.dark` 클래스에서 토큰만 덮는다. 유틸리티가 `var(--color-*)`를 참조하므로 전체가 따라온다.
+- Framer Motion의 `initial opacity:0`은 SSR HTML에도 들어간다. 헤드리스 캡처는 rAF가 돌지 않으면 빈 화면이 나오므로 Playwright로 스크롤 후 찍는다.
+- 모바일 가로 넘침 주의: 격자 자식은 `min-w-0`, 본문은 `overflow-wrap: anywhere`(globals.css). 치수선(`Dim`) 텍스트에 `whitespace-nowrap`을 주지 말 것.
 
 ## 코딩 스타일
 

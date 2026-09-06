@@ -1,28 +1,25 @@
 import type { Metadata } from "next";
-import { Hanken_Grotesk, Instrument_Serif, JetBrains_Mono } from "next/font/google";
+import { IBM_Plex_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./_components/Providers";
+import { Crosshair } from "./_components/Crosshair";
 
-const hankenGrotesk = Hanken_Grotesk({
-  variable: "--font-hanken",
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space",
   subsets: ["latin"],
+  weight: ["400", "500", "700"],
 });
 
-const instrumentSerif = Instrument_Serif({
-  variable: "--font-instrument",
-  weight: "400",
+const plexMono = IBM_Plex_Mono({
+  variable: "--font-plex",
   subsets: ["latin"],
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains",
-  subsets: ["latin"],
+  weight: ["400", "500"],
 });
 
 const SITE_URL = "https://usetaehwan.page";
-const SITE_TITLE = "useTaehwan() — A frontend engineer, documented.";
+const SITE_TITLE = "useTaehwan() — A frontend engineer, drafted.";
 const SITE_DESCRIPTION =
-  "커머스 프론트엔드 3년 10개월 — 결제·정산·쿠폰 등 금액 도메인과 외부 시스템 연동. AI는 역할을 나누고 코드로 검증하고 숫자로 판단하는 통제 대상으로 다룹니다. 직접 만든 디자인 시스템 @usetaehwan/ui로 구축.";
+  "커머스 프론트엔드 3년 10개월 — 결제·정산·쿠폰 등 금액 도메인과 외부 시스템 연동. AI는 역할을 나누고 코드로 검증하고 숫자로 판단하는 통제 대상으로 다룹니다.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -46,9 +43,8 @@ export const metadata: Metadata = {
   },
 };
 
-// 페인트 전에 테마를 결정해 FOUC(잘못된 테마 깜빡임)를 막는다.
-// 저장된 값 우선, 없으면 OS 설정을 따른다.
-const themeInitScript = `(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();`;
+// 페인트 전에 테마를 결정해 FOUC를 막는다. 저장된 값 우선, 없으면 OS 설정.
+const themeInitScript = `(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');if(localStorage.getItem('crosshair')!=='on')document.documentElement.classList.add('no-crosshair');}catch(e){}})();`;
 
 export default function RootLayout({
   children,
@@ -62,10 +58,11 @@ export default function RootLayout({
         />
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body
-        className={`${hankenGrotesk.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable}`}
-      >
-        <Providers>{children}</Providers>
+      <body className={`${spaceGrotesk.variable} ${plexMono.variable}`}>
+        <Providers>
+          {children}
+          <Crosshair />
+        </Providers>
       </body>
     </html>
   );

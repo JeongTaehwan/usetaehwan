@@ -1,36 +1,36 @@
-import Link from "next/link";
-import { Button, Container, Heading, Text } from "@usetaehwan/ui";
-import { SubpageHeader } from "./_components/SubpageHeader";
+import { Btn } from "./_ui/Btn";
+import { Label } from "./_ui/Label";
+import { Stamp } from "./_ui/Stamp";
+import { SubpageHeader } from "./_components/SubpageFrame";
 
 export default function NotFound() {
   return (
-    <main className="min-h-dvh">
-      <SubpageHeader backHref="/" backLabel="Home" />
-      <section className="py-24 sm:py-32">
-        <Container size="md">
-          <Text as="div" variant="muted" className="font-mono text-brand">
-            // 404
-          </Text>
-          <Heading level={1} className="mt-3 text-4xl sm:text-5xl">
-            이 주소에는 문서가 없습니다.
-          </Heading>
-          <Text variant="lead" className="mt-4">
-            주소가 바뀌었거나 아직 쓰지 않은 페이지입니다. 홈에서 프로젝트·발표·AI 활용 문서로
-            이동할 수 있습니다.
-          </Text>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/">
-              <Button variant="primary">홈으로</Button>
-            </Link>
-            <Link href="/#projects">
-              <Button variant="ghost">Projects</Button>
-            </Link>
-            <Link href="/#ai">
-              <Button variant="ghost">AI 활용</Button>
-            </Link>
+    <main className="page paper-grid min-h-dvh">
+      <SubpageHeader backHref="/" backLabel="Cover" sheetNo="00" />
+      <div className="mx-auto w-full max-w-4xl px-5 py-16 sm:px-8 sm:py-28">
+        <div className="sheet p-6 sm:p-12">
+          <div className="flex items-center gap-4">
+            <Label mark>Sheet ??</Label>
+            <Stamp>Void</Stamp>
           </div>
-        </Container>
-      </section>
+          <h1 className="display mt-6 text-4xl sm:text-6xl">
+            404
+            <br />
+            이 번호의 도면은 없습니다.
+          </h1>
+          <p className="prose-draft mt-6 max-w-xl">
+            주소가 바뀌었거나 아직 그리지 않은 장입니다. 표지로 돌아가 프로젝트·발표·AI 노트로
+            이동할 수 있습니다.
+          </p>
+          <div className="mt-10 flex flex-wrap gap-3">
+            <Btn href="/" variant="solid">
+              Sheet 00 · Cover
+            </Btn>
+            <Btn href="/#projects">Sheet 04 · Projects</Btn>
+            <Btn href="/#ai">Sheet 05 · AI Notes</Btn>
+          </div>
+        </div>
+      </div>
     </main>
   );
 }
