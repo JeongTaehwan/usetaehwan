@@ -70,19 +70,3 @@ export function setPalette(slug: string | null) {
     .forEach((c) => el.classList.remove(c));
   if (slug) el.classList.add(`theme-${slug}`);
 }
-
-/* ── 십자선 커서 (CAD 커서) ── 진실은 html.no-crosshair 클래스. 기본 켜짐 */
-function readCrosshair(): boolean {
-  return !document.documentElement.classList.contains("no-crosshair");
-}
-
-export function useCrosshair(): boolean {
-  return useSyncExternalStore(subscribe, readCrosshair, () => false);
-}
-
-export function setCrosshair(on: boolean) {
-  document.documentElement.classList.toggle("no-crosshair", !on);
-  try {
-    localStorage.setItem("crosshair", on ? "on" : "off");
-  } catch {}
-}

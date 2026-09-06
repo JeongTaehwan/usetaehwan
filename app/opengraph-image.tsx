@@ -1,96 +1,24 @@
 import { ImageResponse } from "next/og";
 
-/**
- * 링크 공유 미리보기(OG) 이미지 — 청사진(blueprint) 버전.
- * globals.css 다크 토큰과 같은 값: paper #0f2a5e · ink #f4f7ff · mark #ffc857.
- * ImageResponse는 별도 폰트 파일 없이는 한글을 못 그리므로 영문만 쓴다.
- */
-export const alt = "useTaehwan() — A frontend engineer, drafted.";
+/** 링크 미리보기 — Evening 로비. globals.css의 .dark 토큰 값을 그대로 쓴다 (ImageResponse는 한글 폰트가 없어 영문만). */
+export const alt = "Taehwan Jeong — Frontend engineer";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-
-const PAPER = "#0f2a5e";
-const INK = "#f4f7ff";
-const INK_3 = "#8ea0cc";
-const MARK = "#ffc857";
-const LINE = "rgba(232,238,255,0.5)";
-const MONO = "ui-monospace, Menlo, monospace";
 
 export default function OpenGraphImage() {
   return new ImageResponse(
     (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          padding: 40,
-          background: PAPER,
-          backgroundImage:
-            "linear-gradient(to right, rgba(232,238,255,0.14) 1px, transparent 1px), linear-gradient(to bottom, rgba(232,238,255,0.14) 1px, transparent 1px)",
-          backgroundSize: "40px 40px",
-          color: INK,
-          fontFamily: "Helvetica, Arial, sans-serif",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            width: "100%",
-            height: "100%",
-            border: `2px solid ${LINE}`,
-            padding: "36px 48px",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              fontFamily: MONO,
-              fontSize: 22,
-              letterSpacing: 3,
-              color: INK_3,
-              textTransform: "uppercase",
-            }}
-          >
-            <span>Drawing no. UT-2026-01</span>
-            <span>Sheet 00 · Cover</span>
-            <span>Scale 1:1 · Seoul</span>
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", letterSpacing: -4, lineHeight: 0.95 }}>
-            <div style={{ display: "flex", fontSize: 108, fontWeight: 700 }}>Frontend engineer,</div>
-            <div style={{ display: "flex", fontSize: 108, fontWeight: 700, color: MARK }}>drafted.</div>
-          </div>
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-end",
-              borderTop: `2px solid ${LINE}`,
-              paddingTop: 24,
-            }}
-          >
-            <div style={{ display: "flex", fontSize: 40, fontWeight: 700, letterSpacing: -1 }}>
-              <span>useTaehwan</span>
-              <span style={{ fontFamily: MONO, color: MARK, fontWeight: 400 }}>()</span>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                fontFamily: MONO,
-                fontSize: 20,
-                letterSpacing: 3,
-                color: INK_3,
-                textTransform: "uppercase",
-              }}
-            >
-              commerce frontend · measured AI workflow · rev 2.0
-            </div>
-          </div>
+      <div style={{ width: "100%", height: "100%", display: "flex", background: "#2c2520", color: "#f3ead9", fontFamily: "Georgia, serif", position: "relative" }}>
+        <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 150, background: "linear-gradient(180deg, #7a5236, #5a3b27)" }} />
+        {[720, 900, 1080].map((x) => (
+          <div key={x} style={{ position: "absolute", left: x, top: 90, width: 120, height: 400, borderRadius: "60px 60px 0 0", background: "linear-gradient(180deg, #1e2a44 0%, #4a3d55 55%, #c97e4e 100%)", border: "8px solid #3f2a1c", display: "flex" }} />
+        ))}
+        <div style={{ position: "absolute", left: 80, top: 150, display: "flex", flexDirection: "column" }}>
+          <div style={{ fontSize: 120, lineHeight: 1, letterSpacing: -3 }}>Good evening.</div>
+          <div style={{ marginTop: 28, fontSize: 30, color: "#cdbfa9", fontFamily: "Helvetica, Arial, sans-serif" }}>Taehwan Jeong · Frontend engineer · Seoul</div>
+        </div>
+        <div style={{ position: "absolute", left: 80, bottom: 190, width: 300, height: 44, background: "linear-gradient(180deg,#d2ac6e,#a8864a)", borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, letterSpacing: 5, color: "#2b2622", fontFamily: "Georgia, serif" }}>
+          TAEHWAN JEONG · FRONTEND
         </div>
       </div>
     ),

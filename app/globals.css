@@ -1,555 +1,188 @@
 @import "tailwindcss";
 
 /* ─────────────────────────────────────────────────────────────
-   usetaehwan.page · 도면(drafting sheet) 테마
-
-   라이트 = 제도 용지(paper): 미색 종이 위에 옅은 청색 격자, 남색 잉크, 적색 마킹.
-   다크  = 청사진(blueprint): 짙은 프러시안 블루 위에 흰 선, 황색 마킹.
-   디자인 시스템 패키지 없이 이 파일의 토큰과 app/_ui의 프리미티브만 쓴다.
+   usetaehwan.page · v3 "Brooklyn loft"
+   Morning(기본) / Evening(.dark). 토큰은 @theme, 재질은 SVG 노이즈 텍스처.
+   프로젝트 세계(경기장·천문대·보관소)는 .world-* 팔레트로 따로 간다.
    ───────────────────────────────────────────────────────────── */
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /* ── 종이 · 잉크 ── */
-  --color-paper: #f3efe4;
-  --color-paper-2: #ebe6d8;
-  --color-ink: #14213d;
-  --color-ink-2: #3c4864;
-  --color-ink-3: #6b7590;
+  --color-wall: #efe6d8;
+  --color-wall-2: #e3d7c6;
+  --color-ink: #2b2622;
+  --color-ink-2: #5c534a;
+  --color-muted: #8b7f72;
+  --color-line: rgba(43, 38, 34, 0.14);
+  --color-wood: #b98a5e;
+  --color-wood-2: #8c6240;
+  --color-wood-3: #6e4a2e;
+  --color-brass: #b08d57;
+  --color-brass-2: #8f6f3e;
+  --color-paper: #fbf6ec;
+  --color-paper-2: #f3ebdc;
+  --color-sage: #7e8c6a;
+  --color-accent: #a55e45;
+  --color-sky-top: #cfe2ec;
+  --color-sky-mid: #e8e9e1;
+  --color-sky-low: #f5e3c4;
 
-  /* ── 선 ── */
-  --color-line: #2b3a5c;
-  --color-line-soft: rgba(43, 58, 92, 0.32);
-  --color-grid: rgba(74, 111, 165, 0.09);
-  --color-grid-major: rgba(74, 111, 165, 0.2);
-
-  /* ── 마킹(redline) ── */
-  --color-mark: #c8102e;
-  --color-mark-soft: rgba(200, 16, 46, 0.12);
-  --color-on-mark: #fbf7ee;
-
-  /* ── 타이포 ── */
-  --font-display: var(--font-space), "Pretendard Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-body: "Pretendard Variable", var(--font-space), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-plex), ui-monospace, "SFMono-Regular", Menlo, monospace;
-  --default-font-family: var(--font-body);
+  --font-caslon: var(--font-caslon-next), "Nanum Myeongjo", Georgia, serif;
+  --font-myeongjo: var(--font-myeongjo-next), "Libre Caslon Text", Georgia, serif;
+  --font-karla: var(--font-karla-next), "Noto Sans KR", "Helvetica Neue", Arial, sans-serif;
+  --font-noto: var(--font-noto-next), "Karla", "Helvetica Neue", Arial, sans-serif;
+  --default-font-family: var(--font-noto);
 
   --spacing: 0.25rem;
-
-  /* 격자 기준 단위 — 배경 격자와 프레임 여백이 같은 눈금을 쓴다 */
-  --grid-minor: 8px;
-  --grid-major: 64px;
-
-  --ease-draft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 :root {
   color-scheme: light;
+  --tex-wood: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.35' numOctaves='3' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0.55 0 0 0 0 0.38 0 0 0 0 0.22 0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23w)'/%3E%3C/svg%3E");
+  --tex-plaster: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.45 0 0 0 0 0.4 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23p)'/%3E%3C/svg%3E");
+  --tex-brick: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.06 0.9' numOctaves='2' seed='11'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.3 0 0 0 0 0.2 0 0 0 0.8 0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23b)'/%3E%3C/svg%3E");
+  --tex-turf: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='t'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 0.2 0 0 0 0 0.45 0 0 0 0 0.2 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23t)'/%3E%3C/svg%3E");
+  --tex-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  --sun: rgba(255, 226, 170, 0.4);
+  --sun-0: rgba(255, 226, 170, 0);
+  --shadow: rgba(60, 40, 20, 0.22);
+  --grain-op: 0.07;
+  --grain-blend: multiply;
+  --brick-line: rgba(120, 80, 60, 0.06);
+  --window-light: 0; /* 스카이라인 창 불빛 (Evening 1) */
 }
 
 .dark {
   color-scheme: dark;
-
-  --color-paper: #0f2a5e;
-  --color-paper-2: #0c2350;
-  --color-ink: #f4f7ff;
-  --color-ink-2: #c5d1ee;
-  --color-ink-3: #8ea0cc;
-
-  --color-line: #e8eeff;
-  --color-line-soft: rgba(232, 238, 255, 0.34);
-  --color-grid: rgba(232, 238, 255, 0.05);
-  --color-grid-major: rgba(232, 238, 255, 0.12);
-
-  --color-mark: #ffc857;
-  --color-mark-soft: rgba(255, 200, 87, 0.16);
-  --color-on-mark: #0f2a5e;
+  --color-wall: #2c2520;
+  --color-wall-2: #241e1a;
+  --color-ink: #f3ead9;
+  --color-ink-2: #cdbfa9;
+  --color-muted: #9e8f7c;
+  --color-line: rgba(243, 234, 217, 0.14);
+  --color-wood: #7a5236;
+  --color-wood-2: #5a3b27;
+  --color-wood-3: #3f2a1c;
+  --color-brass: #d2ac6e;
+  --color-brass-2: #a8864a;
+  --color-paper: #f2e9d8;
+  --color-paper-2: #e9dfcc;
+  --color-sage: #98a588;
+  --color-accent: #c67a5f;
+  --color-sky-top: #1e2a44;
+  --color-sky-mid: #4a3d55;
+  --color-sky-low: #c97e4e;
+  --sun: rgba(255, 190, 110, 0.3);
+  --sun-0: rgba(255, 190, 110, 0);
+  --shadow: rgba(0, 0, 0, 0.45);
+  --grain-op: 0.1;
+  --grain-blend: soft-light;
+  --brick-line: rgba(255, 200, 150, 0.05);
+  --window-light: 1;
 }
 
-/* ─────────────────────────────────────────────────────────────
-   기본
-   ───────────────────────────────────────────────────────────── */
-html {
-  background: var(--color-paper);
-}
+/* ── 프로젝트 세계 팔레트 (시간대와 무관) ── */
+.world-gak { --w-bg: #04060a; --w-paper: #0b1119; --w-ink: #eaf0f8; --w-ink-2: #b7c2d3; --w-muted: #7c8a9e; --w-acc: #c8ff1e; --w-on: #04060a; --w-line: rgba(234, 240, 248, 0.14); --grain-op: 0.1; --grain-blend: soft-light; color-scheme: dark; }
+.world-orbit { --w-bg: #06080f; --w-paper: #0e1220; --w-ink: #eaeef7; --w-ink-2: #a6b0c6; --w-muted: #6a7488; --w-acc: #5cc9d6; --w-on: #0a0d16; --w-line: rgba(234, 238, 247, 0.14); --grain-op: 0.1; --grain-blend: screen; color-scheme: dark; }
+.world-usetaehwan-ui { --w-bg: #e4d9c4; --w-paper: #fdfbf7; --w-ink: #33302a; --w-ink-2: #6f6a5e; --w-muted: #8a8577; --w-acc: #a55e45; --w-on: #fdfbf7; --w-line: rgba(51, 48, 42, 0.14); --grain-op: 0.08; --grain-blend: multiply; color-scheme: light; }
 
+html { background: var(--color-wall); }
 body {
-  font-family: var(--font-body);
+  font-family: var(--font-noto);
   color: var(--color-ink-2);
-  background-color: var(--color-paper);
-  cursor: default;
-}
-
-/* CAD 커서 — 마우스 환경에서 기본 커서를 십자로. 링크·버튼·입력은 아래 규칙이 다시 덮는다 */
-@media (pointer: fine) {
-  html:not(.no-crosshair) body {
-    cursor: crosshair;
-  }
+  background: var(--color-wall);
   -webkit-font-smoothing: antialiased;
+  overflow-wrap: anywhere;
 }
-
-/* 유틸리티가 덮어쓸 수 있도록 components 레이어에 둔다 (Tailwind v4: unlayered > utilities) */
-@layer components {
-/* 제도 용지 — 8px 소격자 + 64px 대격자. 페이지 루트와 프로젝트별 시트가 같이 쓴다 */
-.paper-grid {
-  background-color: var(--color-paper);
-  background-image:
-    linear-gradient(to right, var(--color-grid-major) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--color-grid-major) 1px, transparent 1px),
-    linear-gradient(to right, var(--color-grid) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--color-grid) 1px, transparent 1px);
-  background-size:
-    var(--grid-major) var(--grid-major),
-    var(--grid-major) var(--grid-major),
-    var(--grid-minor) var(--grid-minor),
-    var(--grid-minor) var(--grid-minor);
-}
-
-.page {
-  color: var(--color-ink-2);
-}
-
-::selection {
-  background: var(--color-mark);
-  color: var(--color-on-mark);
-}
-
-:root {
-  caret-color: transparent;
-}
-
-a[href],
-button,
-label,
-summary,
-[role="button"] {
-  cursor: pointer;
-}
-
-button:disabled,
-[aria-disabled="true"],
-:disabled {
-  cursor: not-allowed;
-}
-
-input,
-textarea,
-select,
-[contenteditable] {
-  cursor: text;
-  caret-color: var(--color-mark);
-}
-
-:focus-visible {
-  outline: 2px solid var(--color-mark);
-  outline-offset: 3px;
-}
+::selection { background: var(--color-brass); color: #2b2622; }
+a[href], button, label, summary { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--color-brass); outline-offset: 3px; }
 
 @media (prefers-reduced-motion: no-preference) {
-  html {
-    scroll-behavior: smooth;
-  }
-
-  *,
-  ::before,
-  ::after {
-    transition-property: background-color, border-color, color, fill, stroke, box-shadow;
-    transition-duration: 180ms;
+  html { scroll-behavior: smooth; }
+  *, ::before, ::after {
+    transition-property: background-color, border-color, color, fill, stroke, box-shadow, opacity;
+    transition-duration: 450ms;
     transition-timing-function: ease;
   }
 }
 
-/* ─────────────────────────────────────────────────────────────
-   제도 유틸리티
-   ───────────────────────────────────────────────────────────── */
+@layer components {
+  .caslon { font-family: var(--font-caslon); }
+  .myeongjo { font-family: var(--font-myeongjo); font-weight: 700; }
+  .karla { font-family: var(--font-karla); }
+  .caps { font-family: var(--font-karla); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; }
+  .prose-kr { font-size: 15.5px; line-height: 1.85; word-break: keep-all; }
 
-/* 모노 라벨 — 도면 주기(註記) 서체. 대문자·자간 넓게 */
-.label {
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  line-height: 1.2;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-ink-3);
-}
-
-/* 디스플레이 — 큰 제목. 자간을 좁혀 잉크 덩어리처럼 */
-.display {
-  font-family: var(--font-display);
-  font-weight: 700;
-  letter-spacing: -0.035em;
-  line-height: 1.05;
-  color: var(--color-ink);
-}
-
-/* 도면 프레임 — 이중 외곽선 + 네 귀퉁이 재단선 */
-.sheet {
-  position: relative;
-  border: 1px solid var(--color-line);
-  background: color-mix(in oklab, var(--color-paper) 92%, transparent);
-}
-
-.sheet::before,
-.sheet::after {
-  content: "";
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  pointer-events: none;
-}
-
-.sheet::before {
-  top: -8px;
-  left: -8px;
-  border-top: 1px solid var(--color-line);
-  border-left: 1px solid var(--color-line);
-}
-
-.sheet::after {
-  bottom: -8px;
-  right: -8px;
-  border-bottom: 1px solid var(--color-line);
-  border-right: 1px solid var(--color-line);
-}
-
-/* 프로젝트별 팔레트가 입혀진 시트 — 불투명 종이 + 그 팔레트의 격자 */
-.sheet.paper-grid {
-  color-scheme: var(--scheme, light);
-  color: var(--color-ink-2);
-  transition: border-color 200ms var(--ease-draft);
-}
-
-.sheet.paper-grid:hover,
-.sheet.paper-grid:focus-within {
-  border-color: var(--color-mark);
-}
-
-/* 스탬프 — 검수 도장. 살짝 기울어진 적색 외곽선 */
-.stamp {
-  display: inline-block;
-  padding: 0.25rem 0.55rem;
-  border: 1.5px solid var(--color-mark);
-  color: var(--color-mark);
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  line-height: 1;
-  transform: rotate(-2.5deg);
-  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='40'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.35 0.65'/%3E%3C/filter%3E%3Crect width='120' height='40' filter='url(%23n)'/%3E%3C/svg%3E");
-  mask-size: 120px 40px;
-}
-
-/* 치수선 — 양끝 화살촉 + 가운데 값 */
-.dim {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--color-ink-3);
-  letter-spacing: 0.04em;
-}
-
-.dim::before,
-.dim::after {
-  content: "";
-  flex: 1 1 0;
-  height: 1px;
-  background: var(--color-line-soft);
-  min-width: 12px;
-}
-
-.dim::before {
-  background: linear-gradient(to right, var(--color-line) 0 6px, var(--color-line-soft) 6px);
-}
-
-.dim::after {
-  background: linear-gradient(to left, var(--color-line) 0 6px, var(--color-line-soft) 6px);
-}
-
-/* 해칭 — 단면 표시. 45° 사선 */
-.hatch {
-  background-image: repeating-linear-gradient(
-    -45deg,
-    var(--color-line-soft) 0 1px,
-    transparent 1px 7px
-  );
-}
-
-/* 점선 절단선 */
-.cut {
-  border-top: 1px dashed var(--color-line-soft);
-}
-
-/* 스크롤 진입 시 선이 그어지는 효과 */
-.rule {
-  height: 1px;
-  background: var(--color-line);
-  transform-origin: left center;
-}
-
-/* 본문 단락 */
-.prose-draft {
-  font-size: 0.9375rem;
-  line-height: 1.8;
-  color: var(--color-ink-2);
-  word-break: keep-all;
-  overflow-wrap: anywhere;
-}
-
-/* 좁은 화면에서 긴 한글·기호 연쇄가 칸을 밀어내지 않게 */
-body {
-  overflow-wrap: anywhere;
-}
-.display {
-  overflow-wrap: normal;
-}
-
-@media (min-width: 640px) {
-  .prose-draft {
-    font-size: 1rem;
+  /* 벽돌 벽 */
+  .brick {
+    position: relative;
+    background-color: var(--color-wall-2);
+    background-image:
+      repeating-linear-gradient(0deg, var(--brick-line) 0 2px, transparent 2px 28px),
+      repeating-linear-gradient(90deg, var(--brick-line) 0 2px, transparent 2px 84px),
+      repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 28px),
+      repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.035) 0 42px, transparent 42px 84px);
   }
-}
-
-/* 좌측 세로 눈금자(데스크톱) — 5칸마다 긴 눈금 */
-.ruler {
-  background-image:
-    linear-gradient(to right, var(--color-line-soft) 0 10px, transparent 10px),
-    linear-gradient(to right, var(--color-line-soft) 0 5px, transparent 5px);
-  background-size:
-    100% var(--grid-major),
-    100% calc(var(--grid-major) / 4);
-  background-repeat: repeat-y;
-  background-position: right top;
-}
-
-/* 넘버 — 큰 도면 번호 */
-.figure-no {
-  font-family: var(--font-mono);
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  color: var(--color-ink);
-}
-
-
-/* 십자선 커서 레이어 — 표제란(z-50) 아래, 본문 위 */
-.crosshair {
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  pointer-events: none;
-  opacity: 0;
-  display: none;
-}
-@media (pointer: fine) {
-  html:not(.no-crosshair) .crosshair {
-    display: block;
+  .brick::before { content: ""; position: absolute; inset: 0; pointer-events: none; background-image: var(--tex-brick); background-size: 400px 400px; opacity: 0.22; mix-blend-mode: multiply; }
+  .brick::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(900px 600px at 30% 20%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 70%), linear-gradient(180deg, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0.22) 100%); }
+  /* 회벽 */
+  .plaster { position: relative; background: var(--color-wall); }
+  .plaster::before { content: ""; position: absolute; inset: 0; pointer-events: none; background-image: var(--tex-plaster); background-size: 400px 400px; opacity: 0.14; mix-blend-mode: overlay; }
+  /* 원목 바닥 */
+  .floor {
+    position: relative;
+    background-image:
+      repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.12) 0 1px, transparent 1px 120px),
+      repeating-linear-gradient(90deg, transparent 0 60px, rgba(0, 0, 0, 0.05) 60px 61px, transparent 61px 120px),
+      repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.04) 0 1px, transparent 1px 7px),
+      linear-gradient(180deg, var(--color-wood) 0%, var(--color-wood-2) 100%);
   }
-}
-.crosshair[data-on] {
-  opacity: 1;
-}
-.crosshair-h,
-.crosshair-v {
-  position: absolute;
-  left: 0;
-  top: 0;
-  background: var(--color-line-soft);
-  will-change: transform;
-}
-.crosshair-h {
-  width: 100%;
-  height: 1px;
-}
-.crosshair-v {
-  width: 1px;
-  height: 100%;
-}
-.crosshair-tag {
-  position: absolute;
-  left: 0;
-  top: 0;
-  padding: 2px 5px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  white-space: pre;
-  color: var(--color-mark);
-  background: var(--color-paper);
-  border: 1px solid var(--color-line-soft);
-  will-change: transform;
-}
-
-/* 시트 가장자리 존 마커 — 도면 테두리의 A B C / 1 2 3 */
-.zones {
-  position: absolute;
-  display: flex;
-  justify-content: space-around;
-  pointer-events: none;
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.12em;
-  color: var(--color-ink-3);
-}
-.zones-x {
-  left: 0;
-  right: 0;
-  top: -1.1rem;
-}
-.zones-y {
-  top: 0;
-  bottom: 0;
-  left: -1.1rem;
-  flex-direction: column;
-  align-items: center;
-}
+  .floor::before { content: ""; position: absolute; inset: 0; pointer-events: none; background-image: var(--tex-wood); background-size: 400px 400px; opacity: 0.35; mix-blend-mode: multiply; }
+  .floor::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 70px; pointer-events: none; background: linear-gradient(180deg, rgba(0, 0, 0, 0.38) 0%, rgba(0, 0, 0, 0) 100%); }
+  .wood { position: relative; background: linear-gradient(180deg, var(--color-wood) 0%, var(--color-wood-2) 100%); }
+  .wood-dark { position: relative; background: linear-gradient(180deg, var(--color-wood-2) 0%, var(--color-wood-3) 100%); }
+  .wood::before, .wood-dark::before { content: ""; position: absolute; inset: 0; pointer-events: none; background-image: var(--tex-wood); background-size: 400px 400px; opacity: 0.4; mix-blend-mode: multiply; }
+  /* 종이 (카드·페이지) */
+  .paper { background: var(--color-paper); color: #2b2622; box-shadow: 0 24px 40px -20px var(--shadow); }
+  /* 마감 */
+  .grain { position: absolute; inset: 0; pointer-events: none; background-image: var(--tex-grain); opacity: var(--grain-op); mix-blend-mode: var(--grain-blend); }
+  .grade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(255, 225, 185, 0.07) 0%, rgba(255, 225, 185, 0) 45%, rgba(18, 14, 26, 0.12) 100%); mix-blend-mode: soft-light; }
+  .vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(120% 90% at 50% 40%, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.26) 100%); }
+  /* 놋쇠 명패 */
+  .plate { position: relative; display: flex; align-items: center; justify-content: center; background: linear-gradient(180deg, var(--color-brass) 0%, var(--color-brass-2) 100%); border-radius: 3px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.35); }
+  .plate::before, .plate::after { content: ""; position: absolute; top: 50%; width: 5px; height: 5px; margin-top: -2.5px; border-radius: 50%; background: #5a431f; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4); }
+  .plate::before { left: 8px; } .plate::after { right: 8px; }
+  /* 유리 */
+  .glass { background: linear-gradient(180deg, var(--color-sky-top) 0%, var(--color-sky-mid) 55%, var(--color-sky-low) 100%); box-shadow: inset 0 0 0 10px var(--color-wood-3), inset 0 0 0 12px rgba(255, 255, 255, 0.08), inset 0 0 48px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.25); }
+  .glass::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(112deg, rgba(255, 255, 255, 0) 42%, rgba(255, 255, 255, 0.12) 50%, rgba(255, 255, 255, 0) 58%), radial-gradient(60% 40% at 30% 20%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 70%); }
+  /* 빛 */
+  .sunbeam { position: absolute; pointer-events: none; background: linear-gradient(112deg, var(--sun-0) 30%, var(--sun) 50%, var(--sun-0) 68%); transform: skewX(-18deg); transition: opacity 600ms var(--ease-soft); }
+  .dark .sunbeam { opacity: 0; }
+  .lampglow { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(420px 320px at var(--lamp-x, 18%) var(--lamp-y, 78%), rgba(255, 196, 120, 0.42), rgba(255, 196, 120, 0) 70%); opacity: 0; transition: opacity 600ms var(--ease-soft); }
+  .dark .lampglow { opacity: 1; }
+  .lamp { opacity: 0; transition: opacity 400ms var(--ease-soft); }
+  .dark .lamp { opacity: 1; }
+  /* 버튼 */
+  .btn { display: inline-flex; align-items: center; gap: 10px; border-radius: 999px; padding: 13px 22px; font-family: var(--font-karla); font-size: 14px; font-weight: 600; transition: background-color 200ms, color 200ms, border-color 200ms; }
+  .btn-solid { background: var(--color-ink); color: var(--color-wall); }
+  .btn-solid:hover { background: var(--color-brass); color: #2b2622; }
+  .btn-outline { border: 1px solid var(--color-line); color: var(--color-ink); }
+  .btn-outline:hover { border-color: var(--color-brass); color: var(--color-brass); }
+  /* 세계 공통 */
+  .world { background: var(--w-bg); color: var(--w-ink-2); }
+  .w-panel { background: color-mix(in oklab, var(--w-paper) 84%, transparent); border: 1px solid var(--w-line); border-top: 3px solid var(--w-acc); backdrop-filter: blur(8px); box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.8); }
+  .w-btn { display: inline-flex; align-items: center; padding: 10px 14px; border-radius: 999px; font-family: var(--font-karla); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; }
+  .w-btn-acc { background: var(--w-acc); color: var(--w-on); }
+  .w-btn-line { border: 1px solid var(--w-line); color: var(--w-ink); }
+  .w-btn-line:hover { border-color: var(--w-acc); color: var(--w-acc); }
+  /* 1440×900 장면을 컨테이너에 '커버'로 맞춘다 */
+  .scene-fit { position: relative; overflow: hidden; }
+  .scene-fit > .scene { position: absolute; left: 50%; top: 50%; width: 1440px; height: 900px; transform: translate(-50%, -50%) scale(var(--s, 0.3)); transform-origin: center; }
+  .scene { position: relative; overflow: hidden; }
 }
 
-/* ─────────────────────────────────────────────────────────────
-   프로젝트별 팔레트
-   각 프로젝트가 실제로 쓰는 색을 그대로 옮겼다. 홈의 상세도 카드와 상세 페이지,
-   그리고 "전체에 입히기"를 켰을 때 html에 붙는다. Paper/Blueprint와 무관하게
-   그 프로젝트의 화면 그대로 보이도록 라이트/다크를 따로 두지 않는다.
-   ───────────────────────────────────────────────────────────── */
-
-/* useTaehwan()/ui — 저채도 웜 뉴트럴 · 흐린 벽돌색 */
-.theme-usetaehwan-ui {
-  --scheme: light;
-  color-scheme: light;
-  --color-paper: #fdfbf7;
-  --color-paper-2: #ebe7dc;
-  --color-ink: #33302a;
-  --color-ink-2: #6f6a5e;
-  --color-ink-3: #8a8577;
-  --color-line: #736e62;
-  --color-line-soft: rgba(115, 110, 98, 0.36);
-  --color-grid: rgba(165, 94, 69, 0.06);
-  --color-grid-major: rgba(165, 94, 69, 0.16);
-  --color-mark: #a55e45;
-  --color-mark-soft: rgba(165, 94, 69, 0.14);
-  --color-on-mark: #fdfbf7;
-}
-
-/* 각(Gak) — 야간 중계 · 볼트 그린 */
-.theme-gak {
-  --scheme: dark;
-  color-scheme: dark;
-  --color-paper: #04060a;
-  --color-paper-2: #111722;
-  --color-ink: #eaf0f8;
-  --color-ink-2: #8b99ad;
-  --color-ink-3: #55647a;
-  --color-line: #6b7a90;
-  --color-line-soft: rgba(139, 153, 173, 0.32);
-  --color-grid: rgba(200, 255, 30, 0.035);
-  --color-grid-major: rgba(200, 255, 30, 0.09);
-  --color-mark: #c8ff1e;
-  --color-mark-soft: rgba(200, 255, 30, 0.14);
-  --color-on-mark: #04060a;
-}
-
-/* Orbit — 우주 · 청록 */
-.theme-orbit {
-  --scheme: dark;
-  color-scheme: dark;
-  --color-paper: #0a0d16;
-  --color-paper-2: #141a2a;
-  --color-ink: #eaeef7;
-  --color-ink-2: #a6b0c6;
-  --color-ink-3: #6a7488;
-  --color-line: #7d879c;
-  --color-line-soft: rgba(166, 176, 198, 0.3);
-  --color-grid: rgba(92, 201, 214, 0.045);
-  --color-grid-major: rgba(92, 201, 214, 0.11);
-  --color-mark: #5cc9d6;
-  --color-mark-soft: rgba(92, 201, 214, 0.14);
-  --color-on-mark: #0a0d16;
-}
-
-/* Orbit 격자 위에 별을 몇 개 찍는다 — 위치는 고정, 크기는 1–2px */
-.theme-orbit.paper-grid,
-.theme-orbit .paper-grid {
-  background-image:
-    radial-gradient(1.5px 1.5px at 12% 18%, rgba(234, 238, 247, 0.9) 50%, transparent 51%),
-    radial-gradient(1px 1px at 37% 64%, rgba(234, 238, 247, 0.8) 50%, transparent 51%),
-    radial-gradient(2px 2px at 58% 26%, rgba(92, 201, 214, 0.9) 50%, transparent 51%),
-    radial-gradient(1px 1px at 73% 82%, rgba(234, 238, 247, 0.7) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 88% 44%, rgba(234, 238, 247, 0.85) 50%, transparent 51%),
-    radial-gradient(1px 1px at 22% 90%, rgba(92, 201, 214, 0.8) 50%, transparent 51%),
-    radial-gradient(1px 1px at 66% 8%, rgba(234, 238, 247, 0.75) 50%, transparent 51%),
-    linear-gradient(to right, var(--color-grid-major) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--color-grid-major) 1px, transparent 1px),
-    linear-gradient(to right, var(--color-grid) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--color-grid) 1px, transparent 1px);
-  background-size:
-    640px 480px,
-    640px 480px,
-    640px 480px,
-    640px 480px,
-    640px 480px,
-    640px 480px,
-    640px 480px,
-    var(--grid-major) var(--grid-major),
-    var(--grid-major) var(--grid-major),
-    var(--grid-minor) var(--grid-minor),
-    var(--grid-minor) var(--grid-minor);
-}
-
-/* 각(Gak) — 야간 중계 화면의 주사선을 격자 위에 한 겹 더 */
-.theme-gak.paper-grid,
-.theme-gak .paper-grid {
-  background-image:
-    repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 3px),
-    linear-gradient(to right, var(--color-grid-major) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--color-grid-major) 1px, transparent 1px),
-    linear-gradient(to right, var(--color-grid) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--color-grid) 1px, transparent 1px);
-  background-size:
-    auto,
-    var(--grid-major) var(--grid-major),
-    var(--grid-major) var(--grid-major),
-    var(--grid-minor) var(--grid-minor),
-    var(--grid-minor) var(--grid-minor);
-}
-
-/* 페이지 전체에 팔레트를 입힐 때(html.theme-*)는 배경이 부드럽게 바뀐다 */
-@media (prefers-reduced-motion: no-preference) {
-  .paper-grid {
-    transition: background-color 360ms var(--ease-draft);
-  }
-}
-
-/* ─────────────────────────────────────────────────────────────
-   인쇄 — 도면은 종이에 찍히는 것이 본래 모습. 표제란·십자선을 빼고 흰 종이에 잉크만
-   ───────────────────────────────────────────────────────────── */
 @media print {
-  :root,
-  .dark,
-  [class*="theme-"] {
-    --color-paper: #ffffff;
-    --color-paper-2: #f2f2f2;
-    --color-ink: #111111;
-    --color-ink-2: #333333;
-    --color-ink-3: #666666;
-    --color-line: #222222;
-    --color-line-soft: rgba(0, 0, 0, 0.3);
-    --color-grid: rgba(0, 0, 0, 0.06);
-    --color-grid-major: rgba(0, 0, 0, 0.14);
-    --color-mark: #b00020;
-    --color-mark-soft: rgba(176, 0, 32, 0.1);
-    --color-on-mark: #ffffff;
-  }
-  .crosshair,
-  .ruler,
-  [data-print="hide"] {
-    display: none !important;
-  }
-  .paper-grid {
-    background-image: none;
-  }
-  .sheet {
-    break-inside: avoid;
-    box-shadow: none;
-  }
+  .grain, .grade, .vignette, .sunbeam, .lampglow, [data-print="hide"] { display: none !important; }
 }

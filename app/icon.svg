@@ -1,13 +1,7 @@
-<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="useTaehwan">
-  <!-- 청사진 종이 -->
-  <rect width="100" height="100" rx="14" fill="#0f2a5e"/>
-  <!-- 격자 -->
-  <g stroke="#e8eeff" stroke-opacity="0.18" stroke-width="1">
-    <path d="M25 0V100M50 0V100M75 0V100M0 25H100M0 50H100M0 75H100"/>
-  </g>
-  <!-- 도면 프레임 + 귀퉁이 재단선 -->
-  <rect x="14" y="14" width="72" height="72" fill="none" stroke="#e8eeff" stroke-width="2.5"/>
-  <path d="M8 20V8H20M80 8H92V20M92 80V92H80M20 92H8V80" fill="none" stroke="#e8eeff" stroke-width="2"/>
-  <!-- 마킹색 괄호 () -->
-  <path d="M40 30c-9 8-9 32 0 40M60 30c9 8 9 32 0 40" fill="none" stroke="#ffc857" stroke-width="7" stroke-linecap="round"/>
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Taehwan Jeong">
+  <rect width="100" height="100" rx="14" fill="#efe6d8"/>
+  <rect x="0" y="72" width="100" height="28" fill="#8c6240"/>
+  <path d="M38 72 V44 a12 12 0 0 1 24 0 V72 Z" fill="#cfe2ec" stroke="#6e4a2e" stroke-width="5"/>
+  <path d="M50 34 V72 M38 56 H62" stroke="#6e4a2e" stroke-width="4"/>
+  <rect x="14" y="60" width="26" height="8" rx="1.5" fill="#b08d57"/>
 </svg>

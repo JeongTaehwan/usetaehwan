@@ -1,0 +1,81 @@
+/* ─── 프로젝트 세계 장면 — 1440×900 고정 캔버스 (.scene-fit 이 컨테이너에 맞춰 스케일) ─── */
+
+/* ── 경기장 (각) ── */
+.st { background: linear-gradient(180deg, #04060a 0%, #0a1018 45%, #0b1119 100%); }
+.st-tower { position: absolute; top: 60px; width: 6px; height: 160px; background: #2a3140; }
+.st-light { position: absolute; top: 50px; width: 66px; height: 22px; background: #e8f3b0; border-radius: 3px; box-shadow: 0 0 60px 30px rgba(200, 255, 30, 0.28), 0 0 160px 80px rgba(200, 255, 30, 0.1); }
+.st-tiers { position: absolute; inset: 0; filter: blur(0.8px); }
+.st-tier { position: absolute; height: 24px; background: linear-gradient(180deg, #161c27 0%, #0d1219 100%); background-image: radial-gradient(circle, rgba(200, 210, 230, var(--dot, 0.3)) 1px, transparent 1.5px), linear-gradient(180deg, #161c27 0%, #0d1219 100%); background-size: var(--dotsz, 5px) var(--dotsz, 5px), 100% 100%; border-bottom: 2px solid #1e2733; }
+.st-board { position: absolute; left: 520px; top: 96px; width: 400px; height: 96px; background: #05080d; border: 3px solid #1e2733; box-shadow: 0 0 40px rgba(200, 255, 30, 0.15); display: flex; flex-direction: column; justify-content: center; padding: 0 22px; gap: 6px; }
+.st-pitch-wrap { position: absolute; left: 0; top: 356px; width: 1440px; height: 420px; perspective: 900px; perspective-origin: 50% 0%; }
+.st-pitch { position: absolute; left: -400px; top: 0; width: 2240px; height: 900px; transform-origin: top; transform: rotateX(58deg); background: linear-gradient(180deg, #2a6b3e 0%, #1e5230 100%); background-image: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 140px, transparent 140px 280px), linear-gradient(180deg, #2a6b3e 0%, #1e5230 100%); box-shadow: inset 0 0 0 4px rgba(255, 255, 255, 0.55); }
+.st-pitch::before { content: ""; position: absolute; inset: 0; background-image: var(--tex-turf); background-size: 400px 400px; opacity: 0.5; mix-blend-mode: multiply; }
+.st-line { position: absolute; background: rgba(255, 255, 255, 0.55); }
+.st-box { position: absolute; border: 4px solid rgba(255, 255, 255, 0.55); }
+.st-circle { position: absolute; left: 50%; top: 50%; width: 260px; height: 260px; margin: -130px 0 0 -130px; border: 4px solid rgba(255, 255, 255, 0.55); border-radius: 50%; }
+.st-goal { position: absolute; left: 662px; top: 336px; width: 116px; height: 34px; border: 3px solid rgba(255, 255, 255, 0.85); border-bottom: none; background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.18) 0 1px, transparent 1px 6px), repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.18) 0 1px, transparent 1px 6px); }
+.st-haze { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(700px 300px at 50% 40%, rgba(200, 255, 30, 0.1), rgba(200, 255, 30, 0) 70%), linear-gradient(180deg, rgba(4, 6, 10, 0.6) 0%, rgba(4, 6, 10, 0) 30%); }
+.st-crowd { position: absolute; left: 0; right: 0; bottom: 0; height: 200px; filter: blur(5px); }
+.st-head { position: absolute; border-radius: 80px 80px 6px 6px; background: linear-gradient(180deg, #0b0f16, #05070b); }
+.st-crowd-fade { position: absolute; left: 0; right: 0; bottom: 0; height: 120px; background: linear-gradient(180deg, rgba(4, 6, 10, 0) 0%, rgba(4, 6, 10, 0.7) 100%); pointer-events: none; }
+.st-rail { position: absolute; left: 0; right: 0; bottom: 118px; height: 4px; background: linear-gradient(90deg, rgba(200, 255, 30, 0.15), rgba(200, 255, 30, 0.5), rgba(200, 255, 30, 0.15)); box-shadow: 0 0 14px rgba(200, 255, 30, 0.4); }
+
+/* ── 천문대 (Orbit) ── */
+.ob { background: #06080f; }
+.ob-sky { position: absolute; left: 400px; top: -80px; width: 640px; height: 1000px; overflow: hidden; background: radial-gradient(760px 620px at 55% 45%, #16203a 0%, #0a0d16 70%); }
+.ob-stars { position: absolute; inset: 0; opacity: 0.95; background-size: 420px 360px; background-image: radial-gradient(1.2px 1.2px at 12% 18%, #eaeef7 50%, transparent 51%), radial-gradient(1px 1px at 37% 64%, #eaeef7 50%, transparent 51%), radial-gradient(1.8px 1.8px at 58% 26%, #5cc9d6 50%, transparent 51%), radial-gradient(1px 1px at 73% 82%, #eaeef7 50%, transparent 51%), radial-gradient(1.4px 1.4px at 88% 44%, #eaeef7 50%, transparent 51%), radial-gradient(1px 1px at 22% 90%, #5cc9d6 50%, transparent 51%), radial-gradient(1.2px 1.2px at 66% 8%, #eaeef7 50%, transparent 51%), radial-gradient(0.8px 0.8px at 45% 45%, #eaeef7 50%, transparent 51%), radial-gradient(1.1px 1.1px at 50% 75%, #f4d9a6 50%, transparent 51%), radial-gradient(0.9px 0.9px at 8% 55%, #eaeef7 50%, transparent 51%); }
+.ob-nebula { position: absolute; left: -200px; top: 120px; width: 900px; height: 400px; background: radial-gradient(closest-side, rgba(92, 201, 214, 0.16), rgba(92, 201, 214, 0) 70%); transform: rotate(-20deg); }
+.ob-planet { position: absolute; left: 90px; top: 250px; width: 640px; height: 640px; border-radius: 50%; background: radial-gradient(circle at 32% 28%, #9be6ec 0%, #4a9bb0 26%, #1f4560 56%, #0b1523 80%); box-shadow: 0 0 140px rgba(92, 201, 214, 0.3), inset -70px -40px 140px rgba(0, 0, 0, 0.65); filter: blur(0.4px); }
+.ob-bands { position: absolute; left: 90px; top: 250px; width: 640px; height: 640px; border-radius: 50%; overflow: hidden; opacity: 0.55; background-image: repeating-linear-gradient(-8deg, rgba(255, 255, 255, 0.05) 0 14px, transparent 14px 46px, rgba(0, 0, 0, 0.12) 46px 60px, transparent 60px 92px); }
+.ob-land { position: absolute; left: 90px; top: 250px; width: 640px; height: 640px; border-radius: 50%; background: radial-gradient(circle at 40% 40%, rgba(120, 190, 120, 0.22) 0%, rgba(120, 190, 120, 0) 30%), radial-gradient(circle at 62% 58%, rgba(200, 170, 120, 0.18) 0%, rgba(200, 170, 120, 0) 24%); }
+.ob-ring { position: absolute; left: -140px; top: 520px; width: 1060px; height: 280px; border: 2px solid rgba(92, 201, 214, 0.28); border-radius: 50%; transform: rotate(-14deg); box-shadow: 0 0 30px rgba(92, 201, 214, 0.15); }
+.ob-ring2 { position: absolute; left: -120px; top: 540px; width: 1020px; height: 240px; border: 1px dashed rgba(234, 238, 247, 0.16); border-radius: 50%; transform: rotate(-14deg); }
+.ob-moon { position: absolute; left: 330px; top: 214px; width: 12px; height: 12px; border-radius: 50%; background: #eaeef7; box-shadow: 0 0 18px #eaeef7, 0 0 40px rgba(234, 238, 247, 0.5); }
+.ob-meteor { position: absolute; left: 420px; top: 60px; width: 160px; height: 2px; background: linear-gradient(90deg, rgba(234, 238, 247, 0), rgba(234, 238, 247, 0.8)); transform: rotate(-28deg); }
+.ob-wall { position: absolute; top: 0; width: 400px; height: 900px; overflow: hidden; box-shadow: 24px 0 50px rgba(0, 0, 0, 0.7); }
+.ob-wall-l { left: 0; background: linear-gradient(90deg, #0b0e17 0%, #151a28 70%, #222838 100%); }
+.ob-wall-r { left: 1040px; background: linear-gradient(270deg, #0b0e17 0%, #151a28 70%, #222838 100%); box-shadow: -24px 0 50px rgba(0, 0, 0, 0.7); }
+.ob-rib { position: absolute; left: 50%; top: -260px; width: 3px; height: 1500px; margin-left: -1px; background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03)); transform-origin: 50% 260px; }
+.ob-seam { position: absolute; left: 0; right: 0; height: 1px; background: rgba(255, 255, 255, 0.06); }
+.ob-edge { position: absolute; top: 0; width: 14px; height: 900px; box-shadow: 0 0 12px rgba(0, 0, 0, 0.6); }
+.ob-lamp { position: absolute; left: 1300px; top: 120px; width: 10px; height: 10px; border-radius: 50%; background: #e0443e; box-shadow: 0 0 14px #e0443e; }
+.ob-scope { position: absolute; left: 610px; top: 340px; width: 200px; height: 560px; transform: rotate(26deg); transform-origin: 50% 100%; }
+.ob-tube { position: absolute; left: 40px; top: 0; width: 120px; height: 520px; border-radius: 60px 60px 12px 12px; background: linear-gradient(90deg, #10141f 0%, #2c3346 40%, #3a4359 52%, #171c29 100%); box-shadow: 0 0 60px rgba(0, 0, 0, 0.8), inset 0 0 30px rgba(0, 0, 0, 0.5); }
+.ob-band { position: absolute; left: 34px; width: 132px; height: 22px; border-radius: 6px; background: linear-gradient(90deg, #1b2030, #465068, #1b2030); }
+.ob-base { position: absolute; left: 540px; top: 700px; width: 340px; height: 46px; background: linear-gradient(180deg, #343c50, #151a28); border-radius: 10px 10px 0 0; box-shadow: 0 -6px 14px rgba(0, 0, 0, 0.5); }
+.ob-fork { position: absolute; left: 600px; top: 560px; width: 30px; height: 150px; background: linear-gradient(90deg, #1b2030, #3a4359, #1b2030); border-radius: 8px; transform: rotate(-16deg); }
+.ob-pier { position: absolute; left: 660px; top: 620px; width: 100px; height: 120px; background: linear-gradient(90deg, #151a28, #2a3142, #151a28); border-radius: 10px 10px 0 0; }
+.ob-rail { position: absolute; left: 0; right: 0; bottom: 150px; height: 6px; background: linear-gradient(90deg, rgba(92, 201, 214, 0.15), rgba(92, 201, 214, 0.55), rgba(92, 201, 214, 0.15)); box-shadow: 0 0 18px rgba(92, 201, 214, 0.45); }
+.ob-post { position: absolute; bottom: 100px; width: 6px; height: 56px; background: #2a3142; }
+.ob-deck { position: absolute; left: 0; right: 0; bottom: 0; height: 150px; background: linear-gradient(180deg, #10141f 0%, #06080f 100%); box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.6); }
+.ob-console { position: absolute; left: 640px; bottom: 34px; width: 520px; height: 80px; background: #0b0e17; border: 1px solid #2a3142; border-radius: 6px; display: flex; align-items: center; gap: 26px; padding: 0 24px; box-sizing: border-box; }
+.ob-led { width: 6px; height: 6px; border-radius: 50%; }
+
+/* ── 보관소 (useTaehwan()/ui) ── */
+.ar { background: linear-gradient(180deg, #e4d9c4 0%, #d8ccb4 100%); }
+.ar-endwall { position: absolute; left: 500px; top: 100px; width: 440px; height: 600px; background: linear-gradient(180deg, #f3ead8 0%, #e3d8c3 100%); box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.08); }
+.ar-skylight { position: absolute; left: 560px; top: 140px; width: 320px; height: 230px; background: linear-gradient(180deg, #fff9ea 0%, #f3e8d2 100%); box-shadow: inset 0 0 0 9px #4b3220, inset 0 0 0 11px rgba(255, 255, 255, 0.25), 0 0 90px 20px rgba(255, 240, 210, 0.8); background-image: linear-gradient(90deg, transparent 49%, #4b3220 49% 51%, transparent 51%), linear-gradient(0deg, transparent 49%, #4b3220 49% 51%, transparent 51%); }
+.ar-beam { position: absolute; left: 380px; top: -80px; width: 680px; height: 900px; background: linear-gradient(180deg, rgba(255, 246, 225, 0.9) 0%, rgba(255, 246, 225, 0) 72%); clip-path: polygon(40% 0, 60% 0, 100% 100%, 0 100%); pointer-events: none; mix-blend-mode: screen; }
+.ar-dust { position: absolute; border-radius: 50%; background: rgba(255, 246, 225, 0.9); box-shadow: 0 0 4px rgba(255, 246, 225, 0.8); }
+.ar-shelf { position: absolute; top: 20px; width: 680px; height: 760px; background-color: #ded3be; background-image: repeating-linear-gradient(0deg, #4b3220 0 14px, rgba(0, 0, 0, 0.25) 14px 18px, transparent 18px 120px), repeating-linear-gradient(90deg, #c9b79b 0 54px, #4b3220 54px 58px, #a55e45 58px 110px, #4b3220 110px 114px, #ebe7dc 114px 160px, #4b3220 160px 164px, #7e8c6a 164px 210px, #4b3220 210px 214px); background-size: 100% 120px, 214px 120px; box-shadow: inset 0 0 90px rgba(0, 0, 0, 0.35), 0 40px 70px -20px rgba(0, 0, 0, 0.55); }
+.ar-shelf-l { left: 0; transform-origin: left center; transform: perspective(1100px) rotateY(40deg); }
+.ar-shelf-r { right: 0; transform-origin: right center; transform: perspective(1100px) rotateY(-40deg); }
+.ar-labels { position: absolute; inset: 0; opacity: 0.9; background-image: repeating-linear-gradient(90deg, transparent 0 12px, #fbf6ec 12px 42px, transparent 42px 70px, #fbf6ec 70px 98px, transparent 98px 126px, #fbf6ec 126px 148px, transparent 148px 176px, #fbf6ec 176px 198px, transparent 198px 214px); background-size: 214px 120px; background-position: 0 62px; mask-image: repeating-linear-gradient(0deg, transparent 0 62px, #000 62px 76px, transparent 76px 120px); -webkit-mask-image: repeating-linear-gradient(0deg, transparent 0 62px, #000 62px 76px, transparent 76px 120px); }
+.ar-plaster { position: absolute; inset: 0; background-image: var(--tex-plaster); background-size: 400px 400px; opacity: 0.18; mix-blend-mode: multiply; }
+.ar-shade-l { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0) 40%, rgba(255, 255, 255, 0.08) 100%); }
+.ar-shade-r { position: absolute; inset: 0; background: linear-gradient(270deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0) 40%, rgba(255, 255, 255, 0.08) 100%); }
+.ar-floor { position: absolute; left: -200px; top: 640px; width: 1840px; height: 520px; transform-origin: top; transform: perspective(900px) rotateX(56deg); background: linear-gradient(180deg, #c9b79b 0%, #b39f82 100%); background-image: repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.1) 0 2px, transparent 2px 120px), repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.04) 0 1px, transparent 1px 10px), linear-gradient(180deg, #c9b79b 0%, #b39f82 100%); }
+.ar-runner { position: absolute; left: 50%; top: 0; bottom: 0; width: 520px; margin-left: -260px; background: linear-gradient(90deg, #6b2f2a, #8a3f36 12%, #8a3f36 88%, #6b2f2a); box-shadow: inset 0 0 0 14px rgba(255, 235, 200, 0.25); }
+.ar-rail { position: absolute; top: 220px; width: 9px; height: 560px; background: linear-gradient(90deg, #6e4a2e, #4b3220); transform: skewX(-10deg); }
+.ar-rung { position: absolute; width: 56px; height: 7px; background: linear-gradient(180deg, #a0704a, #6e4a2e); transform: skewX(-10deg); }
+.ar-sign { position: absolute; left: 640px; top: 52px; width: 160px; height: 40px; background: #2b2622; color: #fbf6ec; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); }
+.ar-desk { position: absolute; left: 0; right: 0; bottom: 0; height: 190px; background: linear-gradient(180deg, #8c6240 0%, #5e4126 100%); box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.35); }
+.ar-desk::before { content: ""; position: absolute; inset: 0; background-image: var(--tex-wood); background-size: 400px 400px; opacity: 0.4; mix-blend-mode: multiply; }
+.ar-desk-edge { position: absolute; left: 0; right: 0; bottom: 178px; height: 14px; background: linear-gradient(180deg, #b98a5e, #8c6240); }
+.ar-desk-line { position: absolute; left: 0; right: 0; bottom: 186px; height: 3px; background: linear-gradient(90deg, rgba(176, 141, 87, 0.2), rgba(176, 141, 87, 0.9), rgba(176, 141, 87, 0.2)); box-shadow: 0 0 12px rgba(176, 141, 87, 0.6); }
+.ar-box { position: absolute; bottom: 150px; box-shadow: 0 16px 24px -10px rgba(0, 0, 0, 0.5); border: 3px solid #4b3220; box-sizing: border-box; }
+.ar-box-label { position: absolute; background: #fbf6ec; display: flex; align-items: center; justify-content: center; font-family: var(--font-karla); font-size: 8px; letter-spacing: 0.18em; text-transform: uppercase; color: #33302a; }
+.ar-lamp-stem { position: absolute; left: 1230px; bottom: 150px; width: 8px; height: 110px; background: linear-gradient(90deg, #8f6f3e, #d2ac6e, #8f6f3e); }
+.ar-lamp-shade { position: absolute; left: 1174px; bottom: 236px; width: 130px; height: 48px; border-radius: 12px 12px 4px 4px; background: linear-gradient(180deg, #2f6b4e, #1e4a36); box-shadow: 0 8px 14px rgba(0, 0, 0, 0.35), inset 0 -10px 20px rgba(120, 220, 160, 0.25); }
+.ar-lamp-glow { position: absolute; left: 1150px; bottom: 150px; width: 180px; height: 90px; background: radial-gradient(ellipse at 50% 100%, rgba(255, 235, 180, 0.7), rgba(255, 235, 180, 0) 70%); pointer-events: none; }
+.ar-lamp-foot { position: absolute; left: 1204px; bottom: 140px; width: 60px; height: 14px; border-radius: 50%; background: #8f6f3e; }
