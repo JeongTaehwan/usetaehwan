@@ -87,7 +87,8 @@ export function useMusicVolume(): number {
 }
 export function setMusic(on: boolean) {
   document.documentElement.dataset.music = on ? "on" : "off";
-  try { localStorage.setItem("music", on ? "on" : "off"); } catch {}
+  // 켜짐은 이번 방문에만 — 새로 들어오면 늘 꺼진 채 시작한다 (곡 · 음량은 계속 기억)
+  try { sessionStorage.setItem("music", on ? "on" : "off"); } catch {}
 }
 export function setMusicTrack(track: MusicTrackId) {
   document.documentElement.dataset.musicTrack = track;

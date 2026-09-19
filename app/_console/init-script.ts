@@ -5,7 +5,8 @@ export const INIT_SCRIPT = `(function(){
   var shell=localStorage.getItem('shell');
   d.dataset.shell=['black','white','red','blue','turf'].indexOf(shell)>=0?shell:'black';
   d.dataset.sound=localStorage.getItem('sound')==='on'?'on':'off';
-  d.dataset.music=localStorage.getItem('music')==='on'?'on':'off';
+  localStorage.removeItem('music');
+  d.dataset.music=sessionStorage.getItem('music')==='on'?'on':'off';
   d.dataset.zoom=localStorage.getItem('zoom')==='on'?'on':'off';
   var track=localStorage.getItem('music-track');
   d.dataset.musicTrack=['walk','desk','night'].indexOf(track)>=0?track:'walk';
