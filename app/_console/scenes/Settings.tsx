@@ -8,6 +8,14 @@ import { MUSIC_TRACKS, subscribeMusicStatus, getMusicStatus, getServerMusicStatu
 import { playSfx } from "../sfx";
 import { BackToMenu } from "./common";
 
+/** 이 사이트의 개정 이력 — 버전마다 컨셉을 통째로 다시 그렸다 */
+const REVISIONS = [
+  { rev: "4.0", date: "2026.09", desc: "두 화면 휴대용 게임기 컨셉. 도감·트레이너 카드·타운맵·기술머신으로 다시 구성하고, 도트 캐릭터와 배경음을 더했습니다." },
+  { rev: "3.0", date: "2026.09", desc: "브루클린 로프트 — 섹션을 방으로, 프로젝트를 문 너머의 세계로 걸어 들어가는 포트폴리오." },
+  { rev: "2.0", date: "2026.09", desc: "도면(drafting sheet) 컨셉으로 재작도. 디자인 시스템 의존을 떼고 프로젝트별 팔레트를 넣었습니다." },
+  { rev: "1.0", date: "2026.07", desc: "초판. 자체 디자인 시스템 @usetaehwan/ui의 첫 소비처로 구축 — 웜 뉴트럴 · 문서형 레이아웃." },
+];
+
 export function Settings() {
   const sound = useSound(), shell = useShell();
   const music = useMusic(), track = useMusicTrack(), volume = useMusicVolume();
@@ -70,6 +78,18 @@ export function Settings() {
               onClick={() => setShell(item.id)}><span className="swatch" aria-hidden />{item.label}</button>
           ))}
         </div>
+      </fieldset>
+      <fieldset className="settings-group">
+        <legend>이 사이트의 개정 이력</legend>
+        <ol className="revisions">
+          {REVISIONS.map((r) => (
+            <li key={r.rev}>
+              <span className="rev-no">v{r.rev}</span>
+              <span className="rev-date">{r.date}</span>
+              <p className="body-kr">{r.desc}</p>
+            </li>
+          ))}
+        </ol>
       </fieldset>
       <BackToMenu />
     </section>

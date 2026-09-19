@@ -15,6 +15,15 @@ const TRAITS = [
   { k: "도메인", v: "커머스 · 결제 · 정산 · 쿠폰" },
   { k: "경계", v: "OAuth · WebSocket · 앱 웹뷰 · PG" },
   { k: "방식", v: "역할 분리 · 코드로 검증 · 측정 후 규칙" },
+  { k: "회사", v: "(주)셀메이트 · 2022.11 – 재직 중" },
+];
+
+/** 대표 기록 — v2 첫 화면의 숫자. 전부 이력서·저장소에서 확인한 값 */
+const RECORDS = [
+  { k: "머지된 MR", v: "361", note: "신규 쇼핑몰 웹앱 · 화면 244 / 코어 117" },
+  { k: "단위 테스트", v: "759", note: "앱·웹 공유 코어 패키지" },
+  { k: "커버리지", v: "42.0 → 69.3%", note: "코어 패키지 단위 테스트" },
+  { k: "인수 테스트", v: "109", note: "각(Gak) · 검증 AI가 요구사항에서 추출" },
 ];
 
 const BADGE_COLORS = ["var(--color-red)", "var(--color-blue)", "var(--color-gold)", "var(--color-green)"];
@@ -41,16 +50,34 @@ export function Trainer() {
           </ul>
         </div>
 
-      <Dialog className="mt-4">
+      <h2 className="about-title">잘 만든 코드는<br />잘 쓴 문서와 닮았습니다.</h2>
+      <Dialog className="mt-3">
         <p className="body-kr !text-ink">
           4년차 프론트엔드 개발자입니다. 커머스 플랫폼의 어드민·쇼핑몰·결제 프론트를 3년 10개월간 맡으며, 결제·정산·쿠폰처럼 틀리면 조용히 손해가 나는 금액 도메인과 OAuth·WebSocket·앱 웹뷰 같은 외부 시스템과의 경계를 주로 다뤘습니다. 기능을 내면서 i18n 도입·Vite 전환·클린 아키텍처 캠페인 같은 기반 작업을 병행했고, 그 규칙을 팀 가이드와 AI 협업 규칙으로 남겨 이후 작업의 준거로 운영했습니다.
         </p>
       </Dialog>
       <Dialog className="mt-3">
         <p className="body-kr !text-ink">
-          AI는 코드 생성기가 아니라 통제 대상으로 다룹니다. 구현과 검증을 다른 벤더의 AI로 나누고, 환각은 코드로 막고, 측정한 뒤에만 규칙을 만듭니다. 혼자 잘하는 것보다 함께 잘하는 걸 중요하게 생각합니다.
+          AI는 코드 생성기가 아니라 통제 대상으로 다룹니다. 구현과 검증을 다른 벤더의 AI로 나누고, 환각은 스키마가 아니라 코드로 막고, 훅으로 토큰을 아끼려던 가설을 실측(0.003%)으로 기각하는 식으로 — 측정한 뒤에만 규칙을 만듭니다. 그 기록이 기술머신과 도감에 있습니다.
         </p>
       </Dialog>
+      <Dialog className="mt-3">
+        <p className="body-kr !text-ink">
+          혼자 잘하는 것보다 함께 잘하는 걸 중요하게 생각합니다. 팀의 경계에서 오가는 소통이 결국 결과물의 품질을 만든다고 믿습니다.
+        </p>
+      </Dialog>
+
+      <PBox className="mt-4 p-4 @min-[440px]/screen:p-5">
+        <div className="mb-3 text-[13px] font-bold">대표 기록</div>
+        <dl className="records">
+          {RECORDS.map((r) => (
+            <div key={r.k}>
+              <dt>{r.k}</dt>
+              <dd><strong>{r.v}</strong><small>{r.note}</small></dd>
+            </div>
+          ))}
+        </dl>
+      </PBox>
 
       <PBox className="mt-4 p-4 @min-[440px]/screen:p-5">
         <div className="mb-3 text-[13px] font-bold">특성</div>

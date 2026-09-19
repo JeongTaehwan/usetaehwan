@@ -6,8 +6,9 @@ import { Pixel, type SpriteName } from "../Pixel";
 import { SegBar, TypeChip } from "../ui";
 
 const PAGES = [
-  "안녕하세요! 커머스 프론트엔드를 3년 10개월째 만들고 있는 정태환입니다.",
-  "결제·정산·쿠폰처럼 틀리면 조용히 손해가 나는 화면을 주로 다뤄요.",
+  "안녕하세요! 구조를 먼저 그리고, 숫자로 확인하고, 문서로 남기는 프론트엔드 개발자 정태환입니다.",
+  "결제·정산·쿠폰처럼 틀리면 조용히 손해가 나는 도메인을 3년 10개월 동안 다뤄 왔어요.",
+  "AI는 절차 안에 두고 씁니다. 역할을 나누고, 결과를 코드로 검증하고, 체감 대신 측정값으로 판단해요.",
   "아래 화면에서 어디부터 볼지 골라 주세요.",
 ];
 const ITEMS: {id: string; label: string; sub: string; sprite: SpriteName}[] = [
