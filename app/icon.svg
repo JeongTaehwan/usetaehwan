@@ -1,7 +1,1 @@
-<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Taehwan Jeong">
-  <rect width="100" height="100" rx="14" fill="#efe6d8"/>
-  <rect x="0" y="72" width="100" height="28" fill="#8c6240"/>
-  <path d="M38 72 V44 a12 12 0 0 1 24 0 V72 Z" fill="#cfe2ec" stroke="#6e4a2e" stroke-width="5"/>
-  <path d="M50 34 V72 M38 56 H62" stroke="#6e4a2e" stroke-width="4"/>
-  <rect x="14" y="60" width="26" height="8" rx="1.5" fill="#b08d57"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect x="6" y="2" width="52" height="28" rx="6" fill="#242a2e"/><rect x="16" y="7" width="32" height="18" rx="2" fill="#0b1012"/><path fill="#f2f4ed" d="M19 10h26v12H19z"/><path fill="#39816b" d="M23 14h18v4H23z"/><rect x="9" y="29" width="46" height="5" rx="2" fill="#3e464b"/><rect x="6" y="34" width="52" height="28" rx="6" fill="#242a2e"/><rect x="16" y="39" width="32" height="18" rx="2" fill="#0b1012"/><path fill="#74ded1" d="M19 42h11v5H19zm15 0h11v5H34zm-15 8h11v4H19zm15 0h11v4H34z"/><path stroke="#91aebb" stroke-width="2" d="M9 48h5m-2.5-2.5v5"/><circle cx="52" cy="46" r="1.5" fill="#91aebb"/><circle cx="55" cy="49" r="1.5" fill="#91aebb"/></svg>

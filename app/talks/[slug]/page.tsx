@@ -1,45 +1,101 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { TALKS, getTalk } from "../../_data/talks";
-import { LoftHeader, LoftPaper, PaperHead, PaperMeta } from "../../_loft/LoftPage";
+import { Console } from "../../_console/Console";
+import { BackRow, Dialog, DocHero, PBox, Rows, Sub } from "../../_console/ui";
+import { talkNo } from "../../_console/scenes/Caster";
 
 type Params = { slug: string };
-export function generateStaticParams(): Params[] { return TALKS.map((t) => ({ slug: t.slug })); }
+export function generateStaticParams(): Params[] {
+  return TALKS.map((t) => ({ slug: t.slug }));
+}
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
-  const { slug } = await params; const talk = getTalk(slug);
+  const { slug } = await params;
+  const talk = getTalk(slug);
   return talk ? { title: talk.title, description: talk.summary } : { title: "Talk" };
 }
 
+/** 발표 상세 — 라이브캐스터 발표 기록 */
 export default async function TalkDetail({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
   const talk = getTalk(slug);
   if (!talk) notFound();
-  const no = TALKS.findIndex((t) => t.slug === slug) + 1;
+  const i = TALKS.findIndex((t) => t.slug === slug);
+
   return (
-    <main className="relative">
-      <LoftHeader backHref="/#talks" backLabel="Meeting room" />
-      <LoftPaper crumb={`Meeting room · Talk ${String(no).padStart(2, "0")}`} title={talk.title} lead={talk.summary}>
-        <PaperMeta items={[{ k: "Venue", v: talk.venue }, { k: "Date", v: talk.date }]} />
-        <div className="mt-10"><PaperHead no="1.">배경</PaperHead><p className="mt-4 text-[14.5px] leading-[1.8] text-[#5c534a] [word-break:keep-all]">{talk.context}</p></div>
-        <div className="mt-10"><PaperHead no="2.">구성</PaperHead>
-          <ol className="mt-5 divide-y divide-[rgba(43,38,34,0.14)] border-y border-[rgba(43,38,34,0.14)]">
-            {talk.outline.map((o, i) => <li key={o} className="flex gap-5 py-3.5"><span className="caslon w-8 shrink-0 text-[13px] text-accent">{String(i + 1).padStart(2, "0")}</span><span className="text-[14.5px] leading-[1.75] text-[#5c534a] [word-break:keep-all]">{o}</span></li>)}
+    <Console label={`라이브캐스터 · ${talkNo(i)}`} backHref="/#caster" top={<div className="detail-top">        <DocHero sprite="caster" no={talkNo(i)} title={talk.title} bg="var(--color-ink)" fg="var(--color-lcd)" accent="var(--color-gold)">
+          <div className="mt-2 text-[12px] opacity-85">
+            {talk.venue} · {talk.date}
+          </div>
+        </DocHero>
+
+        <Dialog className="mt-4 text-[15px] leading-[1.75] @min-[440px]/screen:text-[16px]">
+          <p className="[word-break:keep-all]">{talk.summary}</p>
+        </Dialog></div>}>
+      <article className="document">
+
+
+        <PBox className="mt-3 p-4 @min-[440px]/screen:p-5">
+          <Rows
+            rows={[
+              { k: "무대", v: talk.venue },
+              { k: "날짜", v: talk.date },
+            ]}
+          />
+        </PBox>
+
+        <Sub no="01">배경</Sub>
+        <p className="body-kr">{talk.context}</p>
+
+        <Sub no="02">구성</Sub>
+        <PBox className="p-4 @min-[440px]/screen:p-5">
+          <ol className="flex flex-col gap-2.5">
+            {talk.outline.map((o, n) => (
+              <li key={o} className="flex gap-3">
+                <span className="shrink-0 text-[13px] font-bold text-red">{String(n + 1).padStart(2, "0")}</span>
+                <span className="body-kr">{o}</span>
+              </li>
+            ))}
           </ol>
-        </div>
-        <div className="mt-10"><PaperHead no="3.">핵심 메시지</PaperHead>
-          <ul className="mt-5 flex flex-col gap-4">{talk.takeaways.map((t) => <li key={t} className="border-l-2 border-accent pl-4 text-[14.5px] leading-[1.8] text-[#2b2622] [word-break:keep-all]">{t}</li>)}</ul>
-        </div>
+        </PBox>
+
+        <Sub no="03">핵심 메시지</Sub>
+        <ul className="flex flex-col gap-3">
+          {talk.takeaways.map((t) => (
+            <li key={t}>
+              <Dialog>
+                <p className="body-kr !text-ink">{t}</p>
+              </Dialog>
+            </li>
+          ))}
+        </ul>
+
         {talk.numbers && talk.numbers.length > 0 && (
-          <div className="mt-10"><PaperHead no="4.">발표에서 인용한 수치</PaperHead>
-            <dl className="mt-5 divide-y divide-[rgba(43,38,34,0.14)] border-y border-[rgba(43,38,34,0.14)]">
-              {talk.numbers.map((n) => <div key={n.label} className="flex flex-wrap items-baseline justify-between gap-x-4 py-3"><dt className="text-[14px] text-[#5c534a]">{n.label}</dt><dd className="caslon text-[15px] text-[#2b2622]">{n.value}</dd></div>)}
-            </dl>
+          <>
+            <Sub no="04">발표에서 인용한 수치</Sub>
+            <PBox className="p-4 @min-[440px]/screen:p-5">
+              <dl className="flex flex-col divide-y divide-line">
+                {talk.numbers.map((n) => (
+                  <div key={n.label} className="flex flex-wrap items-baseline justify-between gap-x-4 py-2">
+                    <dt className="text-[13px] text-ink-2">{n.label}</dt>
+                    <dd className="text-[14px] font-bold">{n.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </PBox>
+          </>
+        )}
+
+        {talk.href && (
+          <div className="mt-5">
+            <a href={talk.href} target="_blank" rel="noreferrer" data-nav className="pbtn pbtn-sm">
+              발표 자료 ↗
+            </a>
           </div>
         )}
-        {talk.href && <div className="mt-10"><a href={talk.href} target="_blank" rel="noreferrer" className="btn btn-outline !text-[#2b2622]">발표 자료 ↗</a></div>}
-        <div className="mt-12 border-t border-dashed border-[rgba(43,38,34,0.2)] pt-6"><Link href="/#talks" className="caps text-[#8b7f72] hover:text-accent">← Meeting room</Link></div>
-      </LoftPaper>
-    </main>
+
+        <BackRow href="/#caster" label="라이브캐스터로" />
+      </article>
+    </Console>
   );
 }

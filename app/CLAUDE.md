@@ -45,37 +45,31 @@
 
 ---
 
-## 디자인 v3 · 브루클린 로프트 (2026-09)
+## 디자인 v4 · DS형 두 화면 포트폴리오 (2026-09)
 
-시안: claude.ai/code/artifact/6ee20412-f026-48f3-a935-15bd2620f019 (Office · Project worlds · Project detail · Mobile).
-
-- 컨셉: 영화 '인턴'의 브루클린 로프트 오피스. 섹션 = 방 — Lobby(리셉션) · Study(About) · Projects(세 개의 문) · Skyline(Experience) · Meeting room(Talks) · Notebook(AI notes) · Window(Contact). 내비의 방 이름이 곧 앵커.
-- 프로젝트는 문 너머의 세계로 간다 — A 보관소(useTaehwan()/ui) · B 경기장(각) · C 천문대(Orbit). 시점은 관중. 문을 누르면 '걸어 들어가는' 전환(0.8s) 뒤 `/projects/[slug]`. 상세는 세계가 히어로, 아래로 그 세계의 종이 위에 개요 → 작업 사례(문제·파악·해결) → 핵심 기능 → 스택.
-- 시간대: Morning / Evening. 진실은 `html.dark`(= Evening) — `_ui/palette.ts` 의 `useDark/setDark`. 인사말·시계·햇빛/램프만 JS로 갈리고 나머지는 토큰이 바꾼다.
-- 스카이라인: 건물 = 경력 한 시기. x = 시작, 폭 = 기간, 높이 = 머지된 MR 수(`_data/experience.ts` 의 `mr`). 361·132·178·188은 본문과 같은 값, 62·152·642는 MR 목록에서 키워드 집계.
+- 컨셉은 두 화면 폴더형 휴대용 기기 하나. 블랙/화이트 시대의 대화창·메뉴 관용구를 오마주하며 공식 상표, 캐릭터, BGM은 사용하지 않는다. 기기 각인은 useTaehwan().
+- 위 화면은 인사·프로젝트 상세 미리보기·트레이너 카드·경력 지도·AI 규칙·발표 기록. 아래 화면은 선택 목록과 긴 본문. 메뉴만 어두운 청록, 본문은 밝은 화면이다.
+- 데스크톱은 두 화면을 세로로 유지하고 스피커·D-pad·ABXY를 옆에 둔다. 모바일 세로는 조작부를 아래로, 가로는 축소한다. stage의 minmax(0,1fr) 그리드를 유지한다.
+- 장면 선택은 빈 앵커와 CSS :has(:target)로 처리한다. JS는 첫 페인트의 장면을 고르지 않는다. 이전 해시는 common.tsx에서 변환한다. 상세에서 /#dex 등으로 돌아갈 때 일반 a로 전체 이동한다.
+- 아래 화면 data-preview와 console:cursor 이벤트가 위 화면 미리보기를 바꾼다. 방향키는 화면 밖 대상까지 이동·스크롤한다. 메뉴로 복귀하면 이전 항목을 기억한다.
+- A/Z/Enter 결정, B/X/Esc/Backspace 뒤로, X/START/S 메뉴, Y/M 효과음, SELECT/C 기기 색. 인사에선 A로 대화를 넘기고 방향키·호버로 메뉴 선택을 시작한다. 링크에 포커스된 Enter는 기본 동작을 보존한다.
+- 효과음은 기본 꺼짐. Web Audio로 이동·결정·취소음을 합성한다. 기기 색 5종과 소리 설정은 html 속성 + localStorage가 원본이며 useSyncExternalStore로 구독한다.
+- 부팅 이벤트와 타이머는 init-script.ts에서 hydration 이전부터 처리한다. 해시 없는 첫 홈 방문에 세션당 한 번, 2.6초 또는 첫 입력으로 종료한다. reduced-motion이면 생략한다.
+- 색은 globals.css @theme 토큰, 프로젝트 히어로만 원본 palette.swatches를 쓴다. 커스텀 클래스는 @layer components. 화면 안 반응형은 screen 컨테이너 쿼리로 처리한다.
+- Galmuri는 app/_fonts의 서브셋을 사용한다(Regular 약 16.8KB, Bold 약 15.2KB). 문구 수정 후 scripts/subset-fonts.py로 재생성한다. OFL 라이선스를 함께 보관한다.
+- UI·제목·대화창은 Galmuri11, 긴 본문은 .body-kr(Noto Sans KR). next/font 변수 클래스는 html에 둔다.
+- 콘텐츠 원본 app/_data는 수정하지 않는다. EXP는 실제 mr에 비례하며 Lv.4는 4년차를 뜻한다. 이메일은 링크에만 둔다.
+- 소개 카드 사진 자리에는 오리지널 픽셀 초상화를 사용한다. 실제 인물 사진은 제공받지 않았으며 공개 GitHub 아바타는 드럼 그림이므로 사용하지 않는다.
 
 ### 코드 위치
 
-```
-app/
-├── globals.css          # @theme 토큰(wall/ink/wood/brass/paper/sky) · .dark · .world-* 팔레트 · 재질 유틸(.brick/.floor/.wood/.glass/.paper) · 마감(.grain/.grade/.vignette) · .scene-fit
-├── _loft/
-│   ├── Nav.tsx · TimeToggle.tsx · LoftPage.tsx(상세 껍데기) · Ambient.tsx(CursorLight · Parallax · SceneFit)
-│   ├── Reception.tsx · rooms/{Study,Corridor,Skyline,MeetingRoom,Notebook,WindowRoom}.tsx
-│   ├── scene/primitives.tsx   # ArchWindow · Plant · BrassPlate · FloorLamp · ContactShadow · SceneFinish · RoomCaption
-│   └── worlds/{worlds.css,scenes.tsx}   # 1440×900 고정 장면 3종 + WORLDS 매핑
-├── _data/               # projects(팔레트 필드 없음) · experience(mr 포함) · talks · ai-practices
-└── projects/[slug] · ai/[slug] · talks/[slug]
-```
-
-### 지킬 것
-
-- 색은 `globals.css` 토큰만 (`text-ink`, `bg-wall`, `border-line`, `text-brass`, `text-accent` …). 세계 안에서는 `var(--w-*)`. 종이(.paper) 위 글자는 시간대와 무관하게 `#2b2622`/`#5c534a` 고정.
-- 서체: `.caslon`(영문 제목) · `.myeongjo`(한글 제목) · `.karla`/`.caps`(라벨) · 본문 Noto Sans KR. **next/font 변수 클래스는 `<html>`에 둔다** — `@theme` 토큰이 `var(--font-*-next)`를 참조하므로 루트에 없으면 서체가 전부 시스템 폰트로 떨어진다(겪은 함정).
-- 세계 장면은 1440×900 고정 캔버스. 컨테이너에 맞추려면 `SceneFit`으로 감싼다 — CSS만으로는 길이를 배율로 바꿀 수 없어 ResizeObserver가 `--s`를 준다(겪은 함정: `scale(max(100cqw/1440, …))`는 무효).
-- 커스텀 클래스는 `@layer components` 안에. 밖에 두면 Tailwind 유틸리티가 덮어쓰지 못한다.
-- 모션은 Framer Motion 진입 스태거·페이지 넘김·걸어 들어가기뿐. `prefers-reduced-motion`이면 CursorLight·Parallax·전환이 꺼진다.
-- 실측 수치 외의 숫자를 만들지 않는다. 시계(09:12 / 19:48)는 연출.
+- app/globals.css: 토큰·본체·두 화면·장면 선택·컨테이너/뷰포트 대응
+- app/_console/Console.tsx: 본체·키보드·커서·스크롤·미리보기 이벤트
+- app/_console/HomeGame.tsx: 장면 구성·옛 해시·복귀 커서·부팅 화면
+- app/_console/scenes/: Menu, Dex, Trainer, TownMap, Notes, Caster, LinkCable, Settings, Previews
+- app/_console/{Pixel,ui,prefs,init-script,sfx}: 픽셀 아이콘·공통 UI·영속 설정·초기 페인트·합성 효과음
+- app/projects/[slug], app/ai/[slug], app/talks/[slug], app/not-found.tsx: 같은 본체를 쓰는 상세 화면
+- app/opengraph-image.tsx, app/icon.svg: 두 화면 기기 공유 이미지·아이콘
 
 ---
 

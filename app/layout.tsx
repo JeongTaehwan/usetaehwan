@@ -1,12 +1,18 @@
-import type { Metadata } from "next";
-import { Karla, Libre_Caslon_Text, Nanum_Myeongjo, Noto_Sans_KR } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import localFont from "next/font/local";
+import { Noto_Sans_KR } from "next/font/google";
 import "./globals.css";
-import { Providers } from "./_components/Providers";
+import { INIT_SCRIPT } from "./_console/init-script";
 
-/* v3 · 로프트 서체 — Caslon(영문 제목) · 나눔명조(한글 제목) · Karla(라벨) · Noto Sans KR(본문) */
-const caslon = Libre_Caslon_Text({ variable: "--font-caslon-next", subsets: ["latin"], weight: ["400", "700"], style: ["normal", "italic"] });
-const myeongjo = Nanum_Myeongjo({ variable: "--font-myeongjo-next", subsets: ["latin"], weight: ["400", "700", "800"] });
-const karla = Karla({ variable: "--font-karla-next", subsets: ["latin"], weight: ["400", "500", "600"] });
+/* v4 · 게임기 서체 — Galmuri11(픽셀, 화면 UI·제목·대화창) · Noto Sans KR(긴 본문) */
+const galmuri = localFont({
+  variable: "--font-galmuri-next",
+  src: [
+    { path: "./_fonts/Galmuri11.woff2", weight: "400", style: "normal" },
+    { path: "./_fonts/Galmuri11-Bold.woff2", weight: "700", style: "normal" },
+  ],
+  display: "swap",
+});
 const noto = Noto_Sans_KR({ variable: "--font-noto-next", subsets: ["latin"], weight: ["400", "500"] });
 
 const SITE_URL = "https://usetaehwan.page";
@@ -36,27 +42,23 @@ export const metadata: Metadata = {
   },
 };
 
-// 페인트 전에 테마를 결정해 FOUC를 막는다. 저장된 값 우선, 없으면 OS 설정.
-const themeInitScript = `(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();`;
+export const viewport: Viewport = {
+  themeColor: "#17181c",
+  viewportFit: "cover",
+};
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
       lang="ko"
       suppressHydrationWarning
-      // next/font 변수는 여기(:root)에 둔다 — @theme 토큰이 var()로 참조하므로 루트에 있어야 계산이 유효하다
-      className={`${caslon.variable} ${myeongjo.variable} ${karla.variable} ${noto.variable}`}
+      // next/font 변수는 루트에 둔다 — @theme 토큰이 var()로 참조한다
+      className={`${galmuri.variable} ${noto.variable}`}
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <script dangerouslySetInnerHTML={{ __html: INIT_SCRIPT }} />
       </head>
-      <body>
-        <Providers>
-          {children}
-        </Providers>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
