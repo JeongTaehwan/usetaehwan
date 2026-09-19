@@ -215,8 +215,8 @@ export const SPRITES = {
 
 export type SpriteName = keyof typeof SPRITES;
 
-export function Pixel({ name, className, title }: { name: SpriteName; className?: string; title?: string }) {
-  const { grid, colors } = SPRITES[name] as Sprite;
+
+function pixels(grid: string[], colors: Record<string, string>) {
   const rects: React.ReactNode[] = [];
   grid.forEach((row, y) => {
     let x = 0;
@@ -229,16 +229,32 @@ export function Pixel({ name, className, title }: { name: SpriteName; className?
       x = end;
     }
   });
+  return rects;
+}
+
+/** Three hand-authored poses, animated with CSS so no timer runs in React. */
+export function Pixel({ name, className, title, animated = false }: {
+  name: SpriteName; className?: string; title?: string; animated?: boolean;
+}) {
+  const { grid, colors } = SPRITES[name] as Sprite;
+  const animate = animated && name === "trainer";
+  const blink = [...grid];
+  blink[6] = "...kssssssk.....";
+  blink[7] = "...kskssksk.....";
+  const wave = [...grid];
+  wave[9] = ".....kkkkk..ksk.";
+  wave[10] = "....kbbbbbbksk..";
+  wave[11] = "...kkbbwwbbkk...";
+  wave[12] = "..ksbbbbbbbbk...";
   return (
-    <svg
-      viewBox={`0 0 ${grid[0].length} ${grid.length}`}
-      shapeRendering="crispEdges"
-      className={className}
-      role={title ? "img" : undefined}
-      aria-label={title}
-      aria-hidden={title ? undefined : true}
-    >
-      {rects}
+    <svg viewBox={`0 0 ${grid[0].length} ${grid.length}`} shapeRendering="crispEdges"
+      className={[className, animate ? "pixel-animated" : ""].filter(Boolean).join(" ")}
+      role={title ? "img" : undefined} aria-label={title} aria-hidden={title ? undefined : true}>
+      {animate ? <>
+        <g className="pixel-frame pixel-frame-idle">{pixels(grid, colors)}</g>
+        <g className="pixel-frame pixel-frame-blink">{pixels(blink, colors)}</g>
+        <g className="pixel-frame pixel-frame-wave">{pixels(wave, colors)}</g>
+      </> : pixels(grid, colors)}
     </svg>
   );
 }

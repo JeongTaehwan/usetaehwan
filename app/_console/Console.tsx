@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useEffectEvent, useRef } from "react";
+import { useCallback, useEffect, useEffectEvent, useRef, useSyncExternalStore } from "react";
 import { playSfx } from "./sfx";
-import { nextShell, setSound, soundOn, useSound } from "./prefs";
+import { subscribeMusicStatus, getMusicStatus, getServerMusicStatus } from "./music";
+import { nextShell, setSound, soundOn, useSound, useMusic, setMusic } from "./prefs";
 
 export type Btn = "up" | "down" | "left" | "right" | "a" | "b" | "x" | "y" | "start" | "select";
 
@@ -57,6 +58,8 @@ export function Console({ top, children, label, onBack, backHref, onMenu, bootTo
   const led = useRef<HTMLSpanElement>(null);
   const device = useRef<HTMLDivElement>(null);
   const sound = useSound();
+  const music = useMusic();
+  const musicStatus = useSyncExternalStore(subscribeMusicStatus, getMusicStatus, getServerMusicStatus);
   const dialogMode = useRef(true);
 
   const setCursor = useCallback((el: HTMLElement | null, focus = false) => {
@@ -277,9 +280,17 @@ export function Console({ top, children, label, onBack, backHref, onMenu, bootTo
             <div className="screen screen-bot">
               <div className="bot-bar">
                 <span className="truncate">▶ {label}</span>
-                <button type="button" onClick={() => feedback("y")} className="bot-sound" aria-pressed={sound} aria-label={sound ? "효과음 끄기" : "효과음 켜기"}>
-                  ♪ {sound ? "켜짐" : "꺼짐"}
-                </button>
+                <div className="bot-audio">
+                  <button type="button" onClick={() => setMusic(!music)} className="bot-sound bot-music"
+                    aria-pressed={music} aria-label={music ? "배경음 끄기" : "배경음 켜기"}
+                    data-playing={musicStatus === "playing"}>
+                    BGM {music ? (musicStatus === "waiting" ? "대기" : "켜짐") : "꺼짐"}
+                  </button>
+                  <button type="button" onClick={() => feedback("y")} className="bot-sound"
+                    aria-pressed={sound} aria-label={sound ? "효과음 끄기" : "효과음 켜기"}>
+                    효과음 {sound ? "켜짐" : "꺼짐"}
+                  </button>
+                </div>
               </div>
               <div ref={screen} className="bot-scroll" tabIndex={-1} onPointerOver={onPointerOver} onFocus={onFocus} onClick={(e) => { if (e.detail > 0 && (e.target as HTMLElement).closest("[data-nav]")) feedback("a"); }}>
                 {children}

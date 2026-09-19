@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @theme {
  --color-pixel-32:#ffffff;
+ --color-pixel-33:#2f2b36; --color-pixel-34:#5b5566; --color-pixel-35:#f6d3b3; --color-pixel-36:#e0a87e; --color-pixel-37:#dce9f5; --color-pixel-38:#1c1b21;
  --color-pixel-31:#fff4c8;
  --color-pixel-30:#f6c9a0;
  --color-pixel-29:#f0c35a;
@@ -256,4 +257,58 @@
  .trainer-photo{width:100%;height:auto;aspect-ratio:1;object-fit:cover;border-radius:2px}
  .badge-list{display:grid;gap:8px;margin-top:8px}
  @container screen (min-width:440px){.badge-list{grid-template-columns:1fr 1fr}}
+}
+
+@layer components {
+ .bot-audio{display:flex;align-items:center;gap:5px;flex-shrink:0}
+ .bot-music[data-playing="true"]{color:var(--color-teal);border-color:var(--color-teal)}
+ .music-tracks{display:grid;gap:7px;margin-top:14px}
+ .music-track{display:flex;align-items:center;gap:11px;width:100%;padding:10px 12px;text-align:left;background:var(--color-lcd-hi);border:1px solid var(--color-line);border-radius:5px}
+ .music-track[aria-pressed="true"]{border-color:var(--color-teal-dark);box-shadow:inset 3px 0 var(--color-teal-dark);background:var(--color-lcd-2)}
+ .music-note{width:20px;font-size:22px;color:var(--color-teal-dark);text-align:center;flex-shrink:0}
+ .music-track strong{display:block;font-size:13px;font-weight:400}
+ .music-track small{display:block;font:11px/1.6 var(--font-noto);color:var(--color-mute);margin-top:3px}
+ .track-selected{margin-left:auto;color:var(--color-teal-dark);font-size:10px}
+ .music-volume{display:flex;align-items:center;gap:12px;margin-top:16px;font-size:12px}
+ .music-volume input{flex:1;min-width:0;accent-color:var(--color-teal-dark);cursor:pointer;height:24px}
+ .music-volume output{font-size:11px;min-width:34px;text-align:right}
+ .settings-group .music-status{min-height:2em;color:var(--color-teal-dark)}
+ .settings-group .keys-hint{color:var(--color-mute)}
+ .pixel-frame-blink,.pixel-frame-wave{visibility:hidden}
+ .pixel-animated .pixel-frame-idle{animation:pixel-idle-frame 7s step-end infinite}
+ .pixel-animated .pixel-frame-blink{animation:pixel-blink-frame 7s step-end infinite}
+ .pixel-animated .pixel-frame-wave{animation:pixel-wave-frame 7s step-end infinite}
+ .battle-trainer.pixel-animated{animation:trainer-breathe 2.4s steps(2,end) infinite}
+ .battle-stage:hover .pixel-frame-idle,.battle-stage:hover .pixel-frame-blink{animation:none;visibility:hidden}
+ .battle-stage:hover .pixel-frame-wave{animation:none;visibility:visible}
+ .battle-stage:hover .battle-trainer{animation:trainer-greet .6s steps(2,end) 2}
+ .pitem[data-cursor]>svg{animation:icon-greet .45s steps(2,end)}
+ @keyframes trainer-breathe{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-4px)}}
+ @keyframes trainer-greet{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-8px)}}
+ @keyframes icon-greet{50%{transform:translateY(-3px)}}
+ @keyframes pixel-idle-frame{0%,45%,91%{visibility:visible}42%,76%{visibility:hidden}}
+ @keyframes pixel-blink-frame{0%,45%{visibility:hidden}42%{visibility:visible}}
+ @keyframes pixel-wave-frame{0%,91%{visibility:hidden}76%{visibility:visible}}
+ @media(max-width:680px){.bot-audio{gap:4px}.bot-audio .bot-sound{padding:2px 4px;font-size:8px}}
+ @media(prefers-reduced-motion:reduce){
+  .battle-stage:hover .pixel-frame-idle{visibility:visible}
+  .battle-stage:hover .pixel-frame-blink,.battle-stage:hover .pixel-frame-wave{visibility:hidden}
+ }
+}
+
+/* 내 캐릭터(Me) — 유니폼 포즈 5초 · 드럼 포즈 5초. 포즈 안에서는 두 프레임이 번갈아 (공 튀기기 · 스틱 내려치기) */
+@layer components {
+  .me-pose-drum,.me-f2{opacity:0}
+  .me-pose-kit{animation:me-swap 10s step-end infinite}
+  .me-pose-drum{animation:me-swap 10s step-end -5s infinite}
+  .me-pose-kit .me-f1{animation:me-swap .9s step-end infinite}
+  .me-pose-kit .me-f2{animation:me-swap .9s step-end -.45s infinite}
+  .me-pose-drum .me-f1{animation:me-swap .5s step-end infinite}
+  .me-pose-drum .me-f2{animation:me-swap .5s step-end -.25s infinite}
+  @keyframes me-swap{0%{opacity:1}50%{opacity:0}}
+}
+
+/* 메인 캐릭터 GIF — 세로로 긴 전신이라 높이 기준으로 맞추고, 발이 땅 타원 위에 오게 */
+@layer components {
+  .battle-me{width:auto;height:98%;max-height:none;bottom:8%;object-fit:contain;image-rendering:auto}
 }

@@ -1,4 +1,4 @@
-import { Pixel } from "../Pixel";
+import { Me } from "../Me";
 import { Dialog, PBox, Rows } from "../ui";
 import { CERTIFICATIONS, EDUCATION } from "../../_data/experience";
 import { BackToMenu } from "./common";
@@ -76,7 +76,7 @@ export function TrainerTop(){return <section data-scene="trainer" className="sce
             ))}
           </dl>
           <div className="tcard-photo">
-            <Pixel name="trainer" className="trainer-photo" title="정태환의 픽셀 초상화" />
+            <Me className="trainer-photo" />
           </div>
         </div>
       </div></section>;}

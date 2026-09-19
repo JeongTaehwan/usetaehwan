@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { Noto_Sans_KR } from "next/font/google";
 import "./globals.css";
+import { MusicPlayer } from "./_console/MusicPlayer";
 import { INIT_SCRIPT } from "./_console/init-script";
 
 /* v4 · 게임기 서체 — Galmuri11(픽셀, 화면 UI·제목·대화창) · Noto Sans KR(긴 본문) */
@@ -58,7 +59,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         <script dangerouslySetInnerHTML={{ __html: INIT_SCRIPT }} />
       </head>
-      <body>{children}</body>
+      <body><MusicPlayer />{children}</body>
     </html>
   );
 }

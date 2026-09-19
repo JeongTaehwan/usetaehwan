@@ -5,6 +5,7 @@ import { EXPERIENCE } from "../../_data/experience";
 import { PRACTICES } from "../../_data/ai-practices";
 import { TALKS } from "../../_data/talks";
 import { Pixel } from "../Pixel";
+import { Me } from "../Me";
 import { Dialog,TypeChip } from "../ui";
 import { PROJECT_SPRITE } from "./common";
 import { dexNo } from "./Dex";
@@ -34,7 +35,7 @@ export function Previews(){
  </section>
  <section data-scene="caster" className="scene caster-preview">
   <div className="screen-caption"><span>LIVE CASTER</span><span>발표 기록</span></div>
-  <div className="call-window"><div className="call-avatar"><Pixel name="trainer"/></div><div><small>{talk.date}</small><h2>{talk.title}</h2><p className="body-kr">{talk.venue}</p></div><span className="call-corner" aria-hidden>▥</span></div>
+  <div className="call-window"><div className="call-avatar"><Me/></div><div><small>{talk.date}</small><h2>{talk.title}</h2><p className="body-kr">{talk.venue}</p></div><span className="call-corner" aria-hidden>▥</span></div>
   <div className="preview-footer">경험을 정리하고, 팀과 나눕니다.</div>
  </section>
  <section data-scene="link" className="scene link-preview"><div className="screen-caption"><span>WIRELESS COMMUNICATION</span><span>SEOUL</span></div>

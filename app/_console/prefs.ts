@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { MUSIC_TRACKS, type MusicTrackId } from "./music";
 
 /**
  * 게임기 설정 — 소리 on/off 와 기기 색. 진실은 html 의 data-sound / data-shell 속성이고
@@ -24,7 +25,7 @@ function subscribe(cb: Listener) {
   listeners.add(cb);
   if (!observer) {
     observer = new MutationObserver(() => listeners.forEach((l) => l()));
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-sound", "data-shell"] });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-sound", "data-shell", "data-music", "data-music-track", "data-music-volume"] });
   }
   return () => {
     listeners.delete(cb);
@@ -66,4 +67,34 @@ export function setShell(id: ShellId) {
   try {
     localStorage.setItem("shell", id);
   } catch {}
+}
+
+/** Music preferences are separate from the button sound channel. */
+export function useMusic(): boolean {
+  return useSyncExternalStore(subscribe, () => document.documentElement.dataset.music === "on", () => false);
+}
+export function useMusicTrack(): MusicTrackId {
+  return useSyncExternalStore(subscribe, () => {
+    const id = document.documentElement.dataset.musicTrack;
+    return MUSIC_TRACKS.find(track => track.id === id)?.id ?? "walk";
+  }, () => "walk");
+}
+export function useMusicVolume(): number {
+  return useSyncExternalStore(subscribe, () => {
+    const value = Number(document.documentElement.dataset.musicVolume ?? "30");
+    return Number.isFinite(value) ? Math.max(0, Math.min(100, value)) : 30;
+  }, () => 30);
+}
+export function setMusic(on: boolean) {
+  document.documentElement.dataset.music = on ? "on" : "off";
+  try { localStorage.setItem("music", on ? "on" : "off"); } catch {}
+}
+export function setMusicTrack(track: MusicTrackId) {
+  document.documentElement.dataset.musicTrack = track;
+  try { localStorage.setItem("music-track", track); } catch {}
+}
+export function setMusicVolume(value: number) {
+  const volume = String(Math.max(0, Math.min(100, Number.isFinite(value) ? value : 30)));
+  document.documentElement.dataset.musicVolume = volume;
+  try { localStorage.setItem("music-volume", volume); } catch {}
 }

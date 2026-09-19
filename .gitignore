@@ -46,3 +46,7 @@ my-mrs.json
 storex-titles.txt
 storex-my-titles.txt
 *.pptx
+
+# 캐릭터 참고용 개인 사진 — 저장소에 올리지 않는다
+/image.png
+/image copy.png
