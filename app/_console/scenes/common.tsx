@@ -37,6 +37,8 @@ export const PROJECT_SPRITE: Record<string, SpriteName> = {
   "usetaehwan-ui": "blocks",
   gak: "ball",
   orbit: "planet",
+  oneureodi: "pin",
+  kkini: "bowl",
 };
 
 export const EMAIL = "kt26625417@gmail.com";

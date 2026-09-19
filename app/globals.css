@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @theme {
  --color-pixel-32:#ffffff;
+ --color-pixel-coral:#f28b6f; --color-pixel-coral-dark:#c9563f; --color-pixel-persimmon:#d2562a; --color-pixel-persimmon-dark:#9e3e1c;
  --color-chibi-hair:#5a3b2e; --color-chibi-hair-hi:#8a5f45; --color-chibi-hair-dark:#3a2520; --color-chibi-skin:#f5cfae; --color-chibi-skin-shade:#e0a882; --color-chibi-mouth:#b5584a; --color-chibi-cheek:#f2a8a0;
  --color-chibi-red:#d0202f; --color-chibi-red-dark:#96121f; --color-chibi-grey:#d7d9de; --color-chibi-wire:#3a3a42; --color-chibi-pants:#2b2b33; --color-chibi-pants-hi:#4a4a56; --color-chibi-sole:#c9cbd2;
  --color-pixel-33:#2f2b36; --color-pixel-34:#5b5566; --color-pixel-35:#f6d3b3; --color-pixel-36:#e0a87e; --color-pixel-37:#dce9f5; --color-pixel-38:#1c1b21;
