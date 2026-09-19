@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useEffectEvent, useRef, useSyncExternalStore } from "react";
 import { playSfx } from "./sfx";
 import { subscribeMusicStatus, getMusicStatus, getServerMusicStatus } from "./music";
-import { nextShell, setSound, soundOn, useSound, useMusic, setMusic } from "./prefs";
+import { nextShell, setSound, soundOn, useSound, useMusic, setMusic, useZoom, toggleZoom } from "./prefs";
 
 export type Btn = "up" | "down" | "left" | "right" | "a" | "b" | "x" | "y" | "start" | "select";
 
@@ -59,6 +59,7 @@ export function Console({ top, children, label, onBack, backHref, onMenu, bootTo
   const device = useRef<HTMLDivElement>(null);
   const sound = useSound();
   const music = useMusic();
+  const zoom = useZoom();
   const musicStatus = useSyncExternalStore(subscribeMusicStatus, getMusicStatus, getServerMusicStatus);
   const dialogMode = useRef(true);
 
@@ -185,6 +186,7 @@ export function Console({ top, children, label, onBack, backHref, onMenu, bootTo
     if (e.repeat && !e.key.startsWith("Arrow")) return;
     const t = e.target as HTMLElement | null;
     if (t?.closest("input, textarea, select, [contenteditable='true']")) return;
+    if (e.key === "f" || e.key === "F") { e.preventDefault(); toggleZoom(); return; }
     const b = KEY_OF[e.key];
     if (!b) return;
     if (!document.documentElement.dataset.booted) { e.preventDefault(); document.documentElement.dataset.booted = "1"; return; }
@@ -281,6 +283,10 @@ export function Console({ top, children, label, onBack, backHref, onMenu, bootTo
               <div className="bot-bar">
                 <span className="truncate">▶ {label}</span>
                 <div className="bot-audio">
+                  <button type="button" onClick={toggleZoom} className="bot-sound bot-zoom" aria-pressed={zoom}
+                    aria-label={zoom ? "게임기 모습으로 돌아가기 (F)" : "화면 크게 보기 (F)"}>
+                    {zoom ? "기기로" : "크게"}
+                  </button>
                   <button type="button" onClick={() => setMusic(!music)} className="bot-sound bot-music"
                     aria-pressed={music} aria-label={music ? "배경음 끄기" : "배경음 켜기"}
                     data-playing={musicStatus === "playing"}>

@@ -25,7 +25,7 @@ function subscribe(cb: Listener) {
   listeners.add(cb);
   if (!observer) {
     observer = new MutationObserver(() => listeners.forEach((l) => l()));
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-sound", "data-shell", "data-music", "data-music-track", "data-music-volume"] });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-sound", "data-shell", "data-music", "data-music-track", "data-music-volume", "data-zoom"] });
   }
   return () => {
     listeners.delete(cb);
@@ -97,4 +97,16 @@ export function setMusicVolume(value: number) {
   const volume = String(Math.max(0, Math.min(100, Number.isFinite(value) ? value : 30)));
   document.documentElement.dataset.musicVolume = volume;
   try { localStorage.setItem("music-volume", volume); } catch {}
+}
+
+/** 크게 보기 — 기기 껍데기를 걷고 두 화면이 브라우저 전체를 채운다 */
+export function useZoom(): boolean {
+  return useSyncExternalStore(subscribe, () => document.documentElement.dataset.zoom === "on", () => false);
+}
+export function setZoom(on: boolean) {
+  document.documentElement.dataset.zoom = on ? "on" : "off";
+  try { localStorage.setItem("zoom", on ? "on" : "off"); } catch {}
+}
+export function toggleZoom() {
+  setZoom(document.documentElement.dataset.zoom !== "on");
 }

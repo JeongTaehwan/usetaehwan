@@ -321,3 +321,21 @@
   @keyframes chibi-b{0%{opacity:0}50%{opacity:1}}
   @keyframes chibi-blink{0%{opacity:0}68.75%{opacity:1}71.9%{opacity:0}}
 }
+
+/* 크게 보기 — html[data-zoom=on]. 기기 부품을 숨기고 두 화면만 브라우저 전체에.
+   세로 화면은 위아래로, 가로로 넓은 화면은 에뮬레이터처럼 나란히(위 화면은 4:3 유지). 큰 모니터에선 화면 속까지 비례 확대. */
+@layer components {
+  [data-zoom="on"] .stage{padding:max(6px,env(safe-area-inset-top)) 6px max(6px,env(safe-area-inset-bottom));background:#101214}
+  [data-zoom="on"] .device{width:100%;height:100%;max-height:none;filter:none;grid-template-rows:minmax(0,40fr) minmax(0,60fr);grid-template-columns:minmax(0,1fr);gap:6px}
+  [data-zoom="on"] :is(.hinge,.speaker,.lid-brand,.dpad,.abxy,.ss,.mic){display:none}
+  [data-zoom="on"] :is(.lid,.base){grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);grid-template-areas:"screen";gap:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none}
+  [data-zoom="on"] .screen-frame{grid-column:1;grid-area:screen;padding:3px;border-radius:4px}
+  [data-zoom="on"] .bot-zoom{color:var(--color-teal);border-color:var(--color-teal)}
+  @media (min-aspect-ratio:5/4) and (min-width:700px){
+    [data-zoom="on"] .device{grid-template-columns:minmax(0,44fr) minmax(0,56fr);grid-template-rows:minmax(0,1fr);gap:10px}
+    [data-zoom="on"] .lid{align-content:center}
+    [data-zoom="on"] .lid .screen-frame{align-self:center;height:auto;aspect-ratio:4/3;max-height:100%}
+  }
+  @media (min-width:1100px) and (min-height:700px){[data-zoom="on"] .screen{zoom:1.2}}
+  @media (min-width:1500px) and (min-height:900px){[data-zoom="on"] .screen{zoom:1.4}}
+}
