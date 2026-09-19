@@ -57,6 +57,7 @@ export function Console({ top, children, label, onBack, backHref, onMenu, bootTo
   const cursor = useRef<HTMLElement | null>(null);
   const led = useRef<HTMLSpanElement>(null);
   const device = useRef<HTMLDivElement>(null);
+  const topView = useRef<HTMLDivElement>(null);
   const sound = useSound();
   const music = useMusic();
   const zoom = useZoom();
@@ -205,6 +206,42 @@ export function Console({ top, children, label, onBack, backHref, onMenu, bootTo
     return () => window.removeEventListener("keydown", h);
   }, []);
 
+  // 위 화면은 스크롤하지 않는다 — 내용이 넘치면 화면 높이에 맞게 비례로 줄인다(최소 0.6배)
+  useEffect(() => {
+    const tv = topView.current;
+    if (!tv) return;
+    let raf = 0;
+    const fit = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const kids = (Array.from(tv.children) as HTMLElement[]).filter((el) => el.getClientRects().length > 0);
+        kids.forEach((el) => { el.style.transform = ""; });
+        const natural = tv.scrollHeight;
+        const avail = tv.clientHeight;
+        const scale = natural > avail + 1 ? Math.max(0.6, avail / natural) : 1;
+        kids.forEach((el) => {
+          el.style.transformOrigin = "top center";
+          el.style.transform = scale < 1 ? `scale(${scale})` : "";
+        });
+      });
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(tv);
+    const mo = new MutationObserver(fit);
+    mo.observe(tv, { subtree: true, childList: true, characterData: true });
+    window.addEventListener(CURSOR_EVENT, fit);
+    window.addEventListener("hashchange", fit);
+    document.fonts?.ready.then(fit);
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+      mo.disconnect();
+      window.removeEventListener(CURSOR_EVENT, fit);
+      window.removeEventListener("hashchange", fit);
+    };
+  }, []);
+
   // 첫 화면·장면 전환 — 맨 위로, 커서는 화면 안에 보이는 기본 대상에
   useEffect(() => {
     const init = (event?: Event) =>
@@ -248,7 +285,7 @@ export function Console({ top, children, label, onBack, backHref, onMenu, bootTo
           <div className="speaker speaker-l" aria-hidden />
           <div className="screen-frame">
             <div className="screen screen-top">
-              <div className="top-view">{top}</div>
+              <div ref={topView} className="top-view">{top}</div>
               {bootTop}
             </div>
           </div>

@@ -27,12 +27,11 @@ export default async function TalkDetail({ params }: { params: Promise<Params> }
           <div className="mt-2 text-[12px] opacity-85">
             {talk.venue} · {talk.date}
           </div>
-        </DocHero>
-
-        <Dialog className="mt-4 text-[15px] leading-[1.75] @min-[440px]/screen:text-[16px]">
-          <p className="[word-break:keep-all]">{talk.summary}</p>
-        </Dialog></div>}>
+        </DocHero></div>}>
       <article className="document">
+        <Dialog className="mb-1 text-[15px] leading-[1.75] @min-[440px]/screen:text-[16px]">
+          <p className="[word-break:keep-all]">{talk.summary}</p>
+        </Dialog>
 
 
         <PBox className="mt-3 p-4 @min-[440px]/screen:p-5">

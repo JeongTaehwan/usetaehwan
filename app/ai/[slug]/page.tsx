@@ -33,12 +33,11 @@ export default async function PracticeDetail({ params }: { params: Promise<Param
             <span className="text-[26px] font-bold text-gold">{doc.stat.value}</span>
             <span className="text-[12px] leading-[1.5] opacity-85 [word-break:keep-all]">{doc.stat.label}</span>
           </div>
-        </DocHero>
-
-        <Dialog className="mt-4 text-[15px] leading-[1.75] @min-[440px]/screen:text-[16px]">
-          <p className="[word-break:keep-all]">{doc.summary}</p>
-        </Dialog></div>}>
+        </DocHero></div>}>
       <article className="document">
+        <Dialog className="mb-1 text-[15px] leading-[1.75] @min-[440px]/screen:text-[16px]">
+          <p className="[word-break:keep-all]">{doc.summary}</p>
+        </Dialog>
 
 
         <p className="body-kr mt-5">{doc.intro}</p>
