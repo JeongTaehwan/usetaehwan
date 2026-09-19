@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { Chibi } from "../Chibi";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { Pixel, type SpriteName } from "../Pixel";
 import { SegBar, TypeChip } from "../ui";
@@ -53,7 +53,7 @@ export function MenuTop() {
         <div className="hp"><span>HP</span><SegBar value={1} max={1} label="체력 가득" /></div>
         <p>Vue 3 / React · TypeScript</p>
       </div>
-      <div className="battle-stage"><span className="battle-ground"/><Image src="/pixel-me.gif" alt="맨유 홈 유니폼을 입은 정태환의 픽셀 캐릭터" width={190} height={489} unoptimized priority className="battle-trainer battle-me"/></div>
+      <div className="battle-stage"><span className="battle-ground"/><Chibi className="battle-trainer battle-me"/></div>
       <span className="battle-orbit" aria-hidden/>
     </div>
     <button className="pbox greeting" type="button" aria-label="인사 대화 다음 페이지" onClick={advance}>
