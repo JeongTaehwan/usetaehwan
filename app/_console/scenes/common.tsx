@@ -39,6 +39,7 @@ export const PROJECT_SPRITE: Record<string, SpriteName> = {
   orbit: "planet",
   oneureodi: "pin",
   kkini: "bowl",
+  zzokzzok: "bottle",
 };
 
 export const EMAIL = "kt26625417@gmail.com";

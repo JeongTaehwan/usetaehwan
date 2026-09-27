@@ -58,6 +58,9 @@ const ONEUREODI_REPO_URL = "https://github.com/JeongTaehwan/Oneureodi";
 /** 끼니 — 저녁 메뉴를 하나로 정해 주는 앱. 역할별 에이전트 팀이 기획한 프로토타입 */
 const KKINI_REPO_URL = "https://github.com/JeongTaehwan/kkini";
 
+/** 쪽쪽 — 수유 기록과 다음 맘마 알림 앱 (Expo) */
+const ZZOKZZOK_REPO_URL = "https://github.com/JeongTaehwan/zzokzzok";
+
 export const PROJECTS: Project[] = [
   {
     slug: "usetaehwan-ui",
@@ -460,6 +463,80 @@ export const PROJECTS: Project[] = [
       ],
       stack: ["Expo (React Native)", "TypeScript", "Claude Code", "역할 분리 에이전트 팀"],
       links: [{ label: "GitHub", href: KKINI_REPO_URL }],
+    },
+  },
+  {
+    slug: "zzokzzok",
+    palette: {
+      label: "Baby pastel",
+      swatches: [
+        { name: "bg", value: "#FFF5EC" },
+        { name: "surface", value: "#FFFFFF" },
+        { name: "fg", value: "#5B3F3A" },
+        { name: "brand", value: "#FF9F86" },
+        { name: "muted", value: "#9A7D76" },
+      ],
+    },
+    name: "쪽쪽",
+    year: "2026",
+    summary:
+      "수유 시작·종료를 한 번씩 누르면, 끝난 시각에서 정해 둔 시간이 지났을 때 \"지민아~ 맘마먹자\" 알림으로 다음 수유를 알려 주는 앱. 새벽 3시에 한 손으로 쓰는 것만 생각해 기능을 시작·종료·알람 세 가지로 줄였습니다.",
+    tags: ["Expo", "React Native", "로컬 알림"],
+    cases: [
+      {
+        title: "앱이 꺼져 있어도 알람은 울려야 한다",
+        problem:
+          "수유를 끝내고 폰을 내려놓으면 앱은 백그라운드로 가거나 종료됩니다. 앱 안의 타이머로는 다음 수유 시각에 알람을 보낼 수 없었습니다.",
+        diagnosis:
+          "알람 시각은 앱이 계산하되, 울리는 일은 OS가 맡아야 했습니다. 또 OS 알림을 놓치거나 권한이 꺼진 경우에도 앱을 다시 열면 알람을 알아차릴 수 있어야 했습니다.",
+        solution:
+          "수유 종료 시각 + 간격으로 OS 로컬 알림을 예약하고, 알림 ID를 하나로 고정해 예약이 항상 한 개만 남게 했습니다. 앱을 다시 열면 저장된 예약 시각이 이미 지났는지 확인해 곧바로 알람 화면을 띄웁니다. 안드로이드는 정확한 알람 권한(USE_EXACT_ALARM)을 선언했습니다.",
+      },
+      {
+        title: "알람 규칙은 화면과 떼어 순수 함수로",
+        problem:
+          "수유 시작 시 취소, 종료 시 재예약, 스누즈, 간격 변경 시 재계산처럼 알람 규칙이 여러 화면에 흩어지면 예약이 겹치거나 남기 쉬웠습니다.",
+        diagnosis:
+          "규칙이 플랫폼 API(저장소·알림)와 섞여 있으면 기기 없이는 검증할 수 없었습니다.",
+        solution:
+          "상태 전이는 도메인 리듀서 하나에 모으고, 저장소·알림·진동은 포트 뒤로 숨겼습니다. 스토어는 상태의 예약 시각을 보고 OS 알림을 맞추기만 합니다. 도메인 로직 테스트와 화면 흐름 테스트를 합쳐 118개를 두었고, 도메인 줄 커버리지는 98%입니다.",
+      },
+      {
+        title: "Capacitor에서 Expo로 옮기다",
+        problem:
+          "첫 버전은 웹 앱을 네이티브 껍데기로 감싼 Capacitor였는데, 폰에서 QR로 바로 테스트할 수 없었고 iOS 빌드에는 Mac이 필요했습니다.",
+        diagnosis:
+          "도메인 로직은 프레임워크와 무관하게 짜 두었기 때문에, 바뀌는 곳은 포트 구현과 화면뿐이었습니다.",
+        solution:
+          "도메인 코드는 그대로 두고 포트만 AsyncStorage·expo-notifications·expo-haptics로 바꾼 뒤, 화면과 마스코트를 react-native-svg로 다시 그렸습니다. 이제 Expo Go로 QR을 찍어 바로 돌려 보고, EAS Build나 로컬 Gradle 스크립트로 APK를 만듭니다. 이전 버전은 v0.1.0 태그로 남겨 두었습니다.",
+      },
+    ],
+    detail: {
+      tagline: "시작 버튼, 종료 버튼, 제때 울리는 알람 — 수유 기록 앱",
+      role: "기획 · 개발 (개인)",
+      period: "2026.09 —",
+      overview:
+        "기존 육아 앱은 체온·배변·성장 곡선까지 담아 새벽에 한 손으로 쓰기 어렵습니다. 쪽쪽은 수유 시작·종료를 한 번의 탭으로 기록하고, 종료 시각 + 설정 간격(기본 180분)에 아기 이름을 부르는 알림을 보냅니다. 서버 없이 모든 데이터는 기기에만 저장합니다. 기획서의 요구사항(FR/NFR)을 테스트 케이스와 연결해 두었고, Expo(React Native) 한 코드로 안드로이드·iOS를 함께 빌드합니다.",
+      highlights: [
+        {
+          title: "이름에 맞춘 알림 문구",
+          body: "이름 마지막 글자의 받침을 한글 유니코드로 계산해 \"아/야\"를 붙입니다. 지민 → 지민아~ 맘마먹자, 수아 → 수아야~ 맘마먹자. 한글이 아니면 \"아\", 이름이 없으면 \"아가야\"로 부릅니다.",
+        },
+        {
+          title: "새벽 모드",
+          body: "순백 배경 대신 크림색을 쓰고, 시스템 다크 모드에서는 같은 파스텔을 남보라 위에 올린 새벽 모드로 바뀝니다. 주요 버튼은 화면 아래쪽에 56dp 이상으로 둬 엄지로 누를 수 있게 했습니다.",
+        },
+        {
+          title: "스누즈 · 시작 시각 보정",
+          body: "아기가 아직 안 깼으면 \"10분 뒤 다시\"로 재예약하고, 앱을 켜기 전에 수유를 시작했다면 시작 시각을 분 단위로 고칠 수 있습니다. 기록 탭에는 오늘 수유 횟수·총 시간·평균 간격을 보여줍니다.",
+        },
+        {
+          title: "도메인과 플랫폼 분리",
+          body: "문구 규칙·시간·세션·알람·통계·상태 리듀서는 프레임워크를 모르는 순수 로직이고, 저장소·알림·진동은 포트로 갈아 끼웁니다. 덕분에 Capacitor에서 Expo로 옮길 때 도메인 코드는 한 줄도 바꾸지 않았습니다.",
+        },
+      ],
+      stack: ["Expo (React Native)", "React", "TypeScript", "expo-notifications", "AsyncStorage", "react-native-svg", "Jest", "React Native Testing Library", "EAS Build"],
+      links: [{ label: "GitHub", href: ZZOKZZOK_REPO_URL }],
     },
   },
 ];

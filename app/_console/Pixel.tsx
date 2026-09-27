@@ -101,6 +101,28 @@ export const SPRITES = {
       "......kkkk......",
     ],
   },
+  /** 젖병 — 쪽쪽 */
+  bottle: {
+    colors: { k: INK, p: "var(--color-pixel-peach)", P: "var(--color-pixel-peach-dark)", m: "var(--color-pixel-mint)", w: "var(--color-pixel-32)", g: "var(--color-pixel-23)" },
+    grid: [
+      ".......kk.......",
+      "......kppk......",
+      "......kppk......",
+      ".....kpppPk.....",
+      "....kkkkkkkk....",
+      "....kmmmmmmk....",
+      "....kkkkkkkk....",
+      "....kwwwwwgk....",
+      "....kwkkwwgk....",
+      "....kwwwwwgk....",
+      "....kwkkwwgk....",
+      "....kppppppk....",
+      "....kppppPPk....",
+      "....kpkkpPPk....",
+      "....kppppPPk....",
+      ".....kkkkkk.....",
+    ],
+  },
   /** 축구공 — 각(Gak) */
   ball: {
     colors: { k: INK, w: "var(--color-pixel-32)", g: "var(--color-pixel-23)" },
