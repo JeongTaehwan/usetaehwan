@@ -58,6 +58,16 @@ function freshClone() {
     git(["fetch", "--depth", "1", "origin", "main"]);
     git(["reset", "--hard", "origin/main"]);
   }
+  // 커밋 작성자 — 전역 설정이 없고 원래 저장소에만 있으면 사본에 옮겨 적는다
+  for (const k of ["user.name", "user.email"]) {
+    try {
+      git(["config", k]);
+    } catch {
+      try {
+        git(["config", k, git(["config", k], ROOT)]);
+      } catch {}
+    }
+  }
 }
 
 /** 동기화하고, 바뀌었으면 커밋. 커밋했으면 true */
