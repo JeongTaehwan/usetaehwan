@@ -50,11 +50,7 @@ export type DashboardPrivate = {
   otherUsage: { skills: UsageRow[]; agents: UsageRow[] };
 };
 
+/** public/dashboard-owner.enc.json — data 는 암호문 뒤에 16바이트 태그를 붙인 base64 */
 export type EncryptedFile =
-  | { v: 1; status: "empty" }
-  | { v: 1; alg: "A256GCM"; generated: string; iv: string; tag: string; data: string };
-
-/** /api/dashboard/private 응답 */
-export type PrivateResponse =
-  | { status: "off" | "locked" | "empty" | "nokey" | "badkey" }
-  | ({ status: "ok" } & DashboardPrivate);
+  | { v: 2; status: "empty" }
+  | { v: 2; alg: "A256GCM"; generated: string; iv: string; data: string };

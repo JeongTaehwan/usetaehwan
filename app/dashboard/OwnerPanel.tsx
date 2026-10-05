@@ -1,79 +1,144 @@
 "use client";
-// 주인 전용 — 스킬 후보(요청 원문)와 저장소 밖 사용. 서버가 세션을 확인한 뒤에만 복호화해 준다
-import { useEffect, useState } from "react";
-import type { PrivateResponse } from "../_data/dashboard/types";
+// 주인 전용 — 스킬 후보(요청 원문)와 저장소 밖 사용.
+// 암호문(public/dashboard-owner.enc.json)을 받아 주인 키로 이 브라우저에서 푼다. 키는 서버로 가지 않는다.
+// 주인 링크(/dashboard#k=...)로 처음 열면 키를 이 브라우저에 기억하고 주소창에서 지운다.
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { DashboardPrivate, EncryptedFile } from "../_data/dashboard/types";
 import { PBox, TypeChip } from "../_console/ui";
 
-const AUTH_MSG: Record<string, string> = {
-  ok: "주인 인증을 마쳤습니다.",
-  out: "로그아웃했습니다.",
-  denied: "주인 계정이 아니라 열 수 없습니다.",
-  state: "인증 요청이 만료됐거나 맞지 않습니다. 다시 시도해 주세요.",
-  token: "GitHub에서 인증을 받지 못했습니다. 다시 시도해 주세요.",
-  error: "인증 중 오류가 났습니다. 다시 시도해 주세요.",
-};
+const KEY_STORE = "ut-dashboard-owner-key";
+const AAD = "usetaehwan-dashboard-v1";
+const KEY_RE = /^[A-Za-z0-9_-]{43}$/;
 
-type State = PrivateResponse | { status: "loading" | "neterr" };
+type State =
+  | { status: "loading" | "nodata" | "locked" | "bad" | "neterr" }
+  | ({ status: "ok" } & DashboardPrivate);
 
-function Logout() {
-  return (
-    <form method="post" action="/api/auth/logout" className="mt-3">
-      <button type="submit" data-nav className="pbtn pbtn-sm">
-        로그아웃
-      </button>
-    </form>
+const b64 = (s: string) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(s.length / 4) * 4, "=")), (c) => c.charCodeAt(0));
+
+async function open(file: Extract<EncryptedFile, { data: string }>, keyText: string): Promise<DashboardPrivate> {
+  const key = await crypto.subtle.importKey("raw", b64(keyText), "AES-GCM", false, ["decrypt"]);
+  const plain = await crypto.subtle.decrypt(
+    { name: "AES-GCM", iv: b64(file.iv), additionalData: new TextEncoder().encode(AAD) },
+    key,
+    b64(file.data),
   );
+  return JSON.parse(new TextDecoder().decode(plain)) as DashboardPrivate;
 }
+
+const store = {
+  get: () => {
+    try {
+      return localStorage.getItem(KEY_STORE);
+    } catch {
+      return null;
+    }
+  },
+  set: (k: string) => {
+    try {
+      localStorage.setItem(KEY_STORE, k);
+    } catch {}
+  },
+  clear: () => {
+    try {
+      localStorage.removeItem(KEY_STORE);
+    } catch {}
+  },
+};
 
 export function OwnerPanel({ groups, requests }: { groups: number; requests: number }) {
   const [state, setState] = useState<State>({ status: "loading" });
-  const [notice, setNotice] = useState<string | null>(null);
+  const [draft, setDraft] = useState("");
+  const file = useRef<EncryptedFile | null>(null);
+
+  const unlock = useCallback(async (keyText: string | null) => {
+    const f = file.current;
+    if (!f || !("data" in f)) return setState({ status: "nodata" });
+    if (!keyText) return setState({ status: "locked" });
+    try {
+      const data = await open(f, keyText);
+      store.set(keyText);
+      setState({ status: "ok", ...data });
+    } catch {
+      setState({ status: "bad" });
+    }
+  }, []);
 
   useEffect(() => {
-    const auth = new URLSearchParams(window.location.search).get("auth");
-    fetch("/api/dashboard/private", { cache: "no-store", credentials: "same-origin" })
-      .then((r) => r.json() as Promise<PrivateResponse>)
-      .then((body) => {
-        setState(body);
-        if (auth && AUTH_MSG[auth]) setNotice(AUTH_MSG[auth]);
+    /** 주소의 #k=... 를 꺼내고 주소창에서 지운다 */
+    const take = () => {
+      const m = window.location.hash.match(/(?:^#|&)k=([A-Za-z0-9_-]{43})/);
+      if (!m) return null;
+      history.replaceState(null, "", window.location.pathname + window.location.search);
+      return m[1];
+    };
+    const key = take() ?? store.get();
+    fetch("/dashboard-owner.enc.json", { cache: "no-store" })
+      .then((r) => (r.ok ? (r.json() as Promise<EncryptedFile>) : null))
+      .then((f) => {
+        file.current = f;
+        return unlock(key);
       })
       .catch(() => setState({ status: "neterr" }));
-  }, []);
+    // 이미 이 화면에 있을 때 주인 링크를 붙여 넣으면 새로 불러오지 않고 해시만 바뀐다
+    const onHash = () => {
+      const k = take();
+      if (k) void unlock(k);
+    };
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, [unlock]);
 
   const summary =
     groups > 0
-      ? `스킬이 안 뜬 반복 요청 ${groups}묶음(${requests}회)의 원문은 주인 계정으로 로그인해야 열립니다.`
-      : "스킬이 안 뜬 반복 요청의 원문은 주인 계정으로 로그인해야 열립니다.";
+      ? `스킬이 안 뜬 반복 요청 ${groups}묶음(${requests}회)의 원문은 주인 키로만 열립니다.`
+      : "스킬이 안 뜬 반복 요청의 원문은 주인 키로만 열립니다.";
+
+  const keyForm = (
+    <form
+      className="mt-3 flex flex-wrap gap-2"
+      onSubmit={(e) => {
+        e.preventDefault();
+        const k = draft.trim().replace(/^.*#k=/, "");
+        setDraft("");
+        if (KEY_RE.test(k)) void unlock(k);
+        else setState({ status: "bad" });
+      }}
+    >
+      <label htmlFor="owner-key" className="sr-only">
+        주인 키 또는 주인 링크
+      </label>
+      <input
+        id="owner-key"
+        type="password"
+        autoComplete="off"
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        placeholder="주인 키 또는 주인 링크"
+        className="min-w-0 flex-1 rounded-md border border-line bg-lcd-hi px-3 py-2 text-[14px]"
+      />
+      <button type="submit" data-nav className="pbtn pbtn-sm">
+        열기
+      </button>
+    </form>
+  );
 
   return (
     <div aria-live="polite">
-      {notice && <p className="body-kr mb-3 text-[13px] !text-ink">{notice}</p>}
       <PBox className="p-4 @min-[440px]/screen:p-5">
         {state.status === "loading" && <p className="body-kr">확인하는 중입니다.</p>}
         {state.status === "neterr" && <p className="body-kr">불러오지 못했습니다. 새로고침해 주세요.</p>}
-        {state.status === "off" && (
-          <p className="body-kr">주인 인증이 아직 설정되지 않았습니다. 서버에 GitHub 로그인과 서명 키를 넣으면 열립니다.</p>
-        )}
+        {state.status === "nodata" && <p className="body-kr">{summary} 아직 주인 데이터가 올라오지 않았습니다.</p>}
         {state.status === "locked" && (
           <>
             <p className="body-kr !text-ink">{summary}</p>
-            <a href="/api/auth/github" data-nav className="pbtn pbtn-sm mt-3 inline-block">
-              GitHub로 주인 인증 ›
-            </a>
+            {keyForm}
           </>
         )}
-        {state.status === "empty" && (
+        {state.status === "bad" && (
           <>
-            <p className="body-kr !text-ink">인증됐습니다. 주인 전용 데이터는 아직 동기화되지 않았습니다.</p>
-            <Logout />
-          </>
-        )}
-        {(state.status === "nokey" || state.status === "badkey") && (
-          <>
-            <p className="body-kr !text-ink">
-              {state.status === "nokey" ? "서버에 복호화 키가 없습니다." : "서버의 복호화 키가 동기화할 때 쓴 키와 다릅니다."} 같은 DASHBOARD_DATA_KEY를 넣어 주세요.
-            </p>
-            <Logout />
+            <p className="body-kr !text-ink">이 키로는 열리지 않습니다. 주인 링크를 다시 열거나 키를 확인해 주세요.</p>
+            {keyForm}
           </>
         )}
         {state.status === "ok" && (
@@ -119,7 +184,17 @@ export function OwnerPanel({ groups, requests }: { groups: number; requests: num
                 </ul>
               </>
             )}
-            <Logout />
+            <button
+              type="button"
+              data-nav
+              className="pbtn pbtn-sm mt-3"
+              onClick={() => {
+                store.clear();
+                setState({ status: "locked" });
+              }}
+            >
+              이 기기에서 잊기
+            </button>
           </>
         )}
       </PBox>
