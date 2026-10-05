@@ -66,22 +66,23 @@ npm run start    # 빌드 결과 실행
 
 주인 전용 데이터는 **브라우저가 주인 키로 직접 풉니다.** 서버에는 비밀값도 로그인도 없습니다. 키는 PC의 `~/.claude/skill-audit/dashboard.key`에만 있고, 주인 링크(`/dashboard#k=...`)를 연 브라우저가 기억합니다. `#` 뒤는 서버로 전송되지 않으며, 저장소가 공개돼도 원문은 보이지 않습니다.
 
-### 처음 한 번
+### 처음 한 번 — PC에서
 
 ```bash
-npm run dashboard:sync -- --gen-key   # 주인 키를 만들고 주인 링크를 보여준다
+npm run dashboard:setup
 ```
 
-주인 링크를 기기마다 한 번 엽니다. 링크는 비밀번호처럼 다룹니다. 다시 보려면 `-- --link`, 그 기기에서 지우려면 화면의 "이 기기에서 잊기"를 누릅니다.
+주인 키를 만들고, Claude Code SessionEnd 훅을 등록하고, 지금 한 번 갱신·push 한 뒤 주인 링크를 보여줍니다. 주인 링크를 기기마다 한 번 엽니다. 링크는 비밀번호처럼 다룹니다. 다시 보려면 `npm run dashboard:sync -- --link`.
 
-### 숫자 갱신
+### 그다음은 자동
 
-```bash
-npm run dashboard:sync            # 전체 기간 (-- --days 30 으로 최근 30일)
-git add app/_data/dashboard public/dashboard-owner.enc.json && git commit -m "대시보드 갱신" && git push
-```
+Claude Code 세션이 끝날 때마다 훅이 `scripts/dashboard-auto.mjs`를 뒤에서 돌립니다.
 
-기록 원본이 PC의 `~/.claude`라서 기록이 있는 PC에서 돌립니다. 내용이 그대로면 파일을 다시 쓰지 않아 커밋할 것도 없습니다. claude-skills는 `../claude-skills`, `~/workspace/claude-skills`, `~/claude-skills` 순으로 찾고, 다른 곳이면 `CLAUDE_SKILLS_DIR=<경로>`를 줍니다.
+- 작업 폴더는 건드리지 않습니다. `~/.claude/skill-audit/usetaehwan-sync`의 별도 사본에서 main 최신을 받아 데이터 파일 두 개만 커밋·push 합니다
+- 6시간에 한 번까지만 돕니다(`DASHBOARD_AUTO_HOURS`). 바뀐 게 없으면 커밋하지 않습니다
+- 기록은 `~/.claude/skill-audit/dashboard-auto.log`, 끄려면 `npm run dashboard:setup -- --uninstall`
+
+손으로 돌리려면 `npm run dashboard:sync` 뒤 두 파일을 커밋·push 합니다. claude-skills는 `../claude-skills`, `~/workspace/claude-skills`, `~/claude-skills` 순으로 찾고, 다른 곳이면 `CLAUDE_SKILLS_DIR=<경로>`를 줍니다.
 
 ---
 
