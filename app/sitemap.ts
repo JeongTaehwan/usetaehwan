@@ -21,6 +21,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly" as const,
       priority: 0.7,
     })),
+    { url: `${BASE}/dashboard`, lastModified: now, changeFrequency: "weekly", priority: 0.6 },
     ...TALKS.map((t) => ({
       url: `${BASE}/talks/${t.slug}`,
       lastModified: now,
