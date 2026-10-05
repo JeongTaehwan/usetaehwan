@@ -62,38 +62,26 @@ npm run start    # 빌드 결과 실행
 | 구분 | 내용 | 어디에 있나 |
 |---|---|---|
 | 공개 | 사용 순위(저장소 스킬·에이전트만), 매 턴 실리는 글자, 레퍼런스 온톨로지, 모델·프로필 | `app/_data/dashboard/public.json` — 평문 |
-| 주인 전용 | 스킬 후보의 요청 원문, 저장소 밖 스킬·에이전트 이름 | `app/_data/dashboard/private.enc.json` — AES-256-GCM 암호문 |
+| 주인 전용 | 스킬 후보의 요청 원문, 저장소 밖 스킬·에이전트 이름 | `public/dashboard-owner.enc.json` — AES-256-GCM 암호문 |
 
-주인 전용 데이터는 서버가 GitHub 로그인으로 계정 id를 확인한 뒤에만 복호화해 보냅니다. 저장소가 공개돼도 원문은 보이지 않습니다.
+주인 전용 데이터는 **브라우저가 주인 키로 직접 풉니다.** 서버에는 비밀값도 로그인도 없습니다. 키는 PC의 `~/.claude/skill-audit/dashboard.key`에만 있고, 주인 링크(`/dashboard#k=...`)를 연 브라우저가 기억합니다. `#` 뒤는 서버로 전송되지 않으며, 저장소가 공개돼도 원문은 보이지 않습니다.
 
-### 처음 한 번 — 주인 인증 켜기
+### 처음 한 번
 
-1. GitHub → Settings → Developer settings → OAuth Apps → **New OAuth App**
-   - Homepage URL: `https://usetaehwan.page`
-   - Authorization callback URL: `https://usetaehwan.page/api/auth/github/callback`
-2. PC에서 데이터 키를 만든다. `.env.local`에 저장되고 화면에 같은 값이 나온다.
-   ```bash
-   npm run dashboard:sync -- --gen-key
-   ```
-3. 세션 서명 키를 만든다: `openssl rand -hex 32`
-4. Vercel → Project → Settings → Environment Variables (Production)에 넣고 다시 배포한다.
+```bash
+npm run dashboard:sync -- --gen-key   # 주인 키를 만들고 주인 링크를 보여준다
+```
 
-| 이름 | 값 |
-|---|---|
-| `GITHUB_CLIENT_ID` · `GITHUB_CLIENT_SECRET` | 1번 OAuth App |
-| `DASHBOARD_SESSION_SECRET` | 3번 값 (32자 이상) |
-| `DASHBOARD_DATA_KEY` | 2번 값 — PC의 `.env.local`과 **같아야** 한다 |
-
-하나라도 없으면 주인 인증은 꺼진 채로 닫힙니다. 콜백 주소가 운영 도메인 하나라서 로그인은 운영 사이트에서만 됩니다.
+주인 링크를 기기마다 한 번 엽니다. 링크는 비밀번호처럼 다룹니다. 다시 보려면 `-- --link`, 그 기기에서 지우려면 화면의 "이 기기에서 잊기"를 누릅니다.
 
 ### 숫자 갱신
 
 ```bash
 npm run dashboard:sync            # 전체 기간 (-- --days 30 으로 최근 30일)
-git add app/_data/dashboard && git commit -m "대시보드 갱신" && git push
+git add app/_data/dashboard public/dashboard-owner.enc.json && git commit -m "대시보드 갱신" && git push
 ```
 
-기록 원본은 PC의 `~/.claude`라서 기록이 있는 PC에서 돌립니다. claude-skills가 `../claude-skills`에 없으면 `.env.local`에 `CLAUDE_SKILLS_DIR=<경로>`를 적습니다.
+기록 원본이 PC의 `~/.claude`라서 기록이 있는 PC에서 돌립니다. 내용이 그대로면 파일을 다시 쓰지 않아 커밋할 것도 없습니다. claude-skills는 `../claude-skills`, `~/workspace/claude-skills`, `~/claude-skills` 순으로 찾고, 다른 곳이면 `CLAUDE_SKILLS_DIR=<경로>`를 줍니다.
 
 ---
 

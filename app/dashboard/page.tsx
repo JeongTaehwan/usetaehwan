@@ -1,4 +1,4 @@
-// claude-skills 대시보드 — 공개 숫자는 정적으로, 요청 원문은 주인 인증 뒤에만 (scripts/dashboard-sync.mjs)
+// claude-skills 대시보드 — 공개 숫자는 정적으로, 요청 원문은 주인 키로 브라우저에서만 푼다 (scripts/dashboard-sync.mjs)
 import type { Metadata } from "next";
 import data from "../_data/dashboard/public.json";
 import type { DashboardPublic } from "../_data/dashboard/types";
@@ -95,7 +95,7 @@ export default function DashboardPage() {
       <article className="document">
         <Dialog className="mb-1 text-[15px] leading-[1.75] @min-[440px]/screen:text-[16px]">
           <p className="[word-break:keep-all]">
-            claude-skills 저장소의 숫자를 화면으로 옮겼습니다. 공개 화면은 숫자만 담고, 요청 원문이 들어간 스킬 후보는 주인 인증 뒤에만 열립니다.
+            claude-skills 저장소의 숫자를 화면으로 옮겼습니다. 공개 화면은 숫자만 담고, 요청 원문이 들어간 스킬 후보는 주인 키로만 열립니다.
           </p>
         </Dialog>
         <p className="body-kr mt-4 text-[13px]">
