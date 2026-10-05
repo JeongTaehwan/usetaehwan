@@ -1,0 +1,360 @@
+{
+ "generated": "2026-10-05",
+ "days": null,
+ "repo": "claude-skills",
+ "usage": {
+  "source": "none",
+  "skills": [],
+  "agents": [],
+  "otherCount": 0,
+  "unused": [
+   "env-divergence",
+   "implementation-design",
+   "infra-baseline",
+   "main-sync",
+   "marketing-growth",
+   "mr-conflict-resolve",
+   "project-flow",
+   "role-isolation-pipeline",
+   "security-baseline",
+   "skill-forge",
+   "slow-network-ux",
+   "software-reference-library"
+  ],
+  "daily": []
+ },
+ "candidates": {
+  "groups": 0,
+  "requests": 0
+ },
+ "budget": {
+  "skills": [
+   {
+    "name": "env-divergence",
+    "desc": 308,
+    "body": 4688
+   },
+   {
+    "name": "implementation-design",
+    "desc": 339,
+    "body": 8029
+   },
+   {
+    "name": "infra-baseline",
+    "desc": 136,
+    "body": 1799
+   },
+   {
+    "name": "main-sync",
+    "desc": 193,
+    "body": 2962
+   },
+   {
+    "name": "marketing-growth",
+    "desc": 154,
+    "body": 2019
+   },
+   {
+    "name": "mr-conflict-resolve",
+    "desc": 207,
+    "body": 5993
+   },
+   {
+    "name": "project-flow",
+    "desc": 158,
+    "body": 3137
+   },
+   {
+    "name": "role-isolation-pipeline",
+    "desc": 172,
+    "body": 4100
+   },
+   {
+    "name": "security-baseline",
+    "desc": 138,
+    "body": 2383
+   },
+   {
+    "name": "skill-forge",
+    "desc": 105,
+    "body": 1657
+   },
+   {
+    "name": "slow-network-ux",
+    "desc": 208,
+    "body": 5301
+   },
+   {
+    "name": "software-reference-library",
+    "desc": 217,
+    "body": 4842
+   }
+  ],
+  "agents": [
+   {
+    "name": "analyst",
+    "model": "sonnet",
+    "desc": 102
+   },
+   {
+    "name": "architect",
+    "model": "opus",
+    "desc": 87
+   },
+   {
+    "name": "developer",
+    "model": "opus",
+    "desc": 86
+   },
+   {
+    "name": "doc-reviewer",
+    "model": "sonnet",
+    "desc": 82
+   },
+   {
+    "name": "planner",
+    "model": "opus",
+    "desc": 76
+   },
+   {
+    "name": "prototyper",
+    "model": "sonnet",
+    "desc": 76
+   },
+   {
+    "name": "researcher",
+    "model": "sonnet",
+    "desc": 66
+   },
+   {
+    "name": "scribe",
+    "model": "haiku",
+    "desc": 120
+   },
+   {
+    "name": "ux-designer",
+    "model": "sonnet",
+    "desc": 78
+   }
+  ],
+  "memory": 948,
+  "limits": {
+   "desc": 350,
+   "desc_total": 4200,
+   "body": 9000,
+   "agent_desc": 160,
+   "memory": 1500
+  }
+ },
+ "profiles": {
+  "models": {
+   "claude-opus-5-5": {
+    "profile": "full",
+    "evaluated": null,
+    "note": "평가 전 — 기존 구성 유지"
+   },
+   "claude-sonnet-5-5": {
+    "profile": "full",
+    "evaluated": null,
+    "note": "평가 전 — 기존 구성 유지"
+   },
+   "claude-fable-5-1": {
+    "profile": "full",
+    "evaluated": null,
+    "note": "평가 전 — 기존 구성 유지"
+   },
+   "claude-haiku-4-5": {
+    "profile": "full",
+    "evaluated": null,
+    "note": "평가 전 — 역할 에이전트(scribe)용"
+   }
+  },
+  "profiles": [
+   {
+    "name": "base",
+    "description": "0 베이스. 새 모델이 나오면 이 상태에서 시작해 평가로 이득이 확인된 스킬만 붙인다.",
+    "skills": 0,
+    "agents": 0
+   },
+   {
+    "name": "full",
+    "description": "전부 설치. 새 스킬은 여기부터 들어온다.",
+    "skills": "all",
+    "agents": "all"
+   }
+  ],
+  "evals": []
+ },
+ "ontology": {
+  "concepts": 139,
+  "references": 512,
+  "relations": {
+   "about": 632,
+   "see_instead": 2668,
+   "opposes": 4,
+   "broader": 70
+  },
+  "topConcepts": [
+   {
+    "label": "PM 직무·조직 운영",
+    "domain": "기획",
+    "count": 15
+   },
+   {
+    "label": "한국 기업 기술블로그",
+    "domain": "개발",
+    "count": 12
+   },
+   {
+    "label": "학습 로드맵·큐레이션",
+    "domain": "개발",
+    "count": 12
+   },
+   {
+    "label": "아키텍처 패턴",
+    "domain": "설계",
+    "count": 10
+   },
+   {
+    "label": "복잡성·모듈화",
+    "domain": "설계",
+    "count": 10
+   },
+   {
+    "label": "엔지니어링 생산성·조직",
+    "domain": "개발",
+    "count": 10
+   },
+   {
+    "label": "언어·플랫폼 레퍼런스",
+    "domain": "개발",
+    "count": 10
+   },
+   {
+    "label": "성능 측정",
+    "domain": "성능",
+    "count": 10
+   },
+   {
+    "label": "이미지 최적화",
+    "domain": "성능",
+    "count": 10
+   },
+   {
+    "label": "JS 번들 최적화",
+    "domain": "성능",
+    "count": 10
+   },
+   {
+    "label": "주요 렌더링 경로",
+    "domain": "성능",
+    "count": 10
+   },
+   {
+    "label": "그로스 전략",
+    "domain": "마케팅",
+    "count": 9
+   }
+  ],
+  "domains": [
+   {
+    "label": "성능",
+    "count": 108
+   },
+   {
+    "label": "개발",
+    "count": 83
+   },
+   {
+    "label": "테스트",
+    "count": 53
+   },
+   {
+    "label": "설계",
+    "count": 51
+   },
+   {
+    "label": "기획",
+    "count": 48
+   },
+   {
+    "label": "마케팅",
+    "count": 45
+   },
+   {
+    "label": "인프라",
+    "count": 33
+   },
+   {
+    "label": "보안",
+    "count": 32
+   },
+   {
+    "label": "QA",
+    "count": 30
+   },
+   {
+    "label": "디자인",
+    "count": 29
+   }
+  ],
+  "crossDomain": [
+   {
+    "pair": [
+     "QA",
+     "테스트"
+    ],
+    "count": 81
+   },
+   {
+    "pair": [
+     "설계",
+     "개발"
+    ],
+    "count": 79
+   },
+   {
+    "pair": [
+     "개발",
+     "보안"
+    ],
+    "count": 47
+   },
+   {
+    "pair": [
+     "개발",
+     "인프라"
+    ],
+    "count": 45
+   },
+   {
+    "pair": [
+     "마케팅",
+     "기획"
+    ],
+    "count": 43
+   },
+   {
+    "pair": [
+     "설계",
+     "인프라"
+    ],
+    "count": 33
+   },
+   {
+    "pair": [
+     "개발",
+     "성능"
+    ],
+    "count": 32
+   },
+   {
+    "pair": [
+     "개발",
+     "기획"
+    ],
+    "count": 29
+   }
+  ]
+ }
+}

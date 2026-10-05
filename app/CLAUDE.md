@@ -70,6 +70,8 @@
 - app/_console/{Pixel,ui,prefs,init-script,sfx}: 픽셀 아이콘·공통 UI·영속 설정·초기 페인트·합성 효과음
 - app/projects/[slug], app/ai/[slug], app/talks/[slug], app/not-found.tsx: 같은 본체를 쓰는 상세 화면
 - app/opengraph-image.tsx, app/icon.svg: 두 화면 기기 공유 이미지·아이콘
+- app/dashboard, app/api/dashboard/private, app/api/auth/{github,github/callback,logout}, app/_lib/dashboard-auth.ts: 스킬 대시보드와 주인 인증(GitHub OAuth, 서명 쿠키, 서버 복호화). 환경 변수가 없으면 인증은 꺼진 채로 닫힌다
+- app/_data/dashboard/: scripts/dashboard-sync.mjs 가 만든다(`npm run dashboard:sync`). 손으로 고치지 않는다. private.enc.json 은 암호문만 둔다
 
 ---
 
