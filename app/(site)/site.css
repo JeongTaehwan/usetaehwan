@@ -60,6 +60,20 @@
 }
 
 @layer components {
+  /* 챗봇 출처 [n]으로 도착한 섹션 — 잠깐 강조 (app/_site/ask/AskPanel.tsx의 flash) */
+  [data-flash] {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+    border-radius: 12px;
+    background-color: var(--color-accent-soft);
+    transition: background-color 1.2s ease-out, outline-color 1.2s ease-out;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-flash] { transition: none; }
+  }
+}
+
+@layer components {
   /* 게임기 버전 캐릭터 — 여기서는 기본 프레임 한 장만 */
   .chibi {
     --color-chibi-hair: #5a3b2e; --color-chibi-hair-hi: #8a5f45; --color-chibi-hair-dark: #3a2520;

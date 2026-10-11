@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PROJECTS, getProject } from "../../../_data/projects";
+import { anchors } from "../../../_site/anchors";
 import { ButtonLink, DefList, DocBar, DocHeader, DocHeading, DocShell, Pills, PrevNext, ProjectMark, Prose } from "../../../_site/ui";
 
 type Params = { slug: string };
@@ -65,7 +66,7 @@ export default async function ProjectDetail({ params }: { params: Promise<Params
         )}
       </div>
 
-      <DocHeading>개요</DocHeading>
+      <DocHeading id={anchors.project.overview}>개요</DocHeading>
       <Prose>{detail.overview}</Prose>
 
       {project.cases && (
@@ -73,7 +74,7 @@ export default async function ProjectDetail({ params }: { params: Promise<Params
           <DocHeading>작업 사례</DocHeading>
           <ol className="flex flex-col gap-4">
             {project.cases.map((c, n) => (
-              <li key={c.title} className="rounded-xl border border-line bg-card p-5 sm:p-6">
+              <li key={c.title} id={anchors.project.case(n)} className="rounded-xl border border-line bg-card p-5 sm:p-6">
                 <p className="font-mono text-[12.5px] text-mute">사례 {n + 1}</p>
                 <h3 className="mt-1 text-[17px] leading-[1.5] font-bold">{c.title}</h3>
                 <DefList
@@ -92,8 +93,8 @@ export default async function ProjectDetail({ params }: { params: Promise<Params
 
       <DocHeading>핵심 기능</DocHeading>
       <ul className="grid gap-3 sm:grid-cols-2">
-        {detail.highlights.map((h) => (
-          <li key={h.title} className="rounded-xl border border-line p-5">
+        {detail.highlights.map((h, n) => (
+          <li key={h.title} id={anchors.project.feature(n)} className="rounded-xl border border-line p-5">
             <h3 className="text-[15.5px] leading-[1.5] font-bold">{h.title}</h3>
             <p className="mt-2 text-[14.5px] leading-[1.75] text-ink-2">{h.body}</p>
           </li>

@@ -1,0 +1,58 @@
+# 챗봇 백엔드 — 린트 · 테스트(실제 pgvector) · 코퍼스 민감정보 검사 · Docker 빌드
+name: ask-server
+
+on:
+  push:
+    paths: &paths
+      - "ask-server/**"
+      - "scripts/ask-corpus.ts"
+      - "app/_data/**"
+      - "app/_site/**"
+      - ".github/workflows/ask.yml"
+  pull_request:
+    paths: *paths
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ask-server
+    services:
+      db:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_USER: ask
+          POSTGRES_PASSWORD: ask
+          POSTGRES_DB: ask
+        ports: ["5433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U ask" --health-interval 2s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --frozen
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run pytest -q
+
+  corpus:
+    # 사이트 문구가 바뀔 때마다 실제 코퍼스가 민감정보 필터를 통과하는지 확인한다 (--strict면 걸린 청크가 있을 때 실패)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx tsx scripts/ask-corpus.ts "$RUNNER_TEMP/corpus.json"
+      - uses: astral-sh/setup-uv@v6
+      - working-directory: ask-server
+        run: uv sync --frozen && uv run python -m ask.ingest --corpus "$RUNNER_TEMP/corpus.json" --dry-run --strict
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t ask-server:ci ask-server

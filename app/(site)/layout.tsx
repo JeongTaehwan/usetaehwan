@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./site.css";
 import { fontVars } from "../_site/fonts";
+import { AskPanel } from "../_site/ask/AskPanel";
 
 const SITE_URL = "https://usetaehwan.page";
 const SITE_TITLE = "Taehwan Jeong — Frontend engineer";
@@ -40,7 +41,10 @@ export const viewport: Viewport = {
 export default function SiteLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ko" className={fontVars}>
-      <body className="font-sans">{children}</body>
+      <body className="font-sans">
+        {children}
+        <AskPanel />
+      </body>
     </html>
   );
 }

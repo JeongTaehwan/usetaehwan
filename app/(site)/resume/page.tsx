@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fragment } from "react";
+import { anchors } from "../../_site/anchors";
 import {
   AI_TALK,
   AWARDS,
@@ -50,15 +51,17 @@ function Rich({ text }: { text: string }) {
 
 function Sheet({
   page,
+  id,
   className,
   children,
 }: {
   page: number;
+  id?: string;
   className?: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className={`sheet ${className ?? ""}`} aria-label={`${page}쪽`}>
+    <section id={id} className={`sheet ${className ?? ""}`} aria-label={`${page}쪽`}>
       {children}
       <footer className="sheet-foot">
         <span>정태환 · 이력서 · 포트폴리오</span>
@@ -71,13 +74,19 @@ function Sheet({
 }
 
 function Label({
+  id,
   children,
   className,
 }: {
+  id?: string;
   children: React.ReactNode;
   className?: string;
 }) {
-  return <h2 className={`r-label ${className ?? ""}`}>{children}</h2>;
+  return (
+    <h2 id={id} className={`r-label ${className ?? ""}`}>
+      {children}
+    </h2>
+  );
 }
 
 function Ext({ href, children }: { href: string; children: React.ReactNode }) {
@@ -148,12 +157,14 @@ function ResumeFirst() {
         </ul>
       </header>
 
-      <p className="mt-3.5 text-[10.5pt] leading-[1.6] font-bold text-[var(--brick)]">
+      <p id={anchors.resume.summary} className="mt-3.5 text-[10.5pt] leading-[1.6] font-bold text-[var(--brick)]">
         {HEADLINE}
       </p>
       <p className="mt-1.5 text-ink-2">{SUMMARY}</p>
 
-      <Label className="mt-4">기술 스택</Label>
+      <Label id={anchors.resume.stack} className="mt-4">
+        기술 스택
+      </Label>
       <dl className="mt-2 grid grid-cols-[4.2rem_minmax(0,1fr)] gap-x-3 gap-y-0.5">
         {STACK.map((s) => (
           <div key={s.k} className="contents">
@@ -163,7 +174,9 @@ function ResumeFirst() {
         ))}
       </dl>
 
-      <Label className="mt-4">경력</Label>
+      <Label id={anchors.resume.jobs} className="mt-4">
+        경력
+      </Label>
       <div className="mt-2 flex items-baseline justify-between gap-4">
         <p className="text-[11pt] font-bold">
           {COMPANY.name}{" "}
@@ -188,7 +201,7 @@ function ResumeSecond() {
         {JOB_ETC}
       </p>
 
-      <aside className="mt-2.5 rounded-lg border border-[var(--brick)] bg-[var(--brick-soft)] px-4 py-3">
+      <aside id={anchors.resume.aiTalk} className="mt-2.5 rounded-lg border border-[var(--brick)] bg-[var(--brick-soft)] px-4 py-3">
         <p className="text-[9pt] font-bold tracking-[0.04em] text-[var(--brick)]">
           {AI_TALK.label}
         </p>
@@ -197,7 +210,9 @@ function ResumeSecond() {
         <p className="mt-1 text-ink-2">{AI_TALK.body}</p>
       </aside>
 
-      <Label className="mt-3.5">개인 프로젝트</Label>
+      <Label id={anchors.resume.sideProjects} className="mt-3.5">
+        개인 프로젝트
+      </Label>
       <ul className="mt-2 flex flex-col gap-2">
         {SIDE_PROJECTS.map((p) => (
           <li key={p.name}>
@@ -223,7 +238,9 @@ function ResumeSecond() {
         ))}
       </ul>
 
-      <Label className="mt-3.5">학력</Label>
+      <Label id={anchors.resume.education} className="mt-3.5">
+        학력
+      </Label>
       <ul className="mt-2 flex flex-col gap-1">
         {EDUCATION.map((e) => (
           <li
@@ -239,7 +256,9 @@ function ResumeSecond() {
         ))}
       </ul>
 
-      <Label className="mt-3.5">자격 · 수상</Label>
+      <Label id={anchors.resume.awards} className="mt-3.5">
+        자격 · 수상
+      </Label>
       <ul className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1">
         {AWARDS.map((a) => (
           <li
@@ -314,7 +333,7 @@ function CasePage({ c, page }: { c: Case; page: number }) {
   const kinds = new Set(c.flow.steps.flat().map((n) => n.kind));
   const gap = c.dense ? "mt-4" : "mt-5";
   return (
-    <Sheet page={page} className="sheet-case">
+    <Sheet page={page} id={anchors.resume.case(c.slug)} className="sheet-case">
       <header className="border-b-2 border-[var(--brick)] pb-3">
         <div className="flex items-baseline justify-between gap-4 text-[9pt] text-mute">
           <span>
