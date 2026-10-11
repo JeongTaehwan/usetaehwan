@@ -37,13 +37,16 @@ export const viewport: Viewport = {
   ],
 };
 
+/* 챗봇 패널은 백엔드가 연결된 환경(ASK_API_URL)과 로컬 개발에서만 띄운다 — 백엔드 없이 운영에 버튼만 뜨지 않게 */
+const ASK_ENABLED = Boolean(process.env.ASK_API_URL) || process.env.NODE_ENV === "development";
+
 /** v5 · 기본 버전의 루트 레이아웃. 게임기 버전(/play)은 (play) 그룹의 별도 루트 레이아웃을 쓴다. */
 export default function SiteLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ko" className={fontVars}>
       <body className="font-sans">
         {children}
-        <AskPanel />
+        {ASK_ENABLED && <AskPanel />}
       </body>
     </html>
   );
