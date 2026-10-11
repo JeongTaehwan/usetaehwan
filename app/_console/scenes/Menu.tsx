@@ -73,7 +73,12 @@ export function Menu() {
       </a>
     </li>)}</ul></nav>
     <div className="menu-footer"><p className="keys-hint">↑↓←→ 이동 · Z 결정 · X 뒤로</p>
-      <a href="#settings" data-nav className="settings-link" aria-label="설정"><Pixel name="gear"/>설정</a>
+      <div className="flex items-center gap-1">
+        {/* 다른 루트 레이아웃이라 전체 이동 — 단정한 기본 버전으로 */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+        <a href="/" data-nav className="settings-link">기본 버전 ↗</a>
+        <a href="#settings" data-nav className="settings-link" aria-label="설정"><Pixel name="gear"/>설정</a>
+      </div>
     </div>
   </section>;
 }

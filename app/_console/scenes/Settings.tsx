@@ -10,6 +10,7 @@ import { BackToMenu } from "./common";
 
 /** 이 사이트의 개정 이력 — 버전마다 컨셉을 통째로 다시 그렸다 */
 const REVISIONS = [
+  { rev: "5.0", date: "2026.10", desc: "읽기 좋은 단정한 문서형을 기본으로 되돌리고, 이 게임기 버전은 /play 에 그대로 남겼습니다." },
   { rev: "4.0", date: "2026.09", desc: "두 화면 휴대용 게임기 컨셉. 도감·트레이너 카드·타운맵·기술머신으로 다시 구성하고, 도트 캐릭터와 배경음을 더했습니다." },
   { rev: "3.0", date: "2026.09", desc: "브루클린 로프트 — 섹션을 방으로, 프로젝트를 문 너머의 세계로 걸어 들어가는 포트폴리오." },
   { rev: "2.0", date: "2026.09", desc: "도면(drafting sheet) 컨셉으로 재작도. 디자인 시스템 의존을 떼고 프로젝트별 팔레트를 넣었습니다." },
@@ -78,6 +79,14 @@ export function Settings() {
               onClick={() => setShell(item.id)}><span className="swatch" aria-hidden />{item.label}</button>
           ))}
         </div>
+      </fieldset>
+      <fieldset className="settings-group">
+        <legend>사이트 버전</legend>
+        <div className="options">
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+          <a href="/" data-nav className="opt">기본 버전으로 ↗</a>
+        </div>
+        <p className="body-kr">같은 내용을 스크롤 한 번으로 읽는 단정한 버전입니다.</p>
       </fieldset>
       <fieldset className="settings-group">
         <legend>이 사이트의 개정 이력</legend>

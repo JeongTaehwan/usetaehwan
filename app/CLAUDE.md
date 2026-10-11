@@ -45,7 +45,29 @@
 
 ---
 
+## 디자인 v5 · 단정한 기본 버전 + 게임기 버전 보존 (2026-10)
+
+- `/`는 단정한 문서형이 기본. v4 게임기 버전은 손대지 않고 `/play` 아래로 옮겨 그대로 둔다.
+- 두 버전은 route group으로 루트 레이아웃을 나눈다 — `app/(site)/layout.tsx`(site.css) · `app/(play)/layout.tsx`(console.css + INIT_SCRIPT + MusicPlayer). 버전을 오가면 전체 이동이 된다. 어느 쪽에도 맞지 않는 주소는 `app/global-not-found.tsx`(experimental.globalNotFound).
+- 기본 버전 레이아웃: 넓은 화면은 왼쪽 고정 열(이름·한 줄 소개·세로 목차·연락처·게임기 버전 카드) + 오른쪽 본문, 좁은 화면은 머리 아래 위에 붙는 가로 목차. 목차는 화면 위 30% 선 기준으로 현재 섹션을 aria-current로 표시한다.
+- 섹션: about · projects · experience · ai · talks · contact. 게임기 장면 해시(dex·trainer·map·notes·caster·link)는 LegacyHash가 같은 섹션으로 바꾼다. settings는 /play#settings로.
+- 색은 site.css @theme 토큰(paper·card·hover·ink·ink-2·mute·line·line-2·accent). 다크는 prefers-color-scheme에서 같은 변수를 덮는다. 포인트색은 테라코타 하나. 프로젝트 표식만 원본 palette.swatches(bg·fg·brand)를 쓴다.
+- 서체는 Noto Sans KR(본문) + JetBrains Mono(번호·연도·수치). Galmuri는 게임기 버전 전용 — subset-fonts.py는 _console·(play)·_data만 훑는다.
+- 상세 문서: DocBar(← 목록 · 게임기 버전으로 보기) → DocHeader → 본문 → PrevNext. 같은 slug의 /play 상세로 건너갈 수 있다.
+- 게임기 버전 안의 링크는 모두 /play 기준(/play#dex, /play/projects/…). 메뉴 하단과 설정에 기본 버전으로 가는 링크가 있다.
+- 공용 원본: app/_data/links.ts(연락처) · profile.ts(대표 기록·특성)를 두 버전이 함께 읽는다.
+
+### 코드 위치 (v5)
+
+- app/(site)/: layout · site.css · page(홈) · projects/ai/talks 상세 · not-found · opengraph-image
+- app/_site/: ui(Pill·ButtonLink·DefList·ProjectMark·DocBar·DocHeader·PrevNext…) · nav(SideNav·TopNav·LegacyHash·Clamp) · fonts · NotFoundBody
+- app/(play)/: layout · console.css · play/(page · projects/ai/talks 상세 · not-found · opengraph-image)
+
+---
+
 ## 디자인 v4 · DS형 두 화면 포트폴리오 (2026-09)
+
+> v5부터 이 버전은 `/play`에 있다. 아래 경로의 globals.css는 app/(play)/console.css, 상세 화면은 app/(play)/play/ 아래로 옮겨졌다.
 
 - 컨셉은 두 화면 폴더형 휴대용 기기 하나. 블랙/화이트 시대의 대화창·메뉴 관용구를 오마주하며 공식 상표, 캐릭터, BGM은 사용하지 않는다. 기기 각인은 useTaehwan().
 - 위 화면은 인사·프로젝트 상세 미리보기·트레이너 카드·경력 지도·AI 규칙·발표 기록. 아래 화면은 선택 목록과 긴 본문. 메뉴만 어두운 청록, 본문은 밝은 화면이다.

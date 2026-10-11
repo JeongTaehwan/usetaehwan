@@ -1,16 +1,16 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { Noto_Sans_KR } from "next/font/google";
-import "./globals.css";
-import { MusicPlayer } from "./_console/MusicPlayer";
-import { INIT_SCRIPT } from "./_console/init-script";
+import "./console.css";
+import { MusicPlayer } from "../_console/MusicPlayer";
+import { INIT_SCRIPT } from "../_console/init-script";
 
 /* v4 · 게임기 서체 — Galmuri11(픽셀, 화면 UI·제목·대화창) · Noto Sans KR(긴 본문) */
 const galmuri = localFont({
   variable: "--font-galmuri-next",
   src: [
-    { path: "./_fonts/Galmuri11.woff2", weight: "400", style: "normal" },
-    { path: "./_fonts/Galmuri11-Bold.woff2", weight: "700", style: "normal" },
+    { path: "../_fonts/Galmuri11.woff2", weight: "400", style: "normal" },
+    { path: "../_fonts/Galmuri11-Bold.woff2", weight: "700", style: "normal" },
   ],
   display: "swap",
 });

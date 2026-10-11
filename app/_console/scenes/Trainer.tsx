@@ -1,6 +1,7 @@
 import { Me } from "../Me";
 import { Dialog, PBox, Rows } from "../ui";
 import { CERTIFICATIONS, EDUCATION } from "../../_data/experience";
+import { RECORDS, TRAITS } from "../../_data/profile";
 import { BackToMenu } from "./common";
 
 const CARD = [
@@ -9,21 +10,6 @@ const CARD = [
   { k: "경력", v: "커머스 3년 10개월 · (주)셀메이트" },
   { k: "지역", v: "서울" },
   { k: "주력", v: "Vue 3 (3년+) · React / Next.js · TypeScript" },
-];
-
-const TRAITS = [
-  { k: "도메인", v: "커머스 · 결제 · 정산 · 쿠폰" },
-  { k: "경계", v: "OAuth · WebSocket · 앱 웹뷰 · PG" },
-  { k: "방식", v: "역할 분리 · 코드로 검증 · 측정 후 규칙" },
-  { k: "회사", v: "(주)셀메이트 · 2022.11 – 재직 중" },
-];
-
-/** 대표 기록 — v2 첫 화면의 숫자. 전부 이력서·저장소에서 확인한 값 */
-const RECORDS = [
-  { k: "머지된 MR", v: "361", note: "신규 쇼핑몰 웹앱 · 화면 244 / 코어 117" },
-  { k: "단위 테스트", v: "759", note: "앱·웹 공유 코어 패키지" },
-  { k: "커버리지", v: "42.0 → 69.3%", note: "코어 패키지 단위 테스트" },
-  { k: "인수 테스트", v: "109", note: "각(Gak) · 검증 AI가 요구사항에서 추출" },
 ];
 
 const BADGE_COLORS = ["var(--color-red)", "var(--color-blue)", "var(--color-gold)", "var(--color-green)"];

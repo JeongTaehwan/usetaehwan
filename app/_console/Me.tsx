@@ -10,7 +10,7 @@ function Frame({ grid, className }: { grid: string[]; className: string }) {
       let end = x + 1;
       while (end < row.length && row[end] === ch) end++;
       const fill = ME_COLORS[ch];
-      if (ch !== "." && fill) rects.push(<rect key={x} x={x} y={y} width={end - x} height={1} fill={fill} />);
+      if (ch !== "." && fill) rects.push(<rect key={`${x}-${y}`} x={x} y={y} width={end - x} height={1} fill={fill} />);
       x = end;
     }
   });

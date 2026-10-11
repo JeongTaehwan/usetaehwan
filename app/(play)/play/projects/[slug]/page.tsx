@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { PROJECTS, getProject } from "../../_data/projects";
-import { Console } from "../../_console/Console";
-import { BackRow, Dialog, DocHero, PBox, Rows, Sub, TypeChip } from "../../_console/ui";
-import { PROJECT_SPRITE } from "../../_console/scenes/common";
-import { dexNo } from "../../_console/scenes/Dex";
+import { PROJECTS, getProject } from "../../../../_data/projects";
+import { Console } from "../../../../_console/Console";
+import { BackRow, Dialog, DocHero, PBox, Rows, Sub, TypeChip } from "../../../../_console/ui";
+import { PROJECT_SPRITE } from "../../../../_console/scenes/common";
+import { dexNo } from "../../../../_console/scenes/Dex";
 
 type Params = { slug: string };
 
@@ -29,7 +29,7 @@ export default async function ProjectDetail({ params }: { params: Promise<Params
   const sw = Object.fromEntries(project.palette.swatches.map((s) => [s.name, s.value]));
 
   return (
-    <Console label={`도감 · ${dexNo(i)} ${project.name}`} backHref="/#dex" top={<div className="detail-top">        <DocHero sprite={PROJECT_SPRITE[slug] ?? "blocks"} no={`${dexNo(i)} · ${project.year}`} title={project.name} bg={sw.bg} fg={sw.fg} accent={sw.brand}>
+    <Console label={`도감 · ${dexNo(i)} ${project.name}`} backHref="/play#dex" top={<div className="detail-top">        <DocHero sprite={PROJECT_SPRITE[slug] ?? "blocks"} no={`${dexNo(i)} · ${project.year}`} title={project.name} bg={sw.bg} fg={sw.fg} accent={sw.brand}>
           <div className="mt-2 flex flex-wrap gap-1.5">
             {project.tags.map((t) => (
               <TypeChip key={t}>{t}</TypeChip>
@@ -112,7 +112,7 @@ export default async function ProjectDetail({ params }: { params: Promise<Params
           ))}
         </div>
 
-        <BackRow href="/#dex" label="도감으로" />
+        <BackRow href="/play#dex" label="도감으로" />
       </article>
     </Console>
   );

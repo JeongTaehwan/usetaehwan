@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { PRACTICES, getPractice } from "../../_data/ai-practices";
-import { Console } from "../../_console/Console";
-import { BackRow, Dialog, DocHero, PBox, Rows, Sub, TypeChip } from "../../_console/ui";
-import { tmNo } from "../../_console/scenes/Notes";
+import { PRACTICES, getPractice } from "../../../../_data/ai-practices";
+import { Console } from "../../../../_console/Console";
+import { BackRow, Dialog, DocHero, PBox, Rows, Sub, TypeChip } from "../../../../_console/ui";
+import { tmNo } from "../../../../_console/scenes/Notes";
 
 type Params = { slug: string };
 export function generateStaticParams(): Params[] {
@@ -23,7 +23,7 @@ export default async function PracticeDetail({ params }: { params: Promise<Param
   const i = PRACTICES.findIndex((p) => p.slug === slug);
 
   return (
-    <Console label={`기술머신 · ${tmNo(i)}`} backHref="/#notes" top={<div className="detail-top">        <DocHero sprite="disk" no={`${tmNo(i)} · 기술머신 ${i + 1} / ${PRACTICES.length}`} title={doc.title} bg="var(--color-purple)" fg="var(--color-lcd)" accent="var(--color-gold)">
+    <Console label={`기술머신 · ${tmNo(i)}`} backHref="/play#notes" top={<div className="detail-top">        <DocHero sprite="disk" no={`${tmNo(i)} · 기술머신 ${i + 1} / ${PRACTICES.length}`} title={doc.title} bg="var(--color-purple)" fg="var(--color-lcd)" accent="var(--color-gold)">
           <div className="mt-2 flex flex-wrap gap-1.5">
             {doc.tags.map((t) => (
               <TypeChip key={t}>{t}</TypeChip>
@@ -86,7 +86,7 @@ export default async function PracticeDetail({ params }: { params: Promise<Param
           </div>
         )}
 
-        <BackRow href="/#notes" label="기술머신으로" />
+        <BackRow href="/play#notes" label="기술머신으로" />
       </article>
     </Console>
   );

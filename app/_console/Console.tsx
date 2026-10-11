@@ -156,7 +156,7 @@ export function Console({ top, children, label, onBack, backHref, onMenu, bootTo
         move(b);
         break;
       case "a":
-        if (location.pathname === "/" && (!location.hash || location.hash === "#menu") && (dialogMode.current || document.activeElement?.matches(".greeting"))) window.dispatchEvent(new Event("console:dialog"));
+        if (location.pathname === "/play" && (!location.hash || location.hash === "#menu") && (dialogMode.current || document.activeElement?.matches(".greeting"))) window.dispatchEvent(new Event("console:dialog"));
         else cursor.current?.click();
         break;
       case "b":
@@ -166,7 +166,7 @@ export function Console({ top, children, label, onBack, backHref, onMenu, bootTo
       case "x":
       case "start":
         if (onMenu) onMenu();
-        else window.location.href = "/#menu";
+        else window.location.href = "/play#menu";
         break;
       case "select":
         nextShell();
