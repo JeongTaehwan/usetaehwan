@@ -55,6 +55,7 @@
 - 서체는 Noto Sans KR(본문) + JetBrains Mono(번호·연도·수치). Galmuri는 게임기 버전 전용 — subset-fonts.py는 _console·(play)·_data만 훑는다.
 - 상세 문서: DocBar(← 목록 · 게임기 버전으로 보기) → DocHeader → 본문 → PrevNext. 같은 slug의 /play 상세로 건너갈 수 있다.
 - 게임기 버전 안의 링크는 모두 /play 기준(/play#dex, /play/projects/…). 메뉴 하단과 설정에 기본 버전으로 가는 링크가 있다.
+- 증명사진(app/_site/portrait.jpg, 2026-10-11 사용자 제공, EXIF 제거)은 기본 버전 왼쪽 열 맨 위에만 쓴다. 게임기 버전은 계속 픽셀 초상화.
 - 공용 원본: app/_data/links.ts(연락처) · profile.ts(대표 기록·특성)를 두 버전이 함께 읽는다.
 
 ### 코드 위치 (v5)
