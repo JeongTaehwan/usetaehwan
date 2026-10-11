@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { PROJECTS } from "../_data/projects";
 import { CERTIFICATIONS, COMPANY, EDUCATION, EXPERIENCE } from "../_data/experience";
@@ -8,6 +9,7 @@ import { BLOG_URL, GITHUB_URL, GMAIL_COMPOSE } from "../_data/links";
 import { Chibi } from "../_console/Chibi";
 import { Arrow, ButtonLink, DefList, Pill, Pills, ProjectMark, Prose, SectionTitle, no2 } from "../_site/ui";
 import { Clamp, LegacyHash, SideNav, TopNav } from "../_site/nav";
+import portrait from "../_site/portrait.jpg";
 
 const INTRO = [
   "4년차 프론트엔드 개발자입니다. 커머스 플랫폼의 어드민·쇼핑몰·결제 프론트를 3년 10개월간 맡으며, 결제·정산·쿠폰처럼 틀리면 조용히 손해가 나는 금액 도메인과 OAuth·WebSocket·앱 웹뷰 같은 외부 시스템과의 경계를 주로 다뤘습니다. 기능을 내면서 i18n 도입·Vite 전환·클린 아키텍처 캠페인 같은 기반 작업을 병행했고, 그 규칙을 팀 가이드와 AI 협업 규칙으로 남겨 이후 작업의 준거로 운영했습니다.",
@@ -32,6 +34,14 @@ export default function Home() {
       <div className="mx-auto max-w-[72rem] px-5 sm:px-8 lg:flex lg:gap-20 lg:px-12">
         <header className="pt-16 pb-10 sm:pt-20 lg:sticky lg:top-0 lg:flex lg:h-dvh lg:w-[21rem] lg:shrink-0 lg:flex-col lg:justify-between lg:gap-8 lg:overflow-y-auto lg:py-16 lg:[scrollbar-width:none]">
           <div>
+            <Image
+              src={portrait}
+              alt="정태환 증명사진"
+              sizes="88px"
+              loading="eager"
+              placeholder="blur"
+              className="mb-7 h-[88px] w-[88px] rounded-2xl border border-line object-cover object-[50%_6%]"
+            />
             <p className="font-mono text-[13px] text-mute">useTaehwan()</p>
             <h1 className="mt-3 text-[40px] leading-none font-bold tracking-[-0.03em]">정태환</h1>
             <p className="mt-3 text-[17px] font-medium text-ink-2">프론트엔드 개발자 · 서울</p>
