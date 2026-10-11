@@ -70,3 +70,94 @@
   }
   .chibi-bob, .chibi-blink { display: none; }
 }
+
+/* ───────── /resume — A4 인쇄용 이력서 + 포트폴리오 ─────────
+   다크 모드와 무관하게 늘 라이트. 포인트는 brick(#A55E45) 하나. 본문 10pt 이상. */
+@page resume { size: A4; margin: 0; }
+
+@layer components {
+  .resume {
+    --color-paper: #f1efea;
+    --color-card: #ffffff;
+    --color-hover: #f6f4ef;
+    --color-ink: #1d1c1a;
+    --color-ink-2: #45423d;
+    --color-mute: #6b6760;
+    --color-line: #e3dfd7;
+    --color-line-2: #cfc9bd;
+    --brick: #a55e45;
+    --brick-soft: #f6ebe6;
+    color-scheme: light;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    padding: 32px 0 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+    font-size: 10pt;
+    line-height: 1.55;
+    /* 사이트 전역의 overflow-wrap:anywhere 는 좁은 칸에서 단어를 쪼갠다 — 인쇄물은 단어 단위로 */
+    overflow-wrap: break-word;
+  }
+  /* 포트폴리오 쪽은 글이 적어 한 단계 크게 — 빈 여백 대신 읽기 쉬운 크기로 채운다 */
+  .sheet-case { font-size: 10.5pt; line-height: 1.65; }
+  .sheet {
+    page: resume;
+    position: relative;
+    width: 210mm;
+    height: 297mm;
+    padding: 14mm 15mm 16mm;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 6%), 0 8px 28px rgb(0 0 0 / 8%);
+    display: flex;
+    flex-direction: column;
+  }
+  /* 넘치면 줄어들지 말고 넘치게 둔다 — 줄어든 칸은 글자를 조용히 자른다. 넘침은 resume-pdf 가 잡는다 */
+  .sheet > * { flex-shrink: 0; }
+  .sheet-foot {
+    position: absolute;
+    left: 15mm;
+    right: 15mm;
+    bottom: 7mm;
+    display: flex;
+    justify-content: space-between;
+    font-size: 8pt;
+    color: var(--color-mute);
+  }
+  .r-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10.5pt;
+    font-weight: 700;
+    color: var(--brick);
+    letter-spacing: 0.02em;
+  }
+  .r-label::after { content: ""; flex: 1; height: 1px; background: var(--color-line); }
+  .r-strong { font-weight: 700; color: var(--color-ink); }
+  .resume a { text-decoration: none; }
+  .r-link { color: var(--brick); text-decoration: underline !important; text-underline-offset: 2px; text-decoration-color: color-mix(in srgb, var(--brick) 40%, transparent); }
+
+  /* 구조도 */
+  .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 4px; }
+  /* 화살표는 다음 칸과 한 몸 — 줄이 바뀌어도 줄 끝에 화살표만 남지 않는다 */
+  .flow-step { display: inline-flex; align-items: center; gap: 4px; }
+  .flow-arrow { color: var(--color-line-2); font-size: 11pt; padding: 0 2px; }
+  .flow-par { display: flex; flex-direction: column; gap: 4px; }
+  .flow-node { border: 1px solid var(--color-line-2); border-radius: 6px; padding: 6px 10px; background: #fff; min-width: 0; }
+  .flow-node b { display: block; font-size: 10pt; font-weight: 700; line-height: 1.35; }
+  .flow-node span { display: block; font-size: 9pt; color: var(--color-mute); line-height: 1.35; }
+  .flow-node[data-kind="llm"] { border-color: var(--brick); background: var(--brick-soft); }
+  .flow-node[data-kind="llm"] b { color: var(--brick); }
+  .flow-node[data-kind="ext"] { border-style: dashed; }
+  .flow-node[data-kind="store"] { background: var(--color-hover); }
+}
+
+@media print {
+  html, body { background: #fff !important; }
+  .resume { padding: 0; gap: 0; background: #fff; }
+  .sheet { box-shadow: none; }
+  .resume-toolbar { display: none !important; }
+}
