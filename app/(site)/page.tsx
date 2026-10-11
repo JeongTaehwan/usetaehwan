@@ -183,7 +183,7 @@ export default function Home() {
               AI 노트
             </SectionTitle>
             <Prose className="-mt-1 mb-8 text-[15px]">
-              AI를 코드 생성기가 아니라 절차 안에 두는 통제 대상으로 다룹니다. 역할을 나누고, 환각을 코드로 막고, 테스트의 정답을 먼저 고정하고, 체감 대신 숫자로 판단한 기록입니다. 회사 코드베이스와 개인 프로젝트에서 실측한 값만 씁니다.
+              AI를 코드 생성기가 아니라 절차 안에 두는 통제 대상으로 다룹니다. 역할을 나누고, 환각을 코드로 막고, 테스트의 정답을 먼저 고정하고, 체감 대신 숫자로 판단하고, 에이전트 팀과 스킬 저장소를 운영한 기록입니다. 회사 코드베이스와 개인 프로젝트에서 실측한 값만 씁니다.
             </Prose>
             <ol className="flex flex-col gap-3">
               {PRACTICES.map((p, i) => (
@@ -202,6 +202,14 @@ export default function Home() {
                 </li>
               ))}
             </ol>
+            <Link href="/dashboard" className="group mt-3 flex items-center gap-4 rounded-xl border border-dashed border-line-2 p-4 transition-colors hover:bg-hover sm:p-5">
+              <div className="min-w-0 flex-1">
+                <p className="font-mono text-[12.5px] text-mute">DASHBOARD</p>
+                <h3 className="mt-1 text-[16px] font-bold">스킬 저장소 대시보드</h3>
+                <p className="mt-1 text-[14px] leading-[1.7] text-ink-2">사용 순위 · 매 턴 실리는 글자 · 레퍼런스 온톨로지를 숫자로 봅니다. 게임기 화면으로 열립니다.</p>
+              </div>
+              <Arrow className="text-mute transition-colors group-hover:text-ink" />
+            </Link>
           </section>
 
           {/* 발표 */}

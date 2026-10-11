@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "dashboard:sync": "node scripts/dashboard-sync.mjs",
+    "dashboard:setup": "node scripts/dashboard-setup.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",

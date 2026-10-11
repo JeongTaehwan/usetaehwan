@@ -92,6 +92,9 @@
 - app/_console/{Pixel,ui,prefs,init-script,sfx}: 픽셀 아이콘·공통 UI·영속 설정·초기 페인트·합성 효과음
 - app/projects/[slug], app/ai/[slug], app/talks/[slug], app/not-found.tsx: 같은 본체를 쓰는 상세 화면
 - app/opengraph-image.tsx, app/icon.svg: 두 화면 기기 공유 이미지·아이콘
+- app/(play)/dashboard (URL /dashboard — 주인 링크 보존): 스킬 대시보드. 게임기 본체를 쓰므로 (play) 루트 레이아웃 아래에 둔다. 주인 전용은 OwnerPanel 이 public/dashboard-owner.enc.json 을 주인 키로 브라우저에서 푼다(WebCrypto AES-GCM). 서버 비밀값 없음
+- app/_data/dashboard/public.json, public/dashboard-owner.enc.json: scripts/dashboard-sync.mjs 가 만든다(`npm run dashboard:sync`). 손으로 고치지 않는다. 주인 키(~/.claude/skill-audit/dashboard.key)는 저장소에 두지 않는다
+- scripts/dashboard-setup.mjs · dashboard-auto.mjs: PC 자동 갱신(2026-10-05 사용자 승인). setup 이 SessionEnd 훅을 ~/.claude/settings.json 에 등록하고, 훅이 별도 사본에서 데이터 파일 두 개만 main 에 push 한다. PC 에서 "대시보드 셋업해줘"를 받으면 `npm run dashboard:setup` 을 실행한다
 
 ---
 

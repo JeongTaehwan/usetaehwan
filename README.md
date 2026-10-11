@@ -63,6 +63,37 @@ npm run start    # 빌드 결과 실행
 
 ---
 
+## 스킬 대시보드 (`/dashboard`)
+
+[claude-skills](https://github.com/JeongTaehwan/claude-skills)의 대시보드를 사이트에 옮긴 화면입니다. 누구나 보는 숫자와, 주인만 보는 상세를 나눕니다.
+
+| 구분 | 내용 | 어디에 있나 |
+|---|---|---|
+| 공개 | 사용 순위(저장소 스킬·에이전트만), 매 턴 실리는 글자, 레퍼런스 온톨로지, 모델·프로필 | `app/_data/dashboard/public.json` — 평문 |
+| 주인 전용 | 스킬 후보의 요청 원문, 저장소 밖 스킬·에이전트 이름 | `public/dashboard-owner.enc.json` — AES-256-GCM 암호문 |
+
+주인 전용 데이터는 **브라우저가 주인 키로 직접 풉니다.** 서버에는 비밀값도 로그인도 없습니다. 키는 PC의 `~/.claude/skill-audit/dashboard.key`에만 있고, 주인 링크(`/dashboard#k=...`)를 연 브라우저가 기억합니다. `#` 뒤는 서버로 전송되지 않으며, 저장소가 공개돼도 원문은 보이지 않습니다.
+
+### 처음 한 번 — PC에서
+
+```bash
+npm run dashboard:setup
+```
+
+주인 키를 만들고, Claude Code SessionEnd 훅을 등록하고, 지금 한 번 갱신·push 한 뒤 주인 링크를 보여줍니다. 주인 링크를 기기마다 한 번 엽니다. 링크는 비밀번호처럼 다룹니다. 다시 보려면 `npm run dashboard:sync -- --link`.
+
+### 그다음은 자동
+
+Claude Code 세션이 끝날 때마다 훅이 `scripts/dashboard-auto.mjs`를 뒤에서 돌립니다.
+
+- 작업 폴더는 건드리지 않습니다. `~/.claude/skill-audit/usetaehwan-sync`의 별도 사본에서 main 최신을 받아 데이터 파일 두 개만 커밋·push 합니다
+- 6시간에 한 번까지만 돕니다(`DASHBOARD_AUTO_HOURS`). 바뀐 게 없으면 커밋하지 않습니다
+- 기록은 `~/.claude/skill-audit/dashboard-auto.log`, 끄려면 `npm run dashboard:setup -- --uninstall`
+
+손으로 돌리려면 `npm run dashboard:sync` 뒤 두 파일을 커밋·push 합니다. claude-skills는 `../claude-skills`, `~/workspace/claude-skills`, `~/claude-skills` 순으로 찾고, 다른 곳이면 `CLAUDE_SKILLS_DIR=<경로>`를 줍니다.
+
+---
+
 ## 관련 링크
 
 - **배포:** [usetaehwan.page](https://usetaehwan.page)
