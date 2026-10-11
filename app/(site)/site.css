@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+/* v5 · 기본 버전 — 종이색 바탕, 잉크 두 단계, 테라코타 포인트 하나. 다크는 시스템 설정을 따른다. */
+@theme {
+  --color-paper: #fbfaf7;
+  --color-card: #ffffff;
+  --color-hover: #f4f2ed;
+  --color-ink: #1b1c1e;
+  --color-ink-2: #46484d;
+  --color-mute: #6c6f76;
+  --color-line: #e7e4de;
+  --color-line-2: #d4d0c7;
+  --color-accent: #9a4f37;
+  --color-accent-soft: #f5e8e2;
+  --font-sans: var(--font-sans-next), "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-mono: var(--font-mono-next), ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-paper: #121314;
+    --color-card: #18191b;
+    --color-hover: #1e1f22;
+    --color-ink: #ecebe7;
+    --color-ink-2: #bdbcb7;
+    --color-mute: #8f8e89;
+    --color-line: #2a2b2e;
+    --color-line-2: #3b3c40;
+    --color-accent: #e5967a;
+    --color-accent-soft: #2e221d;
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: light dark;
+    -webkit-text-size-adjust: 100%;
+    /* 모바일 상단 고정 목차만큼 앵커를 내린다 */
+    scroll-padding-top: 4.5rem;
+  }
+  @media (min-width: 1024px) {
+    html { scroll-padding-top: 3rem; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+  }
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+  ::selection { background: var(--color-accent-soft); }
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+}
+
+@layer components {
+  /* 게임기 버전 캐릭터 — 여기서는 기본 프레임 한 장만 */
+  .chibi {
+    --color-chibi-hair: #5a3b2e; --color-chibi-hair-hi: #8a5f45; --color-chibi-hair-dark: #3a2520;
+    --color-chibi-skin: #f5cfae; --color-chibi-skin-shade: #e0a882; --color-chibi-mouth: #b5584a; --color-chibi-cheek: #f2a8a0;
+    --color-chibi-red: #d0202f; --color-chibi-red-dark: #96121f; --color-chibi-grey: #d7d9de; --color-chibi-wire: #3a3a42;
+    --color-chibi-pants: #2b2b33; --color-chibi-pants-hi: #4a4a56; --color-chibi-sole: #c9cbd2;
+    --color-pixel-0: #26222b; --color-pixel-29: #f0c35a; --color-pixel-32: #ffffff;
+  }
+  .chibi-bob, .chibi-blink { display: none; }
+}

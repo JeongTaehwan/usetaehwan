@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { TALKS, getTalk } from "../../_data/talks";
-import { Console } from "../../_console/Console";
-import { BackRow, Dialog, DocHero, PBox, Rows, Sub } from "../../_console/ui";
-import { talkNo } from "../../_console/scenes/Caster";
+import { TALKS, getTalk } from "../../../../_data/talks";
+import { Console } from "../../../../_console/Console";
+import { BackRow, Dialog, DocHero, PBox, Rows, Sub } from "../../../../_console/ui";
+import { talkNo } from "../../../../_console/scenes/Caster";
 
 type Params = { slug: string };
 export function generateStaticParams(): Params[] {
@@ -23,7 +23,7 @@ export default async function TalkDetail({ params }: { params: Promise<Params> }
   const i = TALKS.findIndex((t) => t.slug === slug);
 
   return (
-    <Console label={`라이브캐스터 · ${talkNo(i)}`} backHref="/#caster" top={<div className="detail-top">        <DocHero sprite="caster" no={talkNo(i)} title={talk.title} bg="var(--color-ink)" fg="var(--color-lcd)" accent="var(--color-gold)">
+    <Console label={`라이브캐스터 · ${talkNo(i)}`} backHref="/play#caster" top={<div className="detail-top">        <DocHero sprite="caster" no={talkNo(i)} title={talk.title} bg="var(--color-ink)" fg="var(--color-lcd)" accent="var(--color-gold)">
           <div className="mt-2 text-[12px] opacity-85">
             {talk.venue} · {talk.date}
           </div>
@@ -93,7 +93,7 @@ export default async function TalkDetail({ params }: { params: Promise<Params> }
           </div>
         )}
 
-        <BackRow href="/#caster" label="라이브캐스터로" />
+        <BackRow href="/play#caster" label="라이브캐스터로" />
       </article>
     </Console>
   );

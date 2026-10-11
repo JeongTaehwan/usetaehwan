@@ -3,8 +3,8 @@
 // 암호문(public/dashboard-owner.enc.json)을 받아 주인 키로 이 브라우저에서 푼다. 키는 서버로 가지 않는다.
 // 주인 링크(/dashboard#k=...)로 처음 열면 키를 이 브라우저에 기억하고 주소창에서 지운다.
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { DashboardPrivate, EncryptedFile } from "../_data/dashboard/types";
-import { PBox, TypeChip } from "../_console/ui";
+import type { DashboardPrivate, EncryptedFile } from "../../_data/dashboard/types";
+import { PBox, TypeChip } from "../../_console/ui";
 
 const KEY_STORE = "ut-dashboard-owner-key";
 const AAD = "usetaehwan-dashboard-v1";

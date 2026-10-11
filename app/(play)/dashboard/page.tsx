@@ -1,9 +1,9 @@
 // claude-skills 대시보드 — 공개 숫자는 정적으로, 요청 원문은 주인 키로 브라우저에서만 푼다 (scripts/dashboard-sync.mjs)
 import type { Metadata } from "next";
-import data from "../_data/dashboard/public.json";
-import type { DashboardPublic } from "../_data/dashboard/types";
-import { Console } from "../_console/Console";
-import { BackRow, Dialog, DocHero, PBox, Rows, SegBar, Sub, TypeChip } from "../_console/ui";
+import data from "../../_data/dashboard/public.json";
+import type { DashboardPublic } from "../../_data/dashboard/types";
+import { Console } from "../../_console/Console";
+import { BackRow, Dialog, DocHero, PBox, Rows, SegBar, Sub, TypeChip } from "../../_console/ui";
 import { OwnerPanel } from "./OwnerPanel";
 
 export const metadata: Metadata = {
@@ -72,7 +72,7 @@ export default function DashboardPage() {
   return (
     <Console
       label="기술머신 · 대시보드"
-      backHref="/#notes"
+      backHref="/play#notes"
       top={
         <div className="detail-top">
           <DocHero sprite="gear" no={`DASHBOARD · ${D.repo}`} title="스킬 저장소 대시보드" bg="var(--color-menu)" fg="var(--color-lcd)" accent="var(--color-teal)">
@@ -274,7 +274,7 @@ export default function DashboardPage() {
         <Sub no={ontology ? "05" : "04"}>주인 전용</Sub>
         <OwnerPanel groups={D.candidates.groups} requests={D.candidates.requests} />
 
-        <BackRow href="/#notes" label="기술머신으로" />
+        <BackRow href="/play#notes" label="기술머신으로" />
       </article>
     </Console>
   );

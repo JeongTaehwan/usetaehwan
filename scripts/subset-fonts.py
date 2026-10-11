@@ -6,7 +6,9 @@ from pathlib import Path
 from fontTools import subset
 
 root = Path(__file__).resolve().parents[1]
-text = "".join(p.read_text(encoding="utf-8") for p in (root / "app").rglob("*")
+# Galmuri는 게임기 버전(/play)만 쓴다 — 그 화면에 닿는 글자만 모은다
+sources = [root / "app" / d for d in ("_console", "(play)", "_data")]
+text = "".join(p.read_text(encoding="utf-8") for d in sources for p in d.rglob("*")
                if p.suffix in {".tsx", ".ts", ".css"})
 unicodes = set(map(ord, text)) | set(range(32, 127))
 target = root / "app/_fonts"

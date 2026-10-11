@@ -42,11 +42,7 @@ export const PROJECT_SPRITE: Record<string, SpriteName> = {
   zzokzzok: "bottle",
 };
 
-export const EMAIL = "kt26625417@gmail.com";
-export const GITHUB_URL = "https://github.com/JeongTaehwan";
-/** 티스토리 블로그 — v1·v2 에 있던 링크 */
-export const BLOG_URL = "https://taepuwan.tistory.com/";
-export const GMAIL_COMPOSE = `https://mail.google.com/mail/?view=cm&fs=1&to=${EMAIL}&su=${encodeURIComponent("usetaehwan.page 문의")}`;
+export { EMAIL, GITHUB_URL, BLOG_URL, GMAIL_COMPOSE } from "../../_data/links";
 
 /** 장면 끝의 되돌아가기 — B 버튼과 같은 일 */
 export function BackToMenu() {

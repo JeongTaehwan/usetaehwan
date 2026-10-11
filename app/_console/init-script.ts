@@ -12,7 +12,7 @@ export const INIT_SCRIPT = `(function(){
   d.dataset.musicTrack=['walk','desk','night'].indexOf(track)>=0?track:'walk';
   var volume=Number(localStorage.getItem('music-volume')||'30');
   d.dataset.musicVolume=String(isFinite(volume)?Math.max(0,Math.min(100,volume)):30);
-  if(sessionStorage.getItem('booted')||location.hash.length>1||location.pathname!=='/'||matchMedia('(prefers-reduced-motion: reduce)').matches){
+  if(sessionStorage.getItem('booted')||location.hash.length>1||location.pathname!=='/play'||matchMedia('(prefers-reduced-motion: reduce)').matches){
    d.dataset.booted='1';return;
   }
   sessionStorage.setItem('booted','1');
