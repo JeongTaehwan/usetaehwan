@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { TALKS, getTalk } from "../../../_data/talks";
+import { anchors } from "../../../_site/anchors";
 import { ButtonLink, DefList, DocBar, DocHeader, DocHeading, DocShell, PrevNext, Prose, no2 } from "../../../_site/ui";
 
 type Params = { slug: string };
@@ -42,10 +43,10 @@ export default async function TalkDetail({ params }: { params: Promise<Params> }
         )}
       </div>
 
-      <DocHeading>배경</DocHeading>
+      <DocHeading id={anchors.talk.context}>배경</DocHeading>
       <Prose>{talk.context}</Prose>
 
-      <DocHeading>구성</DocHeading>
+      <DocHeading id={anchors.talk.outline}>구성</DocHeading>
       <ol className="flex flex-col gap-3">
         {talk.outline.map((o, n) => (
           <li key={o} className="flex gap-4">
@@ -55,7 +56,7 @@ export default async function TalkDetail({ params }: { params: Promise<Params> }
         ))}
       </ol>
 
-      <DocHeading>핵심 메시지</DocHeading>
+      <DocHeading id={anchors.talk.takeaways}>핵심 메시지</DocHeading>
       <ul className="flex flex-col gap-4">
         {talk.takeaways.map((t) => (
           <li key={t} className="border-l-2 border-accent pl-4 text-[16px] leading-[1.8] text-ink">
@@ -66,7 +67,7 @@ export default async function TalkDetail({ params }: { params: Promise<Params> }
 
       {talk.numbers && talk.numbers.length > 0 && (
         <>
-          <DocHeading>발표에서 인용한 수치</DocHeading>
+          <DocHeading id={anchors.talk.numbers}>발표에서 인용한 수치</DocHeading>
           <dl className="divide-y divide-line rounded-xl border border-line bg-card px-5">
             {talk.numbers.map((n) => (
               <div key={n.label} className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 py-3.5">

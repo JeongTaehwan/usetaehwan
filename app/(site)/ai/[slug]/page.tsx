@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PRACTICES, getPractice } from "../../../_data/ai-practices";
+import { anchors } from "../../../_site/anchors";
 import { ButtonLink, DefList, DocBar, DocHeader, DocHeading, DocShell, Pills, PrevNext, Prose, no2 } from "../../../_site/ui";
 
 type Params = { slug: string };
@@ -35,12 +36,14 @@ export default async function PracticeDetail({ params }: { params: Promise<Param
         <figcaption className="text-[14.5px] leading-[1.6] text-ink-2">{doc.stat.label}</figcaption>
       </figure>
 
-      <Prose className="mt-10">{doc.intro}</Prose>
+      <div id={anchors.practice.intro} className="mt-10">
+        <Prose>{doc.intro}</Prose>
+      </div>
 
       <DocHeading>사례</DocHeading>
       <ol className="flex flex-col gap-4">
         {doc.items.map((it, n) => (
-          <li key={it.title} className="rounded-xl border border-line bg-card p-5 sm:p-6">
+          <li key={it.title} id={anchors.practice.case(n)} className="rounded-xl border border-line bg-card p-5 sm:p-6">
             <p className="font-mono text-[12.5px] text-mute">
               {no2(i)}-{n + 1}
             </p>
@@ -57,7 +60,7 @@ export default async function PracticeDetail({ params }: { params: Promise<Param
         ))}
       </ol>
 
-      <DocHeading>남은 규칙</DocHeading>
+      <DocHeading id={anchors.practice.rules}>남은 규칙</DocHeading>
       <ol className="flex flex-col gap-4">
         {doc.rules.map((r, n) => (
           <li key={r} className="flex gap-4">

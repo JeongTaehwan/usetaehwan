@@ -50,3 +50,6 @@ storex-my-titles.txt
 # 캐릭터 참고용 개인 사진 — 저장소에 올리지 않는다
 /image.png
 /image copy.png
+
+# /resume 에서 뽑은 PDF — 지원서 첨부용, 커밋하지 않는다
+/*.pdf

@@ -63,8 +63,12 @@ export function SectionTitle({ id, children, count }: { id: string; children: Re
 }
 
 /** 상세 문서의 소제목 */
-export function DocHeading({ children }: { children: React.ReactNode }) {
-  return <h2 className="mt-14 mb-4 text-[19px] font-bold tracking-[-0.01em]">{children}</h2>;
+export function DocHeading({ children, id }: { children: React.ReactNode; id?: string }) {
+  return (
+    <h2 id={id} className="mt-14 mb-4 text-[19px] font-bold tracking-[-0.01em]">
+      {children}
+    </h2>
+  );
 }
 
 /** 본문 문단 */

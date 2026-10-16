@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "dashboard:sync": "node scripts/dashboard-sync.mjs",
-    "dashboard:setup": "node scripts/dashboard-setup.mjs"
+    "dashboard:setup": "node scripts/dashboard-setup.mjs",
+    "resume:pdf": "node scripts/resume-pdf.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -26,7 +27,9 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
+    "playwright": "^1.64.0",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }
