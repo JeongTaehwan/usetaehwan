@@ -1,108 +1,23 @@
 "use client";
-// 주인 전용 — 스킬 후보(요청 원문)와 저장소 밖 사용.
-// 암호문(public/dashboard-owner.enc.json)을 받아 주인 키로 이 브라우저에서 푼다. 키는 서버로 가지 않는다.
-// 주인 링크(/dashboard#k=...)로 처음 열면 키를 이 브라우저에 기억하고 주소창에서 지운다.
-import { useCallback, useEffect, useRef, useState } from "react";
-import type { DashboardPrivate, EncryptedFile } from "../../_data/dashboard/types";
-import { PBox, TypeChip } from "../../_console/ui";
-
-const KEY_STORE = "ut-dashboard-owner-key";
-const AAD = "usetaehwan-dashboard-v1";
-const KEY_RE = /^[A-Za-z0-9_-]{43}$/;
-
-type State =
-  | { status: "loading" | "nodata" | "locked" | "bad" | "neterr" }
-  | ({ status: "ok" } & DashboardPrivate);
-
-const b64 = (s: string) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(s.length / 4) * 4, "=")), (c) => c.charCodeAt(0));
-
-async function open(file: Extract<EncryptedFile, { data: string }>, keyText: string): Promise<DashboardPrivate> {
-  const key = await crypto.subtle.importKey("raw", b64(keyText), "AES-GCM", false, ["decrypt"]);
-  const plain = await crypto.subtle.decrypt(
-    { name: "AES-GCM", iv: b64(file.iv), additionalData: new TextEncoder().encode(AAD) },
-    key,
-    b64(file.data),
-  );
-  return JSON.parse(new TextDecoder().decode(plain)) as DashboardPrivate;
-}
-
-const store = {
-  get: () => {
-    try {
-      return localStorage.getItem(KEY_STORE);
-    } catch {
-      return null;
-    }
-  },
-  set: (k: string) => {
-    try {
-      localStorage.setItem(KEY_STORE, k);
-    } catch {}
-  },
-  clear: () => {
-    try {
-      localStorage.removeItem(KEY_STORE);
-    } catch {}
-  },
-};
+// 주인 전용 — 게임기 버전 마크업. 복호화·키 보관은 app/_dashboard/useOwnerData 가 한다.
+import { useState } from "react";
+import { ownerSummary } from "../../../_dashboard/model";
+import { useOwnerData } from "../../../_dashboard/useOwnerData";
+import { PBox, TypeChip } from "../../../_console/ui";
 
 export function OwnerPanel({ groups, requests }: { groups: number; requests: number }) {
-  const [state, setState] = useState<State>({ status: "loading" });
+  const { state, submit, forget } = useOwnerData();
   const [draft, setDraft] = useState("");
-  const file = useRef<EncryptedFile | null>(null);
 
-  const unlock = useCallback(async (keyText: string | null) => {
-    const f = file.current;
-    if (!f || !("data" in f)) return setState({ status: "nodata" });
-    if (!keyText) return setState({ status: "locked" });
-    try {
-      const data = await open(f, keyText);
-      store.set(keyText);
-      setState({ status: "ok", ...data });
-    } catch {
-      setState({ status: "bad" });
-    }
-  }, []);
-
-  useEffect(() => {
-    /** 주소의 #k=... 를 꺼내고 주소창에서 지운다 */
-    const take = () => {
-      const m = window.location.hash.match(/(?:^#|&)k=([A-Za-z0-9_-]{43})/);
-      if (!m) return null;
-      history.replaceState(null, "", window.location.pathname + window.location.search);
-      return m[1];
-    };
-    const key = take() ?? store.get();
-    fetch("/dashboard-owner.enc.json", { cache: "no-store" })
-      .then((r) => (r.ok ? (r.json() as Promise<EncryptedFile>) : null))
-      .then((f) => {
-        file.current = f;
-        return unlock(key);
-      })
-      .catch(() => setState({ status: "neterr" }));
-    // 이미 이 화면에 있을 때 주인 링크를 붙여 넣으면 새로 불러오지 않고 해시만 바뀐다
-    const onHash = () => {
-      const k = take();
-      if (k) void unlock(k);
-    };
-    window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
-  }, [unlock]);
-
-  const summary =
-    groups > 0
-      ? `스킬이 안 뜬 반복 요청 ${groups}묶음(${requests}회)의 원문은 주인 키로만 열립니다.`
-      : "스킬이 안 뜬 반복 요청의 원문은 주인 키로만 열립니다.";
+  const summary = ownerSummary(groups, requests);
 
   const keyForm = (
     <form
       className="mt-3 flex flex-wrap gap-2"
       onSubmit={(e) => {
         e.preventDefault();
-        const k = draft.trim().replace(/^.*#k=/, "");
+        submit(draft);
         setDraft("");
-        if (KEY_RE.test(k)) void unlock(k);
-        else setState({ status: "bad" });
       }}
     >
       <label htmlFor="owner-key" className="sr-only">
@@ -188,10 +103,7 @@ export function OwnerPanel({ groups, requests }: { groups: number; requests: num
               type="button"
               data-nav
               className="pbtn pbtn-sm mt-3"
-              onClick={() => {
-                store.clear();
-                setState({ status: "locked" });
-              }}
+              onClick={forget}
             >
               이 기기에서 잊기
             </button>

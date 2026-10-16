@@ -60,9 +60,9 @@
 
 ### 코드 위치 (v5)
 
-- app/(site)/: layout · site.css · page(홈) · projects/ai/talks 상세 · not-found · opengraph-image
+- app/(site)/: layout · site.css · page(홈) · projects/ai/talks 상세 · dashboard · not-found · opengraph-image
 - app/_site/: ui(Pill·ButtonLink·DefList·ProjectMark·DocBar·DocHeader·PrevNext…) · nav(SideNav·TopNav·LegacyHash·Clamp) · fonts · NotFoundBody
-- app/(play)/: layout · console.css · play/(page · projects/ai/talks 상세 · not-found · opengraph-image)
+- app/(play)/: layout · console.css · play/(page · projects/ai/talks 상세 · dashboard · not-found · opengraph-image)
 
 ---
 
@@ -93,7 +93,7 @@
 - app/_console/{Pixel,ui,prefs,init-script,sfx}: 픽셀 아이콘·공통 UI·영속 설정·초기 페인트·합성 효과음
 - app/projects/[slug], app/ai/[slug], app/talks/[slug], app/not-found.tsx: 같은 본체를 쓰는 상세 화면
 - app/opengraph-image.tsx, app/icon.svg: 두 화면 기기 공유 이미지·아이콘
-- app/(play)/dashboard (URL /dashboard — 주인 링크 보존): 스킬 대시보드. 게임기 본체를 쓰므로 (play) 루트 레이아웃 아래에 둔다. 주인 전용은 OwnerPanel 이 public/dashboard-owner.enc.json 을 주인 키로 브라우저에서 푼다(WebCrypto AES-GCM). 서버 비밀값 없음
+- 스킬 대시보드: 기본 버전 app/(site)/dashboard (URL /dashboard — 주인 링크 /dashboard#k=… 보존) · 게임기 버전 app/(play)/play/dashboard (URL /play/dashboard, 2026-10-17 이동). 숫자 계산·라벨은 app/_dashboard/model.ts, 주인 전용 복호화는 app/_dashboard/useOwnerData.ts 를 두 버전의 OwnerPanel 이 함께 쓴다 — public/dashboard-owner.enc.json 을 주인 키로 브라우저에서 푼다(WebCrypto AES-GCM). 서버 비밀값 없음. 키는 같은 출처 localStorage 라 한쪽에서 풀면 다른 쪽도 열린다
 - app/_data/dashboard/public.json, public/dashboard-owner.enc.json: scripts/dashboard-sync.mjs 가 만든다(`npm run dashboard:sync`). 손으로 고치지 않는다. 주인 키(~/.claude/skill-audit/dashboard.key)는 저장소에 두지 않는다
 - scripts/dashboard-setup.mjs · dashboard-auto.mjs: PC 자동 갱신(2026-10-05 사용자 승인). setup 이 SessionEnd 훅을 ~/.claude/settings.json 에 등록하고, 훅이 별도 사본에서 데이터 파일 두 개만 main 에 push 한다. PC 에서 "대시보드 셋업해줘"를 받으면 `npm run dashboard:setup` 을 실행한다
 
