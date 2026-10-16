@@ -14,7 +14,7 @@ export type Experience = {
   dims: string[];
 };
 
-export const COMPANY = "(주)셀메이트 · 2022.11 – 재직 중";
+export const COMPANY = "(주)셀메이트 · 개발그룹 · 선임 · 2022.11 – 재직 중";
 
 /* 경력 — 최신순 */
 export const EXPERIENCE: Experience[] = [
@@ -120,6 +120,12 @@ export const EDUCATION = [
 ];
 
 export const CERTIFICATIONS = [
-  { name: "일학습병행자격 SW개발 L5", code: "SW개발_L5_20V1", date: "2025.12" },
+  { name: "일학습병행자격 SW개발_L5_20V1", code: "SW개발_L5_20V1", date: "2025.12" },
   { name: "프로그래밍기능사", code: null, date: "2021.10" },
+];
+
+/* 수상 — 최신순 */
+export const AWARDS = [
+  { name: "배화여자대학교 교내 UCC 경진대회 대상", issuer: "배화여자대학교", date: "2025.07" },
+  { name: "2021 소프트웨어마이스터고 4개교 연합 해커톤 네이버 클로바 기업상", issuer: "네이버 클로바", date: "2021.11" },
 ];

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { PROJECTS } from "../_data/projects";
-import { CERTIFICATIONS, COMPANY, EDUCATION, EXPERIENCE } from "../_data/experience";
+import { AWARDS, CERTIFICATIONS, COMPANY, EDUCATION, EXPERIENCE } from "../_data/experience";
 import { PRACTICES } from "../_data/ai-practices";
 import { TALKS } from "../_data/talks";
 import { RECORDS, TRAITS } from "../_data/profile";
@@ -176,6 +176,19 @@ export default function Home() {
                     <li key={c.name}>
                       <p className="text-[15px] font-medium">{c.name}</p>
                       <p className="mt-0.5 text-[13.5px] text-mute">{c.date}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h3 className="text-[14px] font-bold">수상</h3>
+                <ul className="mt-3 flex flex-col gap-3">
+                  {AWARDS.map((a) => (
+                    <li key={a.name}>
+                      <p className="text-[15px] font-medium">{a.name}</p>
+                      <p className="mt-0.5 text-[13.5px] text-mute">
+                        {a.issuer} · {a.date}
+                      </p>
                     </li>
                   ))}
                 </ul>

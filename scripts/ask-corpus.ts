@@ -9,7 +9,7 @@
  */
 import { writeFileSync } from "node:fs";
 import { PROJECTS } from "../app/_data/projects";
-import { CERTIFICATIONS, COMPANY as COMPANY_LINE, EDUCATION, EXPERIENCE } from "../app/_data/experience";
+import { AWARDS, CERTIFICATIONS, COMPANY as COMPANY_LINE, EDUCATION, EXPERIENCE } from "../app/_data/experience";
 import { PRACTICES } from "../app/_data/ai-practices";
 import { TALKS } from "../app/_data/talks";
 import { RECORDS, TRAITS } from "../app/_data/profile";
@@ -51,10 +51,11 @@ docs.push({
     })),
     {
       anchor: anchors.home.education,
-      section: "학력 · 자격",
+      section: "학력 · 자격 · 수상",
       text: lines(
         ...EDUCATION.map((e) => `학력: ${e.school} · ${e.program}${e.credential ? ` · ${e.credential}` : ""} · ${e.period}`),
         ...CERTIFICATIONS.map((c) => `자격: ${c.name} · ${c.date}`),
+        ...AWARDS.map((a) => `수상: ${a.name} · ${a.issuer} · ${a.date}`),
       ),
     },
     {

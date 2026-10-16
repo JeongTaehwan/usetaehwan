@@ -2,12 +2,13 @@ import { Me } from "../Me";
 import { Dialog, PBox, Rows } from "../ui";
 import { CERTIFICATIONS, EDUCATION } from "../../_data/experience";
 import { RECORDS, TRAITS } from "../../_data/profile";
+import { CAREER_LENGTH } from "../../_data/career";
 import { BackToMenu } from "./common";
 
 const CARD = [
   { k: "이름", v: "정태환" },
   { k: "직업", v: "프론트엔드 개발자" },
-  { k: "경력", v: "커머스 3년 10개월 · (주)셀메이트" },
+  { k: "경력", v: `커머스 ${CAREER_LENGTH} · (주)셀메이트` },
   { k: "지역", v: "서울" },
   { k: "주력", v: "Vue 3 (3년+) · React / Next.js · TypeScript" },
 ];
@@ -39,7 +40,7 @@ export function Trainer() {
       <h2 className="about-title">잘 만든 코드는<br />잘 쓴 문서와 닮았습니다.</h2>
       <Dialog className="mt-3">
         <p className="body-kr !text-ink">
-          4년차 프론트엔드 개발자입니다. 커머스 플랫폼의 어드민·쇼핑몰·결제 프론트를 3년 10개월간 맡으며, 결제·정산·쿠폰처럼 틀리면 조용히 손해가 나는 금액 도메인과 OAuth·WebSocket·앱 웹뷰 같은 외부 시스템과의 경계를 주로 다뤘습니다. 기능을 내면서 i18n 도입·Vite 전환·클린 아키텍처 캠페인 같은 기반 작업을 병행했고, 그 규칙을 팀 가이드와 AI 협업 규칙으로 남겨 이후 작업의 준거로 운영했습니다.
+          4년차 프론트엔드 개발자입니다. 커머스 플랫폼의 어드민·쇼핑몰·결제 프론트를 {CAREER_LENGTH}간 맡으며, 결제·정산·쿠폰처럼 틀리면 조용히 손해가 나는 금액 도메인과 OAuth·WebSocket·앱 웹뷰 같은 외부 시스템과의 경계를 주로 다뤘습니다. 기능을 내면서 i18n 도입·Vite 전환·클린 아키텍처 캠페인 같은 기반 작업을 병행했고, 그 규칙을 팀 가이드와 AI 협업 규칙으로 남겨 이후 작업의 준거로 운영했습니다.
         </p>
       </Dialog>
       <Dialog className="mt-3">
