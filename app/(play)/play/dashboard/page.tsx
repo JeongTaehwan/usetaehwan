@@ -1,31 +1,11 @@
 // claude-skills 대시보드 — 공개 숫자는 정적으로, 요청 원문은 주인 키로 브라우저에서만 푼다 (scripts/dashboard-sync.mjs)
 import type { Metadata } from "next";
-import data from "../../_data/dashboard/public.json";
-import type { DashboardPublic } from "../../_data/dashboard/types";
-import { Console } from "../../_console/Console";
-import { BackRow, Dialog, DocHero, PBox, Rows, SegBar, Sub, TypeChip } from "../../_console/ui";
+import { D, META, REL, SOURCE, n, summarize } from "../../../_dashboard/model";
+import { Console } from "../../../_console/Console";
+import { BackRow, Dialog, DocHero, PBox, Rows, SegBar, Sub, TypeChip } from "../../../_console/ui";
 import { OwnerPanel } from "./OwnerPanel";
 
-export const metadata: Metadata = {
-  title: "스킬 대시보드",
-  description: "claude-skills 저장소의 사용 순위·매 턴 실리는 글자·레퍼런스 온톨로지·모델 프로필을 숫자로 봅니다.",
-};
-
-const D = data as unknown as DashboardPublic;
-const n = (x: number) => x.toLocaleString("ko-KR");
-const REL: Record<string, string> = {
-  about: "다룬다",
-  see_instead: "대신 본다",
-  opposes: "반대한다",
-  supersedes: "대체한다",
-  broader: "상위 개념",
-};
-const SOURCE: Record<DashboardPublic["usage"]["source"], string> = {
-  hook: "훅 기록 기준",
-  transcripts: "세션 기록 기준",
-  none: "기록 없음",
-  demo: "예시 데이터",
-};
+export const metadata: Metadata = META;
 
 function BarList({ rows, max, color, unit = "" }: { rows: { label: string; value: number; note?: string }[]; max: number; color: string; unit?: string }) {
   return (
@@ -61,13 +41,7 @@ function Daily({ days }: { days: [string, number][] }) {
 
 export default function DashboardPage() {
   const { usage, budget, ontology, profiles } = D;
-  const descTotal = budget.skills.reduce((s, x) => s + x.desc, 0);
-  const agentTotal = budget.agents.reduce((s, x) => s + x.desc, 0);
-  const perTurn = descTotal + agentTotal + budget.memory;
-  const relTotal = ontology ? Object.entries(ontology.relations).filter(([k]) => k !== "broader").reduce((s, [, v]) => s + v, 0) : 0;
-  const hasUsage = usage.source !== "none" && (usage.skills.length > 0 || usage.agents.length > 0);
-  const usageMax = Math.max(1, ...usage.skills.map((r) => r.count), ...usage.agents.map((r) => r.count));
-  const agentModel = new Map(budget.agents.map((a) => [a.name, a.model]));
+  const { descTotal, agentTotal, perTurn, relTotal, hasUsage, usageMax, agentModel } = summarize(D);
 
   return (
     <Console

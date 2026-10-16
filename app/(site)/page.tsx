@@ -225,7 +225,7 @@ export default function Home() {
               <div className="min-w-0 flex-1">
                 <p className="font-mono text-[12.5px] text-mute">DASHBOARD</p>
                 <h3 className="mt-1 text-[16px] font-bold">스킬 저장소 대시보드</h3>
-                <p className="mt-1 text-[14px] leading-[1.7] text-ink-2">사용 순위 · 매 턴 실리는 글자 · 레퍼런스 온톨로지를 숫자로 봅니다. 게임기 화면으로 열립니다.</p>
+                <p className="mt-1 text-[14px] leading-[1.7] text-ink-2">사용 순위 · 매 턴 실리는 글자 · 레퍼런스 온톨로지를 숫자로 봅니다.</p>
               </div>
               <Arrow className="text-mute transition-colors group-hover:text-ink" />
             </Link>
