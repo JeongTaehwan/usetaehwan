@@ -12,6 +12,7 @@ import logging
 import time
 from collections.abc import Iterator
 from contextlib import asynccontextmanager
+from urllib.parse import urlparse
 
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.responses import JSONResponse, StreamingResponse
@@ -194,5 +195,15 @@ def app_factory() -> FastAPI:  # uvicorn ask.api:app_factory --factory
     except ConfigError as e:
         server_log.critical("%s", e)
         raise SystemExit(1) from None
-    server_log.info("ask-server mode=%s (%s)", mode, reason)
+    db_host = urlparse(s.database_url).hostname or "?"
+    server_log.info(
+        "ask-server mode=%s (%s) · db=%s · llm=%s · embedder=%s · top_k=%d · min_score=%.2f",
+        mode,
+        reason,
+        db_host,
+        s.llm,
+        s.embedder,
+        s.top_k,
+        s.min_score,
+    )
     return create_app(s)

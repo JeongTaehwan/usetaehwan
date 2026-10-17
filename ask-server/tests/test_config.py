@@ -8,10 +8,20 @@ from dataclasses import replace
 import pytest
 
 from ask import api
-from ask.config import DEV_IP_HASH_SECRET, SERVER_ROOT, ConfigError, Settings, check_production, runtime_mode
+from ask.config import (
+    DEV_DATABASE_URL,
+    DEV_IP_HASH_SECRET,
+    SERVER_ROOT,
+    ConfigError,
+    Settings,
+    check_production,
+    get_settings,
+    runtime_mode,
+)
 
 RAILWAY = {"RAILWAY_ENVIRONMENT_ID": "env-123"}
-OK = Settings(proxy_secret="p" * 64, ip_hash_secret="h" * 64)
+NEON = "postgresql://u:p@ep-x-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
+OK = Settings(database_url=NEON, proxy_secret="p" * 64, ip_hash_secret="h" * 64)
 
 
 @pytest.mark.parametrize(
@@ -59,6 +69,7 @@ def test_production_refuses_missing_or_default_secrets(overrides, named, not_nam
         check_production(replace(OK, **overrides), RAILWAY)
     msg = str(e.value)
     assert "서버를 시작하지 않습니다" in msg and "RAILWAY_ENVIRONMENT_ID" in msg
+    assert "DATABASE_URL" not in msg
     for name in named:
         assert name in msg
     for name in not_named:
@@ -78,7 +89,7 @@ def test_app_factory_stops_before_building_the_app(monkeypatch):
 def test_uvicorn_exits_with_clear_message_in_production_without_secrets():
     """실제 시작 경로 — Dockerfile CMD와 같은 uvicorn --factory가 메시지를 찍고 0이 아닌 코드로 끝난다."""
     env = {k: v for k, v in os.environ.items() if not k.startswith(("ASK_", "RAILWAY_"))}
-    env |= {"RAILWAY_ENVIRONMENT_ID": "env-123", "DATABASE_URL": "postgresql://unused@127.0.0.1:1/x"}
+    env |= {"RAILWAY_ENVIRONMENT_ID": "env-123", "DATABASE_URL": NEON}
     r = subprocess.run(
         [sys.executable, "-m", "uvicorn", "ask.api:app_factory", "--factory", "--port", "0"],
         cwd=SERVER_ROOT,
@@ -90,4 +101,51 @@ def test_uvicorn_exits_with_clear_message_in_production_without_secrets():
     assert r.returncode != 0
     assert "서버를 시작하지 않습니다" in r.stderr
     assert "ASK_PROXY_SECRET" in r.stderr and "ASK_IP_HASH_SECRET" in r.stderr
+    assert "DATABASE_URL" not in r.stderr
     assert "Traceback" not in r.stderr  # 메시지가 traceback에 묻히지 않는다
+
+
+# ───────── DATABASE_URL (D-32) ─────────
+
+
+@pytest.mark.parametrize(
+    ("url", "hint"),
+    [
+        (DEV_DATABASE_URL, "localhost:5433"),  # 변수가 없어 기본값으로 떨어진 경우 — Railway 첫 배포 실패 원인
+        ("postgresql://ask:ask@127.0.0.1:5432/ask", "127.0.0.1"),
+        ("", "호스트 없음"),
+    ],
+)
+def test_production_refuses_missing_or_local_database_url(url, hint):
+    with pytest.raises(ConfigError) as e:
+        check_production(replace(OK, database_url=url), RAILWAY)
+    assert "DATABASE_URL" in str(e.value) and hint in str(e.value)
+
+
+def test_development_keeps_local_database_default(monkeypatch):
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    s = get_settings()
+    assert s.database_url == DEV_DATABASE_URL
+    assert check_production(s, {})[0] == "development"
+
+
+# ───────── 검색 점수 하한 기본값 (D-31) ─────────
+
+
+@pytest.mark.parametrize(
+    ("env", "expected"),
+    [
+        ({"ASK_EMBEDDER": "gemini"}, 0.55),
+        ({"ASK_EMBEDDER": "hash"}, 0.15),
+        ({}, 0.15),  # 기본 임베더는 hash
+        ({"ASK_EMBEDDER": "voyage"}, 0.15),  # 아직 재지 않음
+        ({"ASK_EMBEDDER": "gemini", "ASK_MIN_SCORE": "0.4"}, 0.4),  # 명시하면 그 값
+    ],
+)
+def test_min_score_default_depends_on_embedder(monkeypatch, env, expected):
+    for k in ("ASK_EMBEDDER", "ASK_MIN_SCORE"):
+        monkeypatch.delenv(k, raising=False)
+    for k, v in env.items():
+        monkeypatch.setenv(k, v)
+    s = get_settings()
+    assert (s.min_score, s.top_k) == (expected, 8)
