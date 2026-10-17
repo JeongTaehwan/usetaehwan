@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import statistics
 import subprocess
@@ -120,7 +121,9 @@ def main(argv: list[str] | None = None) -> int:
     run_path = RUNS / f"{datetime.now().strftime('%Y%m%d-%H%M%S')}-{args.label}.json"
     run_path.write_text(json.dumps({"meta": meta, "summary": summary, "rows": rows}, ensure_ascii=False, indent=2))
 
-    section = render(meta, summary, rows, run_path)
+    csv_path = write_pairs_csv(rows, run_path.with_suffix(".pairs.csv"))
+
+    section = render(meta, summary, rows, run_path, csv_path)
     print(section)
     if not args.no_report:
         append_report(section)
@@ -144,6 +147,11 @@ def evaluate(q: dict, st: dict, raw: list[Hit], latency: float, judge) -> dict:
         "tokens": [sum(u.input_tokens for u in st.get("usage", [])), sum(u.output_tokens for u in st.get("usage", []))],
         "answer": answer,
         "citations": [c["href"] for c in st.get("citations", [])],
+        # 원인 분류(검색 / 판정 / 생성 / 검증)와 점수 하한 조정용 중간 결과
+        "category": st.get("category"),
+        "retrieved": [[h.chunk_id, round(h.score, 4)] for h in raw],  # 하한 없는 top-8
+        "candidates": [h.chunk_id for h in st.get("candidates", [])],  # 하한 통과
+        "evidence": [h.chunk_id for h in st.get("evidence", [])],  # 판정 통과
     }
 
     if sources:
@@ -208,7 +216,23 @@ def summarize(rows: list[dict]) -> dict:
     }
 
 
-def render(meta: dict, summary: dict, rows: list[dict], run_path: Path) -> str:
+def write_pairs_csv(rows: list[dict], path: Path) -> Path | None:
+    """(문장, 인용) 쌍과 심사 결과. human 칸에 사람이 TRUE/FALSE를 적어 심사와의 일치율을 잰다."""
+    pairs = [pr for r in rows for pr in r.get("pairs", [])]
+    if not pairs:
+        return None
+    with path.open("w", newline="", encoding="utf-8-sig") as f:  # BOM — 엑셀에서 한글이 깨지지 않게
+        w = csv.writer(f)
+        w.writerow(["qid", "sentence", "cites", "sources", "judge_supported", "human"])
+        for pr in pairs:
+            sup = "" if pr["supported"] is None else str(pr["supported"]).upper()
+            w.writerow(
+                [pr["qid"], pr["sentence"], ",".join(map(str, pr["cites"])), "\n---\n".join(pr["sources"]), sup, ""]
+            )
+    return path
+
+
+def render(meta: dict, summary: dict, rows: list[dict], run_path: Path, csv_path: Path | None = None) -> str:
     offline = meta["llm"] == "fake" or meta["embedder"].startswith("hash")
     lines = [
         f"## {meta['at']} · {meta['label']}",
@@ -244,6 +268,8 @@ def render(meta: dict, summary: dict, rows: list[dict], run_path: Path) -> str:
             )
         lines += ["", "</details>", ""]
     lines += [f"원자료: `{run_path.relative_to(REPO_ROOT)}`", ""]
+    if csv_path:
+        lines += [f"심사 쌍: `{csv_path.relative_to(REPO_ROOT)}`", ""]
     return "\n".join(lines)
 
 
