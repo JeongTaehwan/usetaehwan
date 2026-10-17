@@ -22,8 +22,8 @@ const ERRORS: Record<string, string> = {
 };
 /** 입력칸 아래 안내 — Gemini 무료 등급으로 운영하므로 전송 사실을 밝힌다 (decisions D-39). 페이지 언어(html lang)를 따른다 */
 const PRIVACY_NOTICE = {
-  ko: "질문은 답변 생성을 위해 외부 AI 서비스(Google, Anthropic)로 전송됩니다. 개인정보는 입력하지 마세요.",
-  en: "Questions are sent to external AI services (Google, Anthropic) to generate answers. Please don't enter personal information.",
+  ko: "질문은 답변 생성을 위해 외부 AI 서비스(Google, Anthropic)로 전송되며, 서비스 개선에 활용될 수 있습니다. 개인정보는 입력하지 마세요.",
+  en: "Questions are sent to external AI services (Google, Anthropic) to generate answers and may be used to improve their services. Please don't enter personal information.",
 } as const;
 const NOTE: Partial<Record<AskAnswer["outcome"], string>> = {
   answered: "인용 검증 통과",
