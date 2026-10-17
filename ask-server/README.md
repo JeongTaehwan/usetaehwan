@@ -45,7 +45,9 @@ uv run python -m ask.eval --label baseline       # 평가 → docs/ask/eval-repo
 ## 배포 (Railway)
 
 - Root directory를 `ask-server`로 둔다. `Dockerfile`과 `railway.json`(헬스체크 `/healthz`)을 쓴다.
-- 환경변수: `DATABASE_URL`(Neon, pgvector 확장), `ASK_LLM=anthropic`, `ASK_EMBEDDER=voyage`, 키, `ASK_PROXY_SECRET`, `ASK_IP_HASH_SECRET`.
+- **필수 — Gemini 결제 활성화**: `ASK_EMBEDDER=gemini`로 배포한다면 AI Studio에서 결제를 먼저 켠다. 무료 등급은 입력을 Google이 제품 개선에 쓸 수 있는 약관이라 방문자 질문을 보낼 수 없고, 분당 100건 한도도 있다(D-22).
+- 환경변수: `DATABASE_URL`(Neon, pgvector 확장), `ASK_LLM=anthropic`, `ASK_EMBEDDER`(인제스트한 값과 같게), 키, `ASK_PROXY_SECRET`, `ASK_IP_HASH_SECRET`.
+- 인제스트 전에 `denylist.txt`(gitignore됨, 한 줄에 하나)에 고객사명을 채운다. `.env`의 `ASK_DENYLIST_PATH=denylist.txt`가 이 파일을 가리킨다.
 - 서버는 뜰 때 마이그레이션을 돌린다(전부 `if not exists`). 인제스트는 로컬에서 운영 `DATABASE_URL`로 실행한다.
 - Vercel 쪽 환경변수: `ASK_API_URL`(Railway URL), `ASK_PROXY_SECRET`(같은 값).
 - Anthropic 콘솔에서 워크스페이스 월 지출 한도를 건다(design §6).

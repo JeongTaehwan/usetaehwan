@@ -1,11 +1,13 @@
+import json
 import os
 import subprocess
 import sys
 
+import httpx
 import pytest
 
 from ask import store
-from ask.embed import HashEmbedder
+from ask.embed import GeminiEmbedder, HashEmbedder
 from ask.ingest import chunk, pii_filter
 from ask.retrieve import retrieve
 
@@ -132,6 +134,58 @@ def test_hash_embedder_prefers_lexical_overlap():
         return sum(x * y for x, y in zip(a, b, strict=True))
 
     assert dot(q, near) > dot(q, far)
+
+
+# ───────── Gemini 429 재시도 (D-22) ─────────
+
+GEMINI_429 = {
+    "error": {
+        "code": 429,
+        "status": "RESOURCE_EXHAUSTED",
+        "details": [{"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": "18s"}],
+    }
+}
+
+
+def _gemini(statuses: list[int]) -> tuple[GeminiEmbedder, list[float], list[int]]:
+    """statuses 순서대로 응답하는 가짜 Gemini. 기다린 시간과 호출 횟수를 함께 돌려준다."""
+    waits: list[float] = []
+    calls: list[int] = []
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        status = statuses[len(calls)]
+        calls.append(status)
+        if status == 429:
+            return httpx.Response(429, json=GEMINI_429)
+        n = len(json.loads(req.content)["requests"])
+        return httpx.Response(200, json={"embeddings": [{"values": [3.0, 4.0]} for _ in range(n)]})
+
+    e = GeminiEmbedder("test-key", dim=2, transport=httpx.MockTransport(handler), sleep=waits.append)
+    return e, waits, calls
+
+
+def test_gemini_document_retries_after_429_with_retry_info():
+    e, waits, calls = _gemini([200, 429, 200])
+    e.batch = 2
+    out = e.embed(["a", "b", "c"], "document")
+    assert calls == [200, 429, 200]
+    assert waits == [19.0]  # retryDelay 18s + 1초 여유
+    assert out == [[0.6, 0.8]] * 3
+
+
+def test_gemini_query_does_not_wait_on_429():
+    """질의는 방문자 요청 안에서 돌아서 기다리지 않고 바로 실패한다."""
+    e, waits, calls = _gemini([429])
+    with pytest.raises(httpx.HTTPStatusError):
+        e.embed(["q"], "query")
+    assert (waits, calls) == ([], [429])
+
+
+def test_gemini_document_gives_up_after_max_retries():
+    e, waits, _ = _gemini([429] * (GeminiEmbedder.MAX_RETRIES + 1))
+    with pytest.raises(httpx.HTTPStatusError):
+        e.embed(["a"], "document")
+    assert len(waits) == GeminiEmbedder.MAX_RETRIES
 
 
 # ───────── pgvector (실제 DB) ─────────
