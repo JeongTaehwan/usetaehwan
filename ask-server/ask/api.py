@@ -9,6 +9,7 @@ from __future__ import annotations
 import hmac
 import json
 import logging
+import os
 import time
 from collections.abc import Iterator
 from contextlib import asynccontextmanager
@@ -20,7 +21,15 @@ from psycopg_pool import ConnectionPool
 from pydantic import BaseModel, Field, field_validator
 
 from . import guard, store
-from .config import ConfigError, Settings, check_production, get_settings
+from .config import (
+    ConfigError,
+    Settings,
+    check_production,
+    env_presence,
+    get_settings,
+    lookalike_env_names,
+    required_env,
+)
 from .embed import make_embedder
 from .graph.build import Deps, build_graph
 from .llm import make_llm
@@ -190,6 +199,15 @@ def app_factory() -> FastAPI:  # uvicorn ask.api:app_factory --factory
     """
     server_log = logging.getLogger("uvicorn.error")
     s = get_settings()
+    # 검사보다 먼저 찍는다 — 실패할 때 무엇이 없는지 바로 보이게. 값은 찍지 않는다 (D-32 변경)
+    server_log.info(
+        "env: %s (환경변수 %d개, RAILWAY_* %d개)",
+        env_presence(required_env(s)),
+        len(os.environ),
+        sum(1 for k in os.environ if k.startswith("RAILWAY_")),
+    )
+    if not os.environ.get("DATABASE_URL", "").strip() and (similar := lookalike_env_names("DATABASE_URL")):
+        server_log.warning("DATABASE_URL은 없지만 비슷한 이름의 변수가 있습니다: %s", ", ".join(similar))
     try:
         mode, reason = check_production(s)
     except ConfigError as e:

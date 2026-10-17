@@ -78,7 +78,7 @@ read -rs ASK_PROXY_SECRET && export ASK_PROXY_SECRET
 export ASK_URL=https://<railway-domain>
 ```
 
-1. **배포 로그**: 빌드 성공 → `ask-server mode=production (RAILWAY_ENVIRONMENT_ID) · db=…neon.tech · llm=anthropic · embedder=gemini · top_k=8 · min_score=0.55` → `Application startup complete` → 헬스체크 통과. `db=`가 neon 호스트인지 본다. `CRITICAL: … 서버를 시작하지 않습니다`가 보이면 메시지에 적힌 비밀을 넣고 다시 배포한다. 시작 단계에서 마이그레이션이 Neon에 붙으므로, 여기서 실패하면 `DATABASE_URL`을 의심한다.
+1. **배포 로그**: 빌드 성공 → `env: DATABASE_URL=있음 · ASK_PROXY_SECRET=있음 · … (환경변수 N개, RAILWAY_* M개)` → `ask-server mode=production (RAILWAY_ENVIRONMENT_ID) · db=…neon.tech · llm=anthropic · embedder=gemini · top_k=8 · min_score=0.55` → `Application startup complete` → 헬스체크 통과. `db=`가 neon 호스트인지 본다. `CRITICAL: … 서버를 시작하지 않습니다`가 보이면 메시지에 적힌 비밀을 넣고 다시 배포한다. 시작 단계에서 마이그레이션이 Neon에 붙으므로, 여기서 실패하면 `DATABASE_URL`을 의심한다.
 2. **`/healthz`**: `{"ok":true}`가 와야 한다. 프로세스가 떠 있는지만 본다(DB·키는 보지 않는다).
    ```bash
    curl -s "$ASK_URL/healthz"
@@ -148,4 +148,16 @@ export ASK_URL=https://<railway-domain>
 3. **`railway.json`이 적용되지 않았다.** 당시 main의 파일에는 헬스체크(`/healthz`)가 있었는데 배포에는 헬스체크가 없었다. 새 서비스가 지원 중단 대상이라서인지, config 경로(`/ask-server/railway.json`)를 지정하지 않아 못 찾아서인지는 구분하지 못했다. 리전은 main의 파일에 원래 지정이 없었으므로, 파일과 상관없이 기본 리전(US West)으로 떴다. 어느 쪽이든 이제 대시보드에서 설정한다(위 1절).
 
 **이제는**: main에 오늘 코드가 들어가면 2번 상황에서 서버가 30초를 기다리지 않는다. 바로 `CRITICAL: … DATABASE_URL이 없습니다 …`를 찍고 끝난다. 헬스체크 경로를 넣었다면 그 배포는 트래픽을 받지 않는다.
+
+## 부록 — PR #14 배포 후 "DATABASE_URL이 없습니다" (2026-10-17)
+
+**증상**: 새 시작 검사가 "DATABASE_URL이 없습니다"로 종료했다. 두 비밀은 통과했다. Railway 서비스 변수 화면에는 `DATABASE_URL`(12자, 공백 없음, 값은 `postgresql://…`)이 있었다.
+
+**코드 쪽 확인 결과 — 원인 아님**: 코드는 환경변수만 읽는다. `.env`를 불러오지 않고, 이미지 안에 `.env`도 없다. 같은 이미지에 `-e DATABASE_URL=…`을 주면 읽히고, 빼면 같은 메시지가 난다(D-32 변경). 즉 **그 배포의 프로세스 환경에 `DATABASE_URL`이 없었다.**
+
+**다음 배포에서 볼 것** — 첫 줄 `env:`를 본다.
+- `DATABASE_URL=없음`이고 "비슷한 이름의 변수가 있습니다: …" 경고가 나오면, 그 이름이 실제로 들어간 이름이다. ascii 표기라 보이지 않는 문자(`\u200b` 등)나 뒤 공백도 드러난다. 변수를 지우고 이름을 직접 타이핑해 다시 만든다.
+- `DATABASE_URL=없음`이고 경고가 없으면, 플랫폼이 이 변수를 넣지 않은 것이다. 서비스 변수 화면에 적용 대기 중인 변경이 남아 있지 않은지 보고, 변수를 저장한 **뒤에** 새로 배포했는지(이전 배포를 다시 시작한 것이 아닌지) 확인한다. 변수를 Raw Editor로 지웠다 다시 넣는 것도 방법이다.
+- `DATABASE_URL=비어 있음`이면, 값이 다른 변수 참조(`${{…}}`)로 되어 있다가 빈 값으로 풀린 것일 수 있다. 연결 문자열을 값으로 직접 넣는다.
+- `RAILWAY_*` 개수가 1~2개뿐이면, 서비스 변수가 거의 주입되지 않은 비정상 배포다. 같은 줄의 다른 항목도 함께 본다.
 
