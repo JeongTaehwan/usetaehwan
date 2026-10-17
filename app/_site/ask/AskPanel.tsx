@@ -20,6 +20,11 @@ const ERRORS: Record<string, string> = {
   daily_cap: "오늘 챗봇이 받을 수 있는 질문을 모두 받았어요. 내일 다시 열려요.",
   too_long: `${MAX_CHARS}자 이내로 물어봐 주세요.`,
 };
+/** 입력칸 아래 안내 — Gemini 무료 등급으로 운영하므로 전송 사실을 밝힌다 (decisions D-39). 페이지 언어(html lang)를 따른다 */
+const PRIVACY_NOTICE = {
+  ko: "질문은 답변 생성을 위해 외부 AI 서비스(Google, Anthropic)로 전송되며, 서비스 개선에 활용될 수 있습니다. 개인정보는 입력하지 마세요.",
+  en: "Questions are sent to external AI services (Google, Anthropic) to generate answers and may be used to improve their services. Please don't enter personal information.",
+} as const;
 const NOTE: Partial<Record<AskAnswer["outcome"], string>> = {
   answered: "인용 검증 통과",
   fallback: "검증된 문장만 남김",
@@ -79,6 +84,8 @@ export function AskPanel() {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [remaining, setRemaining] = useState<number | null>(null);
+  // 패널은 열린 뒤(클라이언트)에만 그려지므로 서버 렌더와 어긋나지 않는다
+  const lang = open && typeof document !== "undefined" && document.documentElement.lang.startsWith("en") ? "en" : "ko";
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const launcherRef = useRef<HTMLButtonElement>(null);
   const logRef = useRef<HTMLDivElement>(null);
@@ -295,7 +302,7 @@ export function AskPanel() {
                   rows={2}
                   maxLength={MAX_CHARS}
                   placeholder="경력·프로젝트에 대해 물어보세요"
-                  aria-describedby="ask-count"
+                  aria-describedby="ask-count ask-notice"
                   className="w-full resize-none rounded-lg border border-line-2 bg-card px-3 py-2.5 text-[14.5px] leading-[1.6] text-ink placeholder:text-mute focus-visible:outline-2"
                 />
                 <div className="mt-2 flex items-center justify-between">
@@ -311,6 +318,9 @@ export function AskPanel() {
                     {busy ? "답하는 중" : "묻기"}
                   </button>
                 </div>
+                <p id="ask-notice" className="mt-2 text-[11.5px] leading-[1.5] text-mute [word-break:keep-all]">
+                  {PRIVACY_NOTICE[lang]}
+                </p>
               </>
             )}
           </form>
