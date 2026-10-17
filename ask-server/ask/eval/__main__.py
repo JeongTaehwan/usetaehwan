@@ -155,6 +155,7 @@ def evaluate(q: dict, st: dict, raw: list[Hit], latency: float, judge) -> dict:
         "retrieved": [[h.chunk_id, round(h.score, 4)] for h in raw],  # 하한 없는 top-8
         "candidates": [h.chunk_id for h in st.get("candidates", [])],  # 하한 통과
         "evidence": [h.chunk_id for h in st.get("evidence", [])],  # 판정 통과
+        "timings": {k: round(v) for k, v in st.get("timings", {}).items()},  # 노드별 ms — 지연 원인 분해
     }
 
     if sources:
@@ -162,7 +163,9 @@ def evaluate(q: dict, st: dict, raw: list[Hit], latency: float, judge) -> dict:
         row["hit@8"], row["recall@8"] = retrieval_scores(raw, sources, 8)
 
     answered = outcome in ("answered", "fallback")
-    abstained = outcome == "no_evidence" or (answered and any(p.search(answer) for p in citations.NO_INFO))
+    # "자료에 없음" 문장은 문장 단위로 찾는다 — 런타임 검증(citations.verify)과 같은 단위 (D-29 변경)
+    no_info = any(p.search(sent.text) for sent in citations.split_sentences(answer) for p in citations.NO_INFO)
+    abstained = outcome == "no_evidence" or (answered and no_info)
     if "answer" in expect and answered:
         ok = True
     elif "no_evidence" in expect:

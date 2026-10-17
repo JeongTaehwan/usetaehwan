@@ -157,3 +157,22 @@ def test_judge_sees_title_and_site_context_like_the_generator():
     assert 'title="프로젝트 Orbit › 인증 · 배포"' in user
     assert "정태환" in sent["system"] and "title" in sent["system"]
     assert verdicts == [True]
+
+
+def test_no_answer_counts_as_abstained_when_a_sentence_says_not_in_materials():
+    """v2 q19 — 첫 문장이 '자료에 없다'인데 답 전체에 정규식을 대서 놓쳤다 (D-29 변경)."""
+    q = {"id": "q19", "type": "no_answer", "expect": "no_evidence", "question": "Redis 캐시를 설계해 본 경험은?"}
+    ev = [_hit(1, "같은 좌표 격자와 반경을 일주일 동안 캐시해, 첫 조사 13~20초가 캐시 적중 시 4~5초로 줄었습니다.")]
+    st = {
+        "outcome": "answered",
+        "answer": "제공된 자료에는 Redis 캐시 설계 경험에 대한 내용이 없습니다. "
+        "자료에 따르면 같은 좌표 격자와 반경을 일주일 동안 캐시했습니다[1].",
+        "evidence": ev,
+        "citations": [],
+        "attempts": 1,
+        "usage": [],
+        "timings": {"retrieve": 412.3},
+    }
+    row = evaluate(q, st, ev, 100.0, None)
+    assert row["behavior_ok"] is True
+    assert row["timings"] == {"retrieve": 412}
