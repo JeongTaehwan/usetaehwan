@@ -213,7 +213,7 @@ function ResumeSecond() {
       <Label id={anchors.resume.sideProjects} className="mt-3">
         개인 프로젝트
       </Label>
-      <ul className="mt-2 flex flex-col gap-1.5">
+      <ul className="mt-2 flex flex-col gap-1">
         {SIDE_PROJECTS.map((p) => (
           <li key={p.name}>
             <div className="flex items-baseline justify-between gap-4">
@@ -225,6 +225,12 @@ function ResumeSecond() {
               </h3>
               <p className="shrink-0 text-[9pt] text-mute">
                 {p.period}
+                {p.live && (
+                  <>
+                    {" · "}
+                    <Ext href={p.live}>Live</Ext>
+                  </>
+                )}
                 {p.href && (
                   <>
                     {" · "}
@@ -233,7 +239,7 @@ function ResumeSecond() {
                 )}
               </p>
             </div>
-            <p className="mt-0.5 text-ink-2">{p.body}</p>
+            {p.body && <p className="mt-0.5 text-ink-2">{p.body}</p>}
           </li>
         ))}
       </ul>
