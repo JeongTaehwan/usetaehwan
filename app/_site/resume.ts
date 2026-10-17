@@ -26,8 +26,8 @@ export const SUMMARY =
 export const STACK = [
   { k: "Frontend", v: "React, Next.js, Vue 3, TypeScript" },
   { k: "Backend", v: "FastAPI · Python, NestJS, Spring Boot" },
-  { k: "Data", v: "PostgreSQL, Prisma" },
-  { k: "AI", v: "Claude · Gemini API, Tavily, 에이전트 워크플로우, Claude Code · Codex" },
+  { k: "Data", v: "PostgreSQL · pgvector, Prisma" },
+  { k: "AI", v: "Claude · Gemini API, LangGraph, Tavily, 에이전트 워크플로우, Claude Code · Codex" },
   { k: "Test", v: "Vitest, Cypress, Playwright, pytest" },
   { k: "Infra", v: "GitHub Actions, Vercel, Railway, Neon, Render" },
   { k: "협업", v: "Git · GitLab MR 리뷰 · GitLab CI · 팀 가이드 문서화" },
@@ -173,6 +173,49 @@ export const CASES: Case[] = [
   {
     no: "01",
     dense: true,
+    slug: "ask",
+    kind: "개인 · AI 서비스",
+    title: "정태환에게 물어보기",
+    tagline: "근거가 없으면 답하지 않는다 — 포트폴리오 RAG 챗봇",
+    meta: "2026.10 · 기획 · 풀스택",
+    links: [
+      { label: "Live", href: live("ask")! },
+      { label: "GitHub", href: repo("ask")! },
+    ],
+    problem:
+      "포트폴리오에 대한 질문에 LLM이 그럴듯하게 지어내면 안 됩니다. 그런데 첫 실측에서 인용 정확도(LLM 심사)는 78%(39/50)였습니다.",
+    decision:
+      "근거가 없으면 답하지 않게 했습니다. LLM은 분류·관련성 판정·작성 세 곳에만 두고, 인용 번호와 숫자는 코드가 검증해 통과한 답만 내보냅니다. 수치가 나쁠 때는 모델보다 측정 도구부터 검증했습니다.",
+    build: [
+      "측정부터 검증 — 심사 FALSE 11건을 직접 검수하니 10건이 심사 오판(심사 모델이 근거 제목·섹션을 못 받음)이었습니다. 심사 입력을 생성과 통일하고 3회 다수결로 바꿔 98.1%(51/52).",
+      "후보 8 → 15개에서 85.7%로 떨어진 인용 정확도를 생성 프롬프트(사실마다 근거 번호, 범위 단정 금지)로 98.1%(52/53) · 항목 재현율 11/11로 되돌렸습니다.",
+      "조정 전에 커밋해 둔 holdout으로 확인 — 미리 정한 조건(인용 95%↑ · p95 10초↓)을 holdout-2(8문항·1회) 인용 15/15 · p95 6.96초로 통과해 채택했습니다.",
+      "운영 모드에서 DB 주소·비밀값·모델 키가 없거나 기본값이면 서버가 시작을 거부하고, 로그엔 있음/없음만 남깁니다.",
+      "한계 — 여러 근거 질문에서 관련성 판정이 맞는 근거를 걸러 항목을 빠뜨립니다(holdout-2 항목 재현율 2/4).",
+    ],
+    results: [
+      { v: "78% → 98.1%", l: "인용 정확도 (LLM 심사) — 측정을 고친 뒤" },
+      { v: "10 / 11", l: "사람이 검수한 심사 FALSE 중 심사 오판" },
+      { v: "5/5 · 4/4", l: "개인정보·범위 밖 거절 · 인젝션 대응 (30문항)" },
+      { v: "$0.00079", l: "질문당 생성 비용 평균 (30문항)" },
+    ],
+    stack: "Python · FastAPI · LangGraph · PostgreSQL(pgvector, Neon) · Gemini 임베딩 · Claude Haiku · SSE · Docker · Railway · Next.js",
+    flow: {
+      caption: "질문 한 건의 흐름 — LLM은 세 곳에만 · 코드 검증에 걸리면 1회 재작성, 그래도 실패하면 검증된 문장만(fallback) · 갈래: refuse / no_evidence",
+      steps: [
+        { t: "pre_guard", s: "개인정보 규칙", kind: "code" },
+        { t: "classify", s: "LLM", kind: "llm" },
+        { t: "retrieve", s: "pgvector top-15", kind: "store" },
+        { t: "grade", s: "LLM", kind: "llm" },
+        { t: "generate", s: "LLM", kind: "llm" },
+        { t: "verify", s: "코드 · 인용·숫자", kind: "code" },
+        { t: "finalize", s: "검증된 답 + 출처", kind: "code" },
+      ],
+    },
+  },
+  {
+    no: "02",
+    dense: true,
     slug: "oneureodi",
     kind: "개인 · AI 서비스",
     title: "오늘어디",
@@ -213,7 +256,7 @@ export const CASES: Case[] = [
     },
   },
   {
-    no: "02",
+    no: "03",
     dense: true,
     slug: "gak",
     kind: "개인 · AI 서비스",
@@ -252,7 +295,7 @@ export const CASES: Case[] = [
     },
   },
   {
-    no: "03",
+    no: "04",
     slug: "commerce-core",
     kind: "회사 · (주)셀메이트",
     title: "신규 쇼핑몰 웹앱 + 앱·웹 공유 TS 코어",
@@ -290,7 +333,7 @@ export const CASES: Case[] = [
     },
   },
   {
-    no: "04",
+    no: "05",
     slug: "admin-refactor",
     kind: "회사 · (주)셀메이트",
     title: "어드민 클린 아키텍처 리팩토링",
@@ -326,7 +369,7 @@ export const CASES: Case[] = [
     },
   },
   {
-    no: "05",
+    no: "06",
     slug: "payments",
     kind: "회사 · (주)셀메이트",
     title: "결제 중개 서비스 · 멀티 PG",
@@ -362,7 +405,7 @@ export const CASES: Case[] = [
     },
   },
   {
-    no: "06",
+    no: "07",
     slug: "orbit",
     kind: "개인 · 풀스택",
     title: "Orbit",

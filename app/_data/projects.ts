@@ -61,7 +61,87 @@ const KKINI_REPO_URL = "https://github.com/JeongTaehwan/kkini";
 /** 쪽쪽 — 수유 기록과 다음 맘마 알림 앱 (Expo) */
 const ZZOKZZOK_REPO_URL = "https://github.com/JeongTaehwan/zzokzzok";
 
+/** 정태환에게 물어보기 — 이 사이트의 RAG 챗봇. 백엔드는 사이트 저장소의 ask-server/ (수치 출처: docs/ask/eval-report.md · decisions.md) */
+const ASK_LIVE_URL = "https://usetaehwan.page";
+const ASK_REPO_URL = "https://github.com/JeongTaehwan/usetaehwan/tree/main/ask-server";
+
 export const PROJECTS: Project[] = [
+  {
+    slug: "ask",
+    palette: {
+      label: "Site tokens",
+      swatches: [
+        { name: "bg", value: "#FBFAF7" },
+        { name: "surface", value: "#FFFFFF" },
+        { name: "fg", value: "#1B1C1E" },
+        { name: "brand", value: "#9A4F37" },
+        { name: "brand-soft", value: "#F5E8E2" },
+      ],
+    },
+    name: "정태환에게 물어보기",
+    year: "2026.10",
+    summary:
+      "이 사이트의 글만 근거로 경력·프로젝트 질문에 답하는 RAG 챗봇. 문장마다 출처 번호를 달고, 인용 번호와 숫자는 코드가 검증해 통과한 답만 내보냅니다. 근거가 없으면 답하지 않습니다.",
+    tags: ["Python", "LangGraph", "pgvector"],
+    cases: [
+      {
+        title: "모델보다 측정 도구부터 검증했다",
+        problem: "첫 실측에서 인용 정확도(LLM 심사)가 78%(39/50)로 나왔습니다.",
+        diagnosis:
+          "심사가 \"근거 없음\"으로 판정한 11건을 직접 검수하니 10건이 심사 오판이었습니다. 대부분 \"정태환은…\", \"Orbit에서…\"처럼 이름·프로젝트명을 붙인 문장이었고, 원인은 심사 모델이 근거 본문만 받고 생성 모델이 보는 제목·섹션을 받지 못한 것이었습니다.",
+        solution:
+          "모델을 바꾸기 전에 측정을 고쳤습니다. 심사에 생성과 같은 근거 형식과 사이트 맥락을 주고 같은 쌍을 3회 심사해 다수결로 정하자, 인용 정확도는 98.1%(51/52), 3회 판정이 갈린 쌍은 0개였습니다.",
+      },
+      {
+        title: "조정은 조정에 쓰지 않은 질문으로 확인한다",
+        problem:
+          "검색 후보를 8개에서 15개로 늘리면 여러 근거가 필요한 질문의 범위는 넓어졌지만, 인용 정확도가 98.1%에서 85.7%로 떨어졌습니다.",
+        diagnosis:
+          "근거가 늘자 생성 모델이 여러 근거를 한 문장에 묶었고, 그 문장의 인용 번호가 어긋나거나 근거에 없는 \"두 프로젝트에 있습니다\" 같은 범위 단정이 섞였습니다.",
+        solution:
+          "생성 프롬프트를 고쳐(사실마다 그 근거 번호, 범위 단정 금지) 후보 15개에서 인용 정확도 98.1%(52/53), 답의 항목 재현율 11/11이 됐습니다. 채택 전에는 조정을 시작하기 전에 커밋해 둔 질문 8개로 한 번만 확인했습니다 — 미리 정한 조건(인용 95% 이상 · p95 10초 이하)에 인용 15/15, p95 6.96초로 통과했습니다.",
+      },
+      {
+        title: "설정이 틀리면 조용히 뜨지 않는다",
+        problem:
+          "첫 배포는 개발용 DB 주소(localhost:5433)로 붙으려다 30초 뒤 시간 초과로 재시작을 반복했습니다. 비밀값이 빠지면 프록시 검사가 꺼지거나 공개된 기본값으로 IP를 해시하는데도 서버는 정상으로 떴습니다.",
+        diagnosis:
+          "설정 누락이 기본값으로 조용히 떨어지는 구조라, 로그만으로는 원인까지 한 단계를 더 추리해야 했고 진단 메시지가 틀렸을 때는 엉뚱한 곳을 조사했습니다.",
+        solution:
+          "운영 모드에서는 DB 주소·비밀값·모델 키가 없거나 기본값이면 무엇을 고칠지 적고 시작을 거부합니다. 시작 로그에는 필수 변수의 있음/없음만 남기고 값은 찍지 않습니다.",
+      },
+    ],
+    detail: {
+      tagline: "근거가 없으면 답하지 않는다 — 포트폴리오 RAG 챗봇",
+      role: "기획 · 풀스택 개발 (개인)",
+      period: "2026.10",
+      overview:
+        "이 사이트의 프로젝트·경력·AI 노트·발표 글을 청크로 나눠 pgvector에 넣고, 질문이 오면 검색한 근거로만 답하는 챗봇입니다. 모든 페이지 오른쪽 아래 \"정태환에게 물어보기\"로 엽니다. 흐름은 LangGraph 그래프로 짰고, LLM은 질문 분류·관련성 판정·답변 작성 세 곳에만 씁니다. 답변의 인용 번호와 숫자는 코드가 근거와 대조하고, 통과한 답만 단계 이벤트(SSE)와 함께 보냅니다. 백엔드는 FastAPI(Railway, Docker), 저장소는 Neon PostgreSQL, 임베딩은 Gemini 무료 등급이라 패널에 외부 전송과 데이터 활용 가능성을 안내합니다. 설계 결정과 평가 기록은 저장소의 decisions.md · eval-report.md에 남겼습니다.",
+      highlights: [
+        {
+          title: "구조 — LLM 세 곳, 검증은 코드",
+          body: "pre_guard(개인정보 규칙) → classify → retrieve(pgvector) → grade → generate ⇄ verify → finalize. verify는 코드가 인용 번호 범위·인용 없는 문장·근거에 없는 숫자를 검사하고, 걸리면 한 번 다시 쓰게 한 뒤에도 실패하면 검증을 통과한 문장만 남깁니다(fallback). 범위 밖·개인정보·인젝션은 refuse, 관련 근거가 없으면 no_evidence로 빠집니다.",
+        },
+        {
+          title: "안전",
+          body: "30문항 평가에서 개인정보·범위 밖 질문 5/5를 거절했고, 인젝션 질문 4/4는 거절하거나 지시를 따르지 않고 답했으며, 답이 없는 질문 5/5에 \"자료에 없다\"고 답했습니다. 질문·답변 원문은 저장하지 않고 메타데이터만 남기며, IP는 날짜를 섞은 HMAC으로만 셉니다.",
+        },
+        {
+          title: "비용 · 지연",
+          body: "30문항 평가 기준 질문당 생성 비용 평균 $0.00079, 응답 시간 p95 5.7초(5,662ms)입니다(평가용 심사 비용 제외).",
+        },
+        {
+          title: "남은 한계",
+          body: "여러 근거가 필요한 질문에서 관련성 판정 단계가 맞는 근거를 걸러 항목을 빠뜨리는 문제가 남아 있습니다(holdout-2 항목 재현율 2/4).",
+        },
+      ],
+      stack: ["Python", "FastAPI", "LangGraph", "PostgreSQL (pgvector · Neon)", "Gemini Embedding", "Claude Haiku", "SSE", "Docker", "Railway", "Next.js"],
+      links: [
+        { label: "Live", href: ASK_LIVE_URL },
+        { label: "GitHub", href: ASK_REPO_URL },
+      ],
+    },
+  },
   {
     slug: "usetaehwan-ui",
     palette: {
