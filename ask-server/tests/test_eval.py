@@ -344,3 +344,19 @@ def test_generate_prompt_formats_without_stray_braces(language):
 
     text = prompts.GENERATE_SYSTEM.format(language=language)
     assert f"Answer in {language}" in text and "{" not in text
+
+
+def test_no_answer_counts_a_cited_not_in_materials_sentence():
+    """prompt-v3 q19 — '자료에 없다' 문장에도 인용을 붙였다. 인용 표기 때문에 문장 끝 조건에 걸리지 않게 한다."""
+    q = {"id": "q19", "type": "no_answer", "expect": "no_evidence", "question": "Redis 캐시를 설계해 본 경험은?"}
+    ev = [_hit(1, "같은 좌표 격자와 반경을 일주일 동안 캐시했습니다.")]
+    st = {
+        "outcome": "answered",
+        "answer": "제공된 자료에서는 정태환의 Redis 캐시 설계 경험을 확인할 수 없습니다[1]. "
+        "다만 같은 좌표 격자와 반경을 일주일 동안 캐시했습니다[1].",
+        "evidence": ev,
+        "citations": [],
+        "attempts": 1,
+        "usage": [],
+    }
+    assert evaluate(q, st, ev, 1.0, None)["behavior_ok"] is True

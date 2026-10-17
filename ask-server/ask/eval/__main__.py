@@ -213,7 +213,8 @@ def evaluate(q: dict, st: dict, raw: list[Hit], latency: float, judge, drafts=()
     if q.get("mentions"):
         row["mentions"] = mention_scores(q["mentions"], answer, answered, row["evidence"])
     # "자료에 없음" 문장은 문장 단위로 찾는다 — 런타임 검증(citations.verify)과 같은 단위 (D-29 변경)
-    no_info = any(p.search(sent.text) for sent in citations.split_sentences(answer) for p in citations.NO_INFO)
+    # 인용 표기를 뺀 본문에 댄다 — v3는 이 문장에도 [1]을 붙여, 문장 끝 조건($)에 걸렸다 (D-36 변경)
+    no_info = any(p.search(sent.content) for sent in citations.split_sentences(answer) for p in citations.NO_INFO)
     abstained = outcome == "no_evidence" or (answered and no_info)
     if "answer" in expect and answered:
         ok = True
