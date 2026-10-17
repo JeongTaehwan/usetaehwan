@@ -2,6 +2,7 @@
 
 런타임 검증(citations.verify)은 번호·누락·숫자만 본다. "근거가 이 문장을 실제로 뒷받침하나"는 여기서 잰다.
 심사도 LLM 출력이므로, 쌍 목록을 CSV로 내보내 사람이 표본을 검수하고 일치율을 함께 보고한다.
+같은 입력의 재심사에서 판정이 뒤집히는 일이 있어(11건 중 3건), 기본은 3회 다수결이다 (D-25).
 """
 
 from __future__ import annotations
@@ -73,3 +74,29 @@ class AnthropicJudge:
         text = "".join(b.text for b in r.content if b.type == "text")
         verdicts = {v["i"]: v["supported"] for v in json.loads(text).get("verdicts", [])}
         return [verdicts.get(k) for k in range(len(pairs))], usage
+
+
+def majority(votes: list[bool | None]) -> bool | None:
+    """True/False 중 많은 쪽. 동수이거나 표가 없으면(거절만 나온 경우 포함) None — 집계에서 뺀다."""
+    t, f = votes.count(True), votes.count(False)
+    return True if t > f else False if f > t else None
+
+
+class MajorityJudge:
+    """같은 쌍 묶음을 runs번 따로 심사해 쌍마다 표를 모은다. 판정은 majority()로 낸다 (D-25)."""
+
+    def __init__(self, inner, runs: int = 3):
+        if runs < 1:
+            raise ValueError("runs >= 1")
+        self.inner, self.runs = inner, runs
+        self.name = inner.name if runs == 1 else f"{inner.name} ×{runs} 다수결"
+
+    def vote(self, pairs: list[Pair], evidence: list[Hit]) -> tuple[list[list[bool | None]], float]:
+        votes: list[list[bool | None]] = [[] for _ in pairs]
+        cost = 0.0
+        for _ in range(self.runs):
+            verdicts, usage = self.inner.judge(pairs, evidence)
+            cost += usage.cost_usd
+            for vs, v in zip(votes, verdicts, strict=True):
+                vs.append(v)
+        return votes, cost

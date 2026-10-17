@@ -30,7 +30,7 @@ from ..graph.build import Deps, build_graph
 from ..llm import detect_lang, make_llm
 from ..models import Hit
 from ..retrieve import retrieve
-from .judge import Pair
+from .judge import MajorityJudge, Pair, majority
 
 QUESTIONS = SERVER_ROOT / "eval" / "questions.yaml"
 RUNS = SERVER_ROOT / "eval" / "runs"
@@ -67,6 +67,7 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="python -m ask.eval")
     ap.add_argument("--label", default="run")
     ap.add_argument("--judge", choices=["none", "anthropic"], default="none")
+    ap.add_argument("--judge-runs", type=int, default=3, help="같은 쌍을 몇 번 심사해 다수결할지 (홀수 권장, D-25)")
     ap.add_argument("--questions", type=Path, default=QUESTIONS, help="질문셋 (기본 eval/questions.yaml)")
     ap.add_argument("--only", help="질문 id 쉼표 목록")
     ap.add_argument("--no-report", action="store_true", help="eval-report.md에 쓰지 않는다")
@@ -79,7 +80,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.judge == "anthropic":
         from .judge import AnthropicJudge
 
-        judge = AnthropicJudge()
+        judge = MajorityJudge(AnthropicJudge(), args.judge_runs)
 
     questions = yaml.safe_load(args.questions.read_text())
     if args.only:
@@ -182,11 +183,13 @@ def evaluate(q: dict, st: dict, raw: list[Hit], latency: float, judge) -> dict:
         for sent in citations.split_sentences(answer):
             if sent.cites and all(1 <= c <= len(ev) for c in sent.cites):
                 pairs.append(Pair(q["id"], sent.text, sent.cites, tuple(ev[c - 1].body for c in sent.cites)))
-        verdicts = [None] * len(pairs)
+        votes: list[list[bool | None]] = [[] for _ in pairs]
         if judge and pairs:
-            verdicts, usage = judge.judge(pairs, ev)
-            row["judge_cost_usd"] = usage.cost_usd
-        row["pairs"] = [{**asdict(pr), "supported": v} for pr, v in zip(pairs, verdicts, strict=True)]
+            votes, row["judge_cost_usd"] = judge.vote(pairs, ev)
+        row["pairs"] = [
+            {**asdict(pr), "supported": majority(vs), "votes": vs, "split": len(set(vs)) > 1}
+            for pr, vs in zip(pairs, votes, strict=True)
+        ]
     return row
 
 
@@ -196,6 +199,7 @@ def summarize(rows: list[dict]) -> dict:
     answered = [r for r in rows if r["outcome"] in ("answered", "fallback")]
     pairs = [pr for r in rows for pr in r.get("pairs", [])]
     judged = [pr["supported"] for pr in pairs if pr["supported"] is not None]
+    voted = [pr for pr in pairs if pr.get("votes")]
     lat = [r["latency_ms"] for r in rows]
     cost = [r["cost_usd"] for r in rows]
     return {
@@ -212,6 +216,8 @@ def summarize(rows: list[dict]) -> dict:
         "fallback": pct([r["outcome"] == "fallback" for r in answered]),
         "필수 숫자 포함": pct([r["numbers_ok"] for r in rows if r.get("numbers_ok") is not None]),
         "인용 정확도 (심사)": pct(judged) if judged else "측정 안 함",
+        "심사 판정이 갈린 쌍": pct([pr["split"] for pr in voted]) if voted else "—",
+        "심사 비용 합계": f"${sum(r.get('judge_cost_usd', 0.0) for r in rows):.4f}",
         "질문 언어로 답함": pct([r["lang_ok"] for r in rows]),
         "응답 시간 p50 / p95": f"{p(lat, 0.5):.0f}ms / {p(lat, 0.95):.0f}ms",
         "질문당 비용 평균 / 최대": f"${statistics.mean(cost):.5f} / ${max(cost):.5f}",
@@ -225,11 +231,21 @@ def write_pairs_csv(rows: list[dict], path: Path) -> Path | None:
         return None
     with path.open("w", newline="", encoding="utf-8-sig") as f:  # BOM — 엑셀에서 한글이 깨지지 않게
         w = csv.writer(f)
-        w.writerow(["qid", "sentence", "cites", "sources", "judge_supported", "human"])
+        w.writerow(["qid", "sentence", "cites", "sources", "judge_supported", "judge_votes", "split", "human"])
         for pr in pairs:
             sup = "" if pr["supported"] is None else str(pr["supported"]).upper()
+            votes = "/".join("-" if v is None else "T" if v else "F" for v in pr.get("votes", []))
             w.writerow(
-                [pr["qid"], pr["sentence"], ",".join(map(str, pr["cites"])), "\n---\n".join(pr["sources"]), sup, ""]
+                [
+                    pr["qid"],
+                    pr["sentence"],
+                    ",".join(map(str, pr["cites"])),
+                    "\n---\n".join(pr["sources"]),
+                    sup,
+                    votes,
+                    "갈림" if pr.get("split") else "",
+                    "",
+                ]
             )
     return path
 
@@ -269,6 +285,19 @@ def render(meta: dict, summary: dict, rows: list[dict], run_path: Path, csv_path
             lines.append(
                 f"| {r['id']} | {r['type']} | {r['expect']} | {r['outcome']} | {r.get('hit@8', '—')} | {note} |"
             )
+        lines += ["", "</details>", ""]
+    split = [pr for r in rows for pr in r.get("pairs", []) if pr.get("split")]
+    if split:
+        lines += [
+            "<details><summary>심사 판정이 갈린 쌍</summary>",
+            "",
+            "| id | 표 | 다수결 | 문장 |",
+            "|---|---|---|---|",
+        ]
+        for pr in split:
+            votes = "/".join("-" if v is None else "T" if v else "F" for v in pr["votes"])
+            text = pr["sentence"].replace("|", "\\|")
+            lines.append(f"| {pr['qid']} | {votes} | {pr['supported']} | {text[:80]}{'…' if len(text) > 80 else ''} |")
         lines += ["", "</details>", ""]
     lines += [f"원자료: `{run_path.relative_to(REPO_ROOT)}`", ""]
     if csv_path:
