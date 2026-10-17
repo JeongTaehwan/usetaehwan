@@ -19,7 +19,7 @@ from psycopg_pool import ConnectionPool
 from pydantic import BaseModel, Field, field_validator
 
 from . import guard, store
-from .config import Settings, get_settings
+from .config import ConfigError, Settings, check_production, get_settings
 from .embed import make_embedder
 from .graph.build import Deps, build_graph
 from .llm import make_llm
@@ -182,4 +182,17 @@ def create_app(settings: Settings | None = None, *, llm=None, embedder=None, poo
 
 
 def app_factory() -> FastAPI:  # uvicorn ask.api:app_factory --factory
-    return create_app()
+    """서버 진입점. 운영 모드에서 비밀이 빠졌으면 앱을 만들기 전에 ConfigError로 멈춘다 (D-27).
+
+    예외를 그대로 올리면 uvicorn 내부 traceback 40줄 밑에 메시지가 묻힌다. 그래서 메시지만 찍고 종료 코드 1로 끝낸다.
+    Railway는 헬스체크 실패로 배포를 실패 처리하고, 이전 배포가 계속 트래픽을 받는다.
+    """
+    server_log = logging.getLogger("uvicorn.error")
+    s = get_settings()
+    try:
+        mode, reason = check_production(s)
+    except ConfigError as e:
+        server_log.critical("%s", e)
+        raise SystemExit(1) from None
+    server_log.info("ask-server mode=%s (%s)", mode, reason)
+    return create_app(s)

@@ -10,7 +10,7 @@
 - [ ] **Anthropic 월 지출 한도**를 콘솔의 워크스페이스에 건다 (design §6).
 - [ ] 평가로 확정한 `ASK_TOP_K`·`ASK_MIN_SCORE` 값을 정한다. tuned-gemini 결과 전이면 지금 기본값(8 / 0.15)으로 배포한다.
 - [ ] `denylist.txt`를 채운 뒤 인제스트를 다시 돌린다. 로컬 `ask-server`에서 운영 `DATABASE_URL`로 실행한다. 컨테이너는 서빙만 하고 인제스트는 하지 않는다.
-- [ ] 비밀 두 개를 만든다. 값은 비밀번호 관리자에 둔다.
+- [ ] 비밀 두 개를 만든다. **없으면 Railway에서 서버가 뜨지 않는다**(D-27). 값은 비밀번호 관리자에 둔다.
   ```bash
   openssl rand -hex 32
   ```
@@ -41,8 +41,10 @@
 | `ASK_EMBEDDER` | `gemini`. **인제스트한 임베더와 같아야 한다.** 다르면 검색 결과가 0건이다(임베딩 행이 모델별로 나뉨). 빠뜨리면 기본값 `hash`. |
 | `ANTHROPIC_API_KEY` | 생성·분류·판정 (Haiku 5.5) |
 | `GEMINI_API_KEY` | 질문 임베딩 (`gemini-embedding-001@768`) |
-| `ASK_PROXY_SECRET` | Vercel 프록시만 통과시키는 공유 비밀(D-14). **비어 있으면 검사를 건너뛰어 백엔드가 누구에게나 열린다.** |
-| `ASK_IP_HASH_SECRET` | IP를 날짜와 섞어 HMAC으로 해시하는 비밀(D-19). **빠뜨리면 코드 기본값 `dev-only-secret`이 조용히 쓰인다.** |
+| `ASK_PROXY_SECRET` | Vercel 프록시만 통과시키는 공유 비밀(D-14). **없으면 서버가 뜨지 않는다**(D-27). |
+| `ASK_IP_HASH_SECRET` | IP를 날짜와 섞어 HMAC으로 해시하는 비밀(D-19). **없거나 개발용 기본값 `dev-only-secret`이면 서버가 뜨지 않는다**(D-27). |
+
+> **두 비밀이 없으면 서버가 안 뜬다** (D-27). Railway에서는 `RAILWAY_ENVIRONMENT_ID`가 자동으로 들어오므로 항상 운영 모드다. 둘 중 하나라도 비었거나 `ASK_IP_HASH_SECRET`이 `dev-only-secret`이면, 서버는 시작 직후 `CRITICAL: 운영 모드(…)인데 필수 비밀이 없어 서버를 시작하지 않습니다`와 빠진 항목을 로그에 찍고 종료 코드 1로 끝난다. 헬스체크가 실패해 배포가 실패로 표시되고, 이전 배포가 있으면 그대로 트래픽을 받는다. `ASK_ENV=development`로 이 검사를 끌 수는 없다.
 
 **선택 (기본값이 있음)**
 
@@ -57,7 +59,7 @@
 | `ASK_DAILY_CAP` | `300` | 전체 일일 질문 수 |
 | `ASK_PUBLIC_EMAILS` | `kt26625417@gmail.com` | 답에 내보내도 되는 이메일. 거절 안내문의 연락처로도 쓴다. |
 
-**Railway에는 넣지 않는 것**: `PORT`(Railway가 넣음), `ASK_DENYLIST_PATH`(인제스트 전용·로컬), `VOYAGE_API_KEY`(voyage 임베더를 쓸 때만), `ASK_TEST_DATABASE_URL`(테스트 전용).
+**Railway에는 넣지 않는 것**: `PORT`·`RAILWAY_*`(Railway가 넣음), `ASK_ENV`(Railway에서는 필요 없음, 아래 참고), `ASK_DENYLIST_PATH`(인제스트 전용·로컬), `VOYAGE_API_KEY`(voyage 임베더를 쓸 때만), `ASK_TEST_DATABASE_URL`(테스트 전용).
 
 ## 2. Railway 배포 확인 (Vercel 연결 전)
 
@@ -71,12 +73,12 @@ read -rs ASK_PROXY_SECRET && export ASK_PROXY_SECRET
 export ASK_URL=https://<railway-domain>
 ```
 
-1. **배포 로그**: 빌드 성공 → `Application startup complete` → 헬스체크 통과. 시작 단계에서 마이그레이션이 Neon에 붙으므로, 여기서 실패하면 `DATABASE_URL`을 의심한다.
+1. **배포 로그**: 빌드 성공 → `ask-server mode=production (RAILWAY_ENVIRONMENT_ID)` → `Application startup complete` → 헬스체크 통과. `CRITICAL: … 서버를 시작하지 않습니다`가 보이면 메시지에 적힌 비밀을 넣고 다시 배포한다. 시작 단계에서 마이그레이션이 Neon에 붙으므로, 여기서 실패하면 `DATABASE_URL`을 의심한다.
 2. **`/healthz`**: `{"ok":true}`가 와야 한다. 프로세스가 떠 있는지만 본다(DB·키는 보지 않는다).
    ```bash
    curl -s "$ASK_URL/healthz"
    ```
-3. **비밀 없이 `/status`**: **403**이 와야 한다. 비밀 검사가 켜졌다는 뜻이다. 200이 오면 `ASK_PROXY_SECRET`이 비어 있는 것이다.
+3. **비밀 없이 `/status`**: **403**이 와야 한다. 비밀 검사가 켜졌다는 뜻이다. 비밀이 비어 있으면 서버가 아예 뜨지 않으므로(D-27), 여기서 200이 나오면 안 된다. 나오면 운영 모드 판별을 의심한다(1번 로그의 `mode=`).
    ```bash
    curl -s -o /dev/null -w '%{http_code}\n' "$ASK_URL/status"
    ```
@@ -115,3 +117,15 @@ export ASK_URL=https://<railway-domain>
 3. 패널에서 질문 1개: 단계 표시(분류 → 검색 → 판정 → 작성 → 검증) 뒤에 답과 출처가 나오고, 출처를 누르면 해당 섹션으로 간다.
 4. Neon `ask_logs`에 메타 1행(원문 없음)이 생기고, `ask_usage_daily`가 1 늘었는지 본다.
 5. 배포 확인에 쓴 질문 기록을 운영 수치에서 빼려면 `ask_logs`·`ask_usage_daily`·`ask_ip_daily`의 해당 행을 정리한다(스모크 때와 같은 방법).
+
+## 부록 — 운영/개발 모드 구분 (D-27)
+
+| 조건 | 모드 | 비밀 검사 |
+|---|---|---|
+| `RAILWAY_ENVIRONMENT_ID`가 있음 (Railway가 모든 배포에 자동으로 넣음) | 운영 | 함 — `ASK_ENV` 값과 상관없음 |
+| `ASK_ENV=production` | 운영 | 함 — 로컬 Docker로 운영 설정을 시험할 때 |
+| 둘 다 없음, 또는 `ASK_ENV=development` | 개발 | 안 함 — 지금처럼 비밀 없이 뜬다 |
+| `ASK_ENV`가 그 밖의 값(`prod` 등) | — | 오타가 조용히 개발 모드가 되지 않게 시작을 거부한다 |
+
+서버를 시작할 때 `ask-server mode=… (근거)` 한 줄을 로그에 남긴다. 인제스트와 평가(`python -m ask.ingest`, `python -m ask.eval`)는 서버가 아니라서 이 검사를 거치지 않는다.
+
