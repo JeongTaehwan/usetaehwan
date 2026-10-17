@@ -297,3 +297,50 @@ def test_rescore_reads_saved_answers(tmp_path, capsys):
     assert "q16 빠진 항목: 오늘어디(근거 없음)" in out
     assert "답의 항목 재현율: 66.7% (2/3)" in out
     assert "근거에 든 항목 → 답에 언급: 100.0% (2/2)" in out
+
+
+# ───────── 1차 초안 기록 (D-36) ─────────
+
+
+def test_first_draft_violations_are_kept_even_when_the_retry_passes():
+    """상태에는 마지막 초안만 남는다. 1차 실패 원인(인용 없는 머리·꼬리 문장)을 세려고 초안을 따로 남긴다."""
+    from ask.eval.__main__ import DraftRecorder
+    from ask.llm import FakeLLM
+
+    ev = [_hit(1, "PayPal 결제를 연동했습니다.")]
+    rec = DraftRecorder(FakeLLM())
+    rec.drafts = [
+        ("결제 연동 경험을 정리하면 다음과 같습니다. PayPal 결제를 연동했습니다[1].", [h.body for h in ev]),
+        ("PayPal 결제를 연동했습니다[1].", [h.body for h in ev]),
+    ]
+    q = {"id": "q01", "type": "single", "expect": "answer", "question": "결제 연동 경험?"}
+    st = {
+        "outcome": "answered",
+        "answer": "PayPal 결제를 연동했습니다[1].",
+        "evidence": ev,
+        "citations": [],
+        "attempts": 2,
+        "usage": [],
+    }
+    row = evaluate(q, st, ev, 1.0, None, rec.drafts)
+    assert row["drafts"] == [[["uncited", "결제 연동 경험을 정리하면 다음과 같습니다."]], []]
+    assert summarize([row])["1차 초안 위반 (규칙별 문장 수)"] == "uncited 1"
+
+
+def test_draft_recorder_passes_calls_through_and_records_generate():
+    from ask.eval.__main__ import DraftRecorder
+    from ask.llm import FakeLLM
+
+    rec = DraftRecorder(FakeLLM())
+    ev = [_hit(1, "PayPal 결제를 연동했습니다.")]
+    draft, _ = rec.generate("결제 연동 경험?", ev, "ko")
+    assert rec.name == FakeLLM().name
+    assert rec.drafts == [(draft, ["PayPal 결제를 연동했습니다."])]
+
+
+@pytest.mark.parametrize("language", ["Korean", "English"])
+def test_generate_prompt_formats_without_stray_braces(language):
+    from ask.graph import prompts
+
+    text = prompts.GENERATE_SYSTEM.format(language=language)
+    assert f"Answer in {language}" in text and "{" not in text

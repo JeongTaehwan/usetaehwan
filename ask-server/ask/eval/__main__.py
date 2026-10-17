@@ -17,6 +17,7 @@ import statistics
 import subprocess
 import sys
 import time
+from collections import Counter
 from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
@@ -78,6 +79,24 @@ def p(values: list[float], q: float) -> float:
     return s[min(len(s) - 1, round(q * (len(s) - 1)))]
 
 
+class DraftRecorder:
+    """생성 초안을 모두 남기는 LLM 래퍼 — 상태에는 마지막 초안만 남아 1차 실패 원인을 볼 수 없다 (D-36)."""
+
+    def __init__(self, llm):
+        self.llm, self.name, self.drafts = llm, llm.name, []
+
+    def classify(self, question):
+        return self.llm.classify(question)
+
+    def grade(self, question, candidates):
+        return self.llm.grade(question, candidates)
+
+    def generate(self, question, evidence, lang, previous=None, feedback=None):
+        draft, usage = self.llm.generate(question, evidence, lang, previous, feedback)
+        self.drafts.append((draft, [h.body for h in evidence]))
+        return draft, usage
+
+
 def git_commit() -> str:
     try:
         return subprocess.check_output(["git", "describe", "--always", "--dirty"], cwd=REPO_ROOT, text=True).strip()
@@ -99,7 +118,7 @@ def main(argv: list[str] | None = None) -> int:
         return rescore(args.rescore, args.questions)
 
     s = get_settings()
-    llm = make_llm(s.llm, s.anthropic_model)
+    llm = DraftRecorder(make_llm(s.llm, s.anthropic_model))
     embedder = make_embedder(s.embedder)
     judge = None
     if args.judge == "anthropic":
@@ -124,10 +143,11 @@ def main(argv: list[str] | None = None) -> int:
         for q in questions:
             # 검색 품질은 점수 하한 없이 top-8 원래 순위로 잰다 (리트리버 자체의 성능)
             raw = retrieve(conn, embedder, q["question"], 8, -1.0)
+            llm.drafts = []
             t0 = time.perf_counter()
             st = graph.invoke({"question": q["question"]})
             latency = (time.perf_counter() - t0) * 1000
-            rows.append(evaluate(q, st, raw, latency, judge))
+            rows.append(evaluate(q, st, raw, latency, judge, llm.drafts))
             print(
                 f"  {q['id']} {rows[-1]['outcome']:12s} {'OK ' if rows[-1]['behavior_ok'] else 'NG '} {latency:6.0f}ms"
             )
@@ -158,7 +178,7 @@ def main(argv: list[str] | None = None) -> int:
     return 0
 
 
-def evaluate(q: dict, st: dict, raw: list[Hit], latency: float, judge) -> dict:
+def evaluate(q: dict, st: dict, raw: list[Hit], latency: float, judge, drafts=()) -> dict:
     expect = q["expect"].split("|")
     outcome = st["outcome"]
     answer = st.get("answer", "")
@@ -181,6 +201,8 @@ def evaluate(q: dict, st: dict, raw: list[Hit], latency: float, judge) -> dict:
         "candidates": [h.chunk_id for h in st.get("candidates", [])],  # 하한 통과
         "evidence": [h.chunk_id for h in st.get("evidence", [])],  # 판정 통과
         "timings": {k: round(v) for k, v in st.get("timings", {}).items()},  # 노드별 ms — 지연 원인 분해
+        # 초안마다 런타임 검증 위반 [규칙, 문장] — 1차 검증 실패 원인 분류용 (D-36)
+        "drafts": [[[v.rule, v.sentence] for v in citations.verify(d, ev)] for d, ev in drafts],
     }
 
     if sources:
@@ -234,6 +256,8 @@ def summarize(rows: list[dict]) -> dict:
     lat = [r["latency_ms"] for r in rows]
     cost = [r["cost_usd"] for r in rows]
     items = [m for r in rows for m in r.get("mentions", [])]
+    first = [r["drafts"][0] for r in rows if r.get("drafts")]
+    rules = Counter(v[0] for vs in first for v in vs)
     return {
         "hit@5": pct([r["hit@5"] for r in ans]),
         "hit@8": pct([r["hit@8"] for r in ans]),
@@ -245,6 +269,7 @@ def summarize(rows: list[dict]) -> dict:
         "인젝션 → 거절 또는 안전 답변": pct([r["behavior_ok"] and r["must_not_ok"] for r in by("injection")]),
         **mention_summary(items),
         "1차 검증 통과 (답한 것 중)": pct([r["attempts"] == 1 and r["outcome"] == "answered" for r in answered]),
+        "1차 초안 위반 (규칙별 문장 수)": " · ".join(f"{k} {n}" for k, n in rules.most_common()) if first else "—",
         "재생성 후 통과": pct([r["attempts"] == 2 and r["outcome"] == "answered" for r in answered]),
         "fallback": pct([r["outcome"] == "fallback" for r in answered]),
         "필수 숫자 포함": pct([r["numbers_ok"] for r in rows if r.get("numbers_ok") is not None]),
@@ -346,6 +371,18 @@ def render(meta: dict, summary: dict, rows: list[dict], run_path: Path, csv_path
                 f"| {r['id']} | {r['type']} | {r['expect']} | {r['outcome']} | {r.get('hit@8', '—')} | {note} |"
             )
         lines += ["", "</details>", ""]
+    failed = [(r["id"], v) for r in rows if r.get("drafts") for v in r["drafts"][0]]
+    if failed:
+        lines += [
+            "<details><summary>1차 초안이 검증에 걸린 문장</summary>",
+            "",
+            "| id | 규칙 | 문장 |",
+            "|---|---|---|",
+            *[f"| {qid} | {rule} | {sent.replace('|', chr(92) + '|')[:100]} |" for qid, (rule, sent) in failed],
+            "",
+            "</details>",
+            "",
+        ]
     omitted = [(r, m) for r in rows for m in r.get("mentions", []) if not m["mentioned"]]
     if omitted:
         lines += [
