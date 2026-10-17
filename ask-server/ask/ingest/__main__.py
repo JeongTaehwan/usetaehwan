@@ -31,7 +31,11 @@ def main(argv: list[str] | None = None) -> int:
     corpus = sources.load_corpus(args.corpus)
     docs, chunks = chunk.build(corpus)
 
-    denylist = pii_filter.load_denylist(s.denylist_path)
+    try:
+        denylist = pii_filter.load_denylist(s.denylist_path, s.denylist_inline)
+    except pii_filter.DenylistMissing as e:
+        print(f"인제스트 중단: {e}", file=sys.stderr)
+        return 2
     kept, dropped = [], []
     for c in chunks:
         findings = pii_filter.scan(f"{c.breadcrumb}\n{c.body}", s.public_emails, denylist)

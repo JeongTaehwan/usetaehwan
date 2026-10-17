@@ -3,12 +3,12 @@
 import json
 from dataclasses import replace
 
+import psycopg
 import pytest
 from fastapi.testclient import TestClient
-from psycopg_pool import ConnectionPool
 
 from ask import store
-from ask.api import create_app
+from ask.api import create_app, make_pool
 from ask.config import Settings
 from ask.embed import HashEmbedder
 from ask.ingest import chunk
@@ -59,9 +59,12 @@ def make_client(conn, db_url_and_schema):
     conn.commit()
     clients = []
 
-    def make(**overrides):
-        pool = ConnectionPool(
-            url, min_size=1, max_size=2, open=False, kwargs={"options": f"-c search_path={schema},public"}
+    def make(check: bool = True, **overrides):
+        pool = make_pool(
+            url,
+            max_size=2,
+            kwargs={"options": f"-c search_path={schema},public", "application_name": f"ask-test-{schema}"},
+            check=check,
         )
         app = create_app(replace(BASE, **overrides), llm=FakeLLM(), embedder=emb, pool=pool)
         c = TestClient(app)
@@ -159,3 +162,38 @@ def test_status_and_health(make_client):
     assert c.get("/healthz").json() == {"ok": True}
     st = c.get("/status").json()
     assert st["remaining"] == 300 and st["llm"] == "fake" and st["embedder"].startswith("hash-ngram")
+
+
+def _kill_pool_connections(conn, schema: str) -> int:
+    """Neon이 쉬는 연결을 끊는 상황을 흉내 낸다 — 풀이 연 백엔드를 서버 쪽에서 종료한다."""
+    rows = conn.execute(
+        "select pg_terminate_backend(pid) from pg_stat_activity where application_name = %s",
+        (f"ask-test-{schema}",),
+    ).fetchall()
+    conn.commit()
+    return len(rows)
+
+
+@pytest.mark.parametrize("check", [True, False])
+def test_pool_survives_server_closed_connection(make_client, conn, db_url_and_schema, check):
+    """check=True(운영 설정)면 끊긴 연결을 버리고 새로 열어 200. 끄면 첫 요청이 실패한다 — 버그 재현 (D-23)."""
+    _, schema = db_url_and_schema
+    c = make_client(check=check)
+    assert c.get("/status").status_code == 200
+    assert _kill_pool_connections(conn, schema) >= 1
+
+    if check:
+        assert c.get("/status").status_code == 200
+    else:
+        with pytest.raises(psycopg.OperationalError):
+            c.get("/status")
+
+
+def test_server_never_reads_denylist(make_client, monkeypatch, tmp_path):
+    """denylist는 인제스트 전용이다. Railway 이미지에 파일이 없어도(경로만 남아 있어도) 서버는 뜨고 답한다 (D-33)."""
+    monkeypatch.setenv("ASK_DENYLIST_PATH", str(tmp_path / "missing.txt"))
+    c = make_client(denylist_path=str(tmp_path / "missing.txt"))
+    assert c.get("/healthz").status_code == 200
+    assert c.get("/status").status_code == 200
+    r = c.post("/ask", json={"question": "결제 연동 경험 있어?"})
+    assert r.status_code == 200 and "event: answer" in r.text

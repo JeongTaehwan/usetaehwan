@@ -20,7 +20,20 @@ LEADING_CITES = re.compile(r"^((?:\[\d+(?:\s*,\s*\d+)*\]\s*)+)(.*)$", re.S)
 # 인용 없이 허용하는 문장 — "자료에 없다" 안내와 맺음말뿐. 목록을 늘릴 때는 테스트를 먼저 쓴다.
 NO_INFO = [
     re.compile(r"자료에(는|서)?\s?(나와\s?있지|찾을\s?수|없)"),
-    re.compile(r"not (in|covered by) the (provided )?(materials|sources)", re.I),
+    # "자료/출처/근거 + 에(는)/에서(는) … 없습니다·않습니다·못했습니다"처럼 자료에 없다고 말하는 문장 (D-29).
+    # "자료에 따르면 … 없습니다"는 자료를 근거로 한 사실 주장이라 제외하고, 인용을 요구한다.
+    re.compile(
+        r"(자료|출처|근거)(에는|에서는|에서|에)\s(?!따르면|보듯)"
+        r".*(없습니다|없어요|없다|않습니다|않아요|않다|못했습니다|못했어요)[.!]?\s*$"
+    ),
+    re.compile(
+        r"not (in|covered by|mentioned in|stated in|included in|described in) the (provided )?(materials|sources)", re.I
+    ),
+    re.compile(
+        r"\b(the |these )?(provided )?(sources|materials) (do not|don't|does not|doesn't) "
+        r"(mention|say|state|cover|include|specify|describe)",
+        re.I,
+    ),
 ]
 CLOSING = [
     re.compile(r"(더\s)?궁금한\s?(점|게|것)"),

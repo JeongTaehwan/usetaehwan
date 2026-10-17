@@ -1,0 +1,57 @@
+# 홀드아웃 질문셋 — 조정(측정 수정·k·ASK_MIN_SCORE)에 쓰지 않은 질문으로 마지막에 한 번만 확인한다.
+#
+# 2026-10-17, tuned-gemini 실행 **전**에 만들어 커밋했다. 조정 중에는 이 파일로 평가를 돌리지 않는다.
+# 형식은 questions.yaml과 같다. 기대 출처는 Neon 코퍼스에서 본문을 읽고 정했다.
+# no_answer 주제는 코퍼스에 없음을 확인했다 (2026-10-17: AWS·Lambda·MongoDB·Elasticsearch 0건).
+
+- id: h01
+  type: single
+  question: 카페24 판매채널 OAuth 연동은 어떻게 구현했어?
+  expect: answer
+  sources: [home#exp-4|resume#jobs~5]
+
+- id: h02
+  type: single
+  question: Gak에서 외부 데이터 API의 하루 호출 한도는 어떻게 다뤘어?
+  expect: answer
+  sources: [project:gak#case-1|project:gak#feature-1|resume#case-gak]
+  numbers: ["100"]
+
+- id: h03
+  type: single
+  lang: en
+  question: In 오늘어디, how did he stop the AI from inventing source links?
+  expect: answer
+  sources: [project:oneureodi#case-2|resume#case-oneureodi]
+
+- id: h04
+  type: single
+  question: Orbit에서 행성 진행도와 스트릭이 실제 기록과 어긋나는 문제는 어떻게 막았어?
+  expect: answer
+  sources: [project:orbit#case-2|resume#case-orbit]
+
+- id: h05
+  type: no_answer
+  question: AWS Lambda로 서버리스 백엔드를 만들어 본 적 있어?
+  expect: no_evidence
+
+- id: h06
+  type: no_answer
+  question: MongoDB나 Elasticsearch를 실무에서 써 본 경험이 있어?
+  expect: no_evidence
+
+- id: h07
+  type: multi
+  question: 회사와 개인 프로젝트에서 배포 파이프라인을 각각 어떻게 구성했어?
+  expect: answer
+  sources:
+    - home#exp-5
+    - project:orbit#case-3|project:orbit#feature-4|resume#case-orbit
+
+- id: h08
+  type: multi
+  question: 로직을 순수 함수로 떼어 내서 테스트한 개인 프로젝트를 알려줘
+  expect: answer
+  sources:
+    - project:zzokzzok#case-2|project:zzokzzok#feature-4
+    - project:oneureodi#feature-4

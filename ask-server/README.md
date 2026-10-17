@@ -40,12 +40,13 @@ uv run python -m ask.eval --label baseline       # 평가 → docs/ask/eval-repo
    `ASK_MIN_SCORE`(검색 점수 하한, 기본 0.15)는 해시 임베더 기준값이다. 실제 임베더로 바꾸면 다시 맞춘다.
 4. 원자료 `eval/runs/*.json`의 `pairs` 중 20쌍을 사람이 검수해서, 심사와 얼마나 일치하는지 함께 기록한다.
 
-> Voyage·Gemini 어댑터와 Anthropic 어댑터는 아직 실제 키로 한 번도 호출하지 않았다. 첫 실행에서 요청·응답 형태를 확인한다.
+> Gemini·Anthropic 어댑터는 2026-10-17 첫 실호출에서 요청·응답 형태를 확인했다(Gemini 무료 등급 429 → D-22). Voyage 어댑터는 아직 실제 키로 호출하지 않았다.
 
-## 배포 (Railway)
+## 배포 (Railway + Vercel)
 
-- Root directory를 `ask-server`로 둔다. `Dockerfile`과 `railway.json`(헬스체크 `/healthz`)을 쓴다.
-- 환경변수: `DATABASE_URL`(Neon, pgvector 확장), `ASK_LLM=anthropic`, `ASK_EMBEDDER=voyage`, 키, `ASK_PROXY_SECRET`, `ASK_IP_HASH_SECRET`.
-- 서버는 뜰 때 마이그레이션을 돌린다(전부 `if not exists`). 인제스트는 로컬에서 운영 `DATABASE_URL`로 실행한다.
-- Vercel 쪽 환경변수: `ASK_API_URL`(Railway URL), `ASK_PROXY_SECRET`(같은 값).
-- Anthropic 콘솔에서 워크스페이스 월 지출 한도를 건다(design §6).
+절차·환경변수 전체 목록·배포 후 확인 순서는 [`docs/ask/deploy.md`](../docs/ask/deploy.md)에 있다. 요점만:
+
+- Root Directory `/ask-server`, 빌더 Dockerfile, 헬스체크 `/healthz`, 리전 싱가포르, 레플리카 1 — **대시보드에서 직접 설정**한다(Config as Code는 Railway에서 지원 중단, D-26 변경).
+- **필수 — Gemini 결제 활성화**(D-22), Anthropic 월 지출 한도.
+- 인제스트는 로컬에서 운영 `DATABASE_URL`로 실행한다. 그 전에 `denylist.txt`(gitignore됨)를 채운다.
+- Vercel에는 `ASK_API_URL`·`ASK_PROXY_SECRET`을 넣고 **재배포**한다(패널 표시 여부가 빌드 시점에 정해짐).

@@ -12,6 +12,7 @@ import logging
 import time
 from collections.abc import Iterator
 from contextlib import asynccontextmanager
+from urllib.parse import urlparse
 
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.responses import JSONResponse, StreamingResponse
@@ -19,7 +20,7 @@ from psycopg_pool import ConnectionPool
 from pydantic import BaseModel, Field, field_validator
 
 from . import guard, store
-from .config import Settings, get_settings
+from .config import ConfigError, Settings, check_production, get_settings
 from .embed import make_embedder
 from .graph.build import Deps, build_graph
 from .llm import make_llm
@@ -45,11 +46,24 @@ def sse(event: str, data: dict) -> str:
     return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
 
 
+def make_pool(url: str, *, max_size: int = 4, kwargs: dict | None = None, check: bool = True) -> ConnectionPool:
+    """Neon은 쉬는 연결을 서버 쪽에서 끊는다. 풀이 끊긴 연결을 그대로 내주면 그 요청이 500이 된다.
+    그래서 내주기 전에 살아 있는지 확인하고, 죽었으면 버리고 새로 연다 (D-23)."""
+    return ConnectionPool(
+        url,
+        min_size=1,
+        max_size=max_size,
+        open=False,
+        kwargs=kwargs,
+        check=ConnectionPool.check_connection if check else None,
+    )
+
+
 def create_app(settings: Settings | None = None, *, llm=None, embedder=None, pool: ConnectionPool | None = None):
     s = settings or get_settings()
     llm = llm or make_llm(s.llm, s.anthropic_model)
     embedder = embedder or make_embedder(s.embedder)
-    pool = pool or ConnectionPool(s.database_url, min_size=1, max_size=4, open=False)
+    pool = pool or make_pool(s.database_url)
     minute = guard.MinuteWindow(s.per_ip_per_minute)
 
     def search(question: str):
@@ -169,4 +183,27 @@ def create_app(settings: Settings | None = None, *, llm=None, embedder=None, poo
 
 
 def app_factory() -> FastAPI:  # uvicorn ask.api:app_factory --factory
-    return create_app()
+    """서버 진입점. 운영 모드에서 비밀이 빠졌으면 앱을 만들기 전에 ConfigError로 멈춘다 (D-27).
+
+    예외를 그대로 올리면 uvicorn 내부 traceback 40줄 밑에 메시지가 묻힌다. 그래서 메시지만 찍고 종료 코드 1로 끝낸다.
+    Railway는 헬스체크 실패로 배포를 실패 처리하고, 이전 배포가 계속 트래픽을 받는다.
+    """
+    server_log = logging.getLogger("uvicorn.error")
+    s = get_settings()
+    try:
+        mode, reason = check_production(s)
+    except ConfigError as e:
+        server_log.critical("%s", e)
+        raise SystemExit(1) from None
+    db_host = urlparse(s.database_url).hostname or "?"
+    server_log.info(
+        "ask-server mode=%s (%s) · db=%s · llm=%s · embedder=%s · top_k=%d · min_score=%.2f",
+        mode,
+        reason,
+        db_host,
+        s.llm,
+        s.embedder,
+        s.top_k,
+        s.min_score,
+    )
+    return create_app(s)

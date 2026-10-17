@@ -1,11 +1,13 @@
+import json
 import os
 import subprocess
 import sys
 
+import httpx
 import pytest
 
 from ask import store
-from ask.embed import HashEmbedder
+from ask.embed import GeminiEmbedder, HashEmbedder
 from ask.ingest import chunk, pii_filter
 from ask.retrieve import retrieve
 
@@ -46,6 +48,35 @@ def test_filter_catches(text, rule):
 )
 def test_filter_passes_ordinary_text(text):
     assert pii_filter.scan(text, PUBLIC) == []
+
+
+def test_denylist_from_env_list_and_file_are_merged(tmp_path):
+    """CI 시크릿처럼 파일을 둘 수 없는 곳은 ASK_DENYLIST(쉼표 구분)로 넘긴다 (D-33)."""
+    f = tmp_path / "deny.txt"
+    f.write_text("# 주석\n가상고객사\n")
+    terms = pii_filter.load_denylist(str(f), ("다른고객사", " 가상고객사 ", ""))
+    assert terms == ["다른고객사", "가상고객사"]
+    assert [x.rule for x in pii_filter.scan("다른고객사 주문 화면", PUBLIC, terms)] == ["denylist"]
+
+
+def test_denylist_env_only_needs_no_file():
+    assert pii_filter.load_denylist(None, ("가상고객사",)) == ["가상고객사"]
+
+
+def test_denylist_path_set_but_missing_fails_loudly(tmp_path):
+    """경로를 지정했는데 파일이 없으면 조용히 건너뛰지 않는다 — 필터가 꺼진 채 DB에 들어가면 안 된다."""
+    with pytest.raises(pii_filter.DenylistMissing, match="ASK_DENYLIST"):
+        pii_filter.load_denylist(str(tmp_path / "none.txt"))
+
+
+def test_ingest_stops_with_message_when_denylist_file_missing(tmp_path, monkeypatch, capsys):
+    from ask.ingest.__main__ import main
+
+    corpus = tmp_path / "corpus.json"
+    corpus.write_text(json.dumps(CORPUS, ensure_ascii=False))
+    monkeypatch.setenv("ASK_DENYLIST_PATH", str(tmp_path / "none.txt"))
+    assert main(["--corpus", str(corpus), "--dry-run"]) == 2
+    assert "인제스트 중단" in capsys.readouterr().err
 
 
 def test_denylist_hides_term_in_report(tmp_path):
@@ -132,6 +163,58 @@ def test_hash_embedder_prefers_lexical_overlap():
         return sum(x * y for x, y in zip(a, b, strict=True))
 
     assert dot(q, near) > dot(q, far)
+
+
+# ───────── Gemini 429 재시도 (D-22) ─────────
+
+GEMINI_429 = {
+    "error": {
+        "code": 429,
+        "status": "RESOURCE_EXHAUSTED",
+        "details": [{"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": "18s"}],
+    }
+}
+
+
+def _gemini(statuses: list[int]) -> tuple[GeminiEmbedder, list[float], list[int]]:
+    """statuses 순서대로 응답하는 가짜 Gemini. 기다린 시간과 호출 횟수를 함께 돌려준다."""
+    waits: list[float] = []
+    calls: list[int] = []
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        status = statuses[len(calls)]
+        calls.append(status)
+        if status == 429:
+            return httpx.Response(429, json=GEMINI_429)
+        n = len(json.loads(req.content)["requests"])
+        return httpx.Response(200, json={"embeddings": [{"values": [3.0, 4.0]} for _ in range(n)]})
+
+    e = GeminiEmbedder("test-key", dim=2, transport=httpx.MockTransport(handler), sleep=waits.append)
+    return e, waits, calls
+
+
+def test_gemini_document_retries_after_429_with_retry_info():
+    e, waits, calls = _gemini([200, 429, 200])
+    e.batch = 2
+    out = e.embed(["a", "b", "c"], "document")
+    assert calls == [200, 429, 200]
+    assert waits == [19.0]  # retryDelay 18s + 1초 여유
+    assert out == [[0.6, 0.8]] * 3
+
+
+def test_gemini_query_does_not_wait_on_429():
+    """질의는 방문자 요청 안에서 돌아서 기다리지 않고 바로 실패한다."""
+    e, waits, calls = _gemini([429])
+    with pytest.raises(httpx.HTTPStatusError):
+        e.embed(["q"], "query")
+    assert (waits, calls) == ([], [429])
+
+
+def test_gemini_document_gives_up_after_max_retries():
+    e, waits, _ = _gemini([429] * (GeminiEmbedder.MAX_RETRIES + 1))
+    with pytest.raises(httpx.HTTPStatusError):
+        e.embed(["a"], "document")
+    assert len(waits) == GeminiEmbedder.MAX_RETRIES
 
 
 # ───────── pgvector (실제 DB) ─────────
