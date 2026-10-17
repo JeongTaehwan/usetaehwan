@@ -30,12 +30,27 @@ class Finding:
     match: str
 
 
-def load_denylist(path: str | None) -> list[str]:
-    """고객사 실명 등 — 목록 자체가 기밀이라 저장소 밖 파일에서 읽는다. 한 줄에 하나, #은 주석."""
-    if not path:
-        return []
-    lines = Path(path).read_text().splitlines()
-    return [t.strip() for t in lines if t.strip() and not t.strip().startswith("#")]
+class DenylistMissing(Exception):
+    """경로를 지정했는데 파일이 없다 — 조용히 건너뛰면 고객사명이 걸러지지 않은 채 DB에 들어간다."""
+
+
+def load_denylist(path: str | None, inline: tuple[str, ...] = ()) -> list[str]:
+    """고객사 실명 등 — 목록 자체가 기밀이라 커밋하지 않는다 (D-18, D-33).
+
+    - 파일(ASK_DENYLIST_PATH): 한 줄에 하나, #은 주석. 로컬 인제스트용.
+    - 환경변수(ASK_DENYLIST): 쉼표 구분. 파일을 둘 수 없는 곳(CI 시크릿 등)용.
+    둘 다 주면 합친다. 경로를 지정했는데 파일이 없으면 실패한다 — 필터가 꺼진 채 도는 것보다 낫다.
+    """
+    terms = [t.strip() for t in inline if t.strip()]
+    if path:
+        if not Path(path).is_file():
+            raise DenylistMissing(
+                f"ASK_DENYLIST_PATH={path} 파일이 없습니다. 파일을 만들거나, 목록을 ASK_DENYLIST(쉼표 구분)로 넘기거나,"
+                " 쓰지 않으려면 ASK_DENYLIST_PATH를 비우세요."
+            )
+        lines = Path(path).read_text().splitlines()
+        terms += [t.strip() for t in lines if t.strip() and not t.strip().startswith("#")]
+    return list(dict.fromkeys(terms))
 
 
 def scan(text: str, public_emails: tuple[str, ...] = (), denylist: list[str] | None = None) -> list[Finding]:

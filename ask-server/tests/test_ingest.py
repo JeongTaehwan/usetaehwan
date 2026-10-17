@@ -50,6 +50,35 @@ def test_filter_passes_ordinary_text(text):
     assert pii_filter.scan(text, PUBLIC) == []
 
 
+def test_denylist_from_env_list_and_file_are_merged(tmp_path):
+    """CI 시크릿처럼 파일을 둘 수 없는 곳은 ASK_DENYLIST(쉼표 구분)로 넘긴다 (D-33)."""
+    f = tmp_path / "deny.txt"
+    f.write_text("# 주석\n가상고객사\n")
+    terms = pii_filter.load_denylist(str(f), ("다른고객사", " 가상고객사 ", ""))
+    assert terms == ["다른고객사", "가상고객사"]
+    assert [x.rule for x in pii_filter.scan("다른고객사 주문 화면", PUBLIC, terms)] == ["denylist"]
+
+
+def test_denylist_env_only_needs_no_file():
+    assert pii_filter.load_denylist(None, ("가상고객사",)) == ["가상고객사"]
+
+
+def test_denylist_path_set_but_missing_fails_loudly(tmp_path):
+    """경로를 지정했는데 파일이 없으면 조용히 건너뛰지 않는다 — 필터가 꺼진 채 DB에 들어가면 안 된다."""
+    with pytest.raises(pii_filter.DenylistMissing, match="ASK_DENYLIST"):
+        pii_filter.load_denylist(str(tmp_path / "none.txt"))
+
+
+def test_ingest_stops_with_message_when_denylist_file_missing(tmp_path, monkeypatch, capsys):
+    from ask.ingest.__main__ import main
+
+    corpus = tmp_path / "corpus.json"
+    corpus.write_text(json.dumps(CORPUS, ensure_ascii=False))
+    monkeypatch.setenv("ASK_DENYLIST_PATH", str(tmp_path / "none.txt"))
+    assert main(["--corpus", str(corpus), "--dry-run"]) == 2
+    assert "인제스트 중단" in capsys.readouterr().err
+
+
 def test_denylist_hides_term_in_report(tmp_path):
     f = tmp_path / "deny.txt"
     f.write_text("# 주석\n가상고객사\n")

@@ -49,6 +49,9 @@ jobs:
       - run: npx tsx scripts/ask-corpus.ts "$RUNNER_TEMP/corpus.json"
       - uses: astral-sh/setup-uv@v6
       - working-directory: ask-server
+        # 고객사명 목록은 저장소에 없다 — 리포지토리 시크릿 ASK_DENYLIST(쉼표 구분)가 있으면 함께 검사한다 (D-33)
+        env:
+          ASK_DENYLIST: ${{ secrets.ASK_DENYLIST }}
         run: uv sync --frozen && uv run python -m ask.ingest --corpus "$RUNNER_TEMP/corpus.json" --dry-run --strict
 
   docker:

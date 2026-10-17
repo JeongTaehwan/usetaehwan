@@ -187,3 +187,13 @@ def test_pool_survives_server_closed_connection(make_client, conn, db_url_and_sc
     else:
         with pytest.raises(psycopg.OperationalError):
             c.get("/status")
+
+
+def test_server_never_reads_denylist(make_client, monkeypatch, tmp_path):
+    """denylist는 인제스트 전용이다. Railway 이미지에 파일이 없어도(경로만 남아 있어도) 서버는 뜨고 답한다 (D-33)."""
+    monkeypatch.setenv("ASK_DENYLIST_PATH", str(tmp_path / "missing.txt"))
+    c = make_client(denylist_path=str(tmp_path / "missing.txt"))
+    assert c.get("/healthz").status_code == 200
+    assert c.get("/status").status_code == 200
+    r = c.post("/ask", json={"question": "결제 연동 경험 있어?"})
+    assert r.status_code == 200 and "event: answer" in r.text
