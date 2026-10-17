@@ -1,3 +1,5 @@
+import pytest
+
 from ask.graph.citations import cited_numbers, salvage, split_sentences, verify
 
 EVIDENCE = [
@@ -76,3 +78,38 @@ def test_salvage_returns_none_when_nothing_survives():
 
 def test_cited_numbers_in_order():
     assert cited_numbers("a[2] b[1][2] c[3, 1]") == [2, 1, 3]
+
+
+# ───────── "자료에 없음" 문장 확장 (D-29) — 기준선 v1에서 걸린 실제 문장 ─────────
+
+NO_INFO_SEEN_IN_V1 = [
+    # q19: 이 문장이 uncited로 걸려 재생성·fallback까지 갔다
+    "제공된 자료에는 Redis 캐시를 설계한 경험에 대한 내용은 없습니다.",
+    # q14
+    "정태환이 이 프로젝트에서 맡은 역할에 대해서는 제공된 자료에 정보가 없습니다.",
+    # q02
+    "다만 이 답변의 출처에는 각 검증 단계별 구체적인 구현 코드는 없습니다.",
+    "그 시점의 커버리지 수치는 근거에서 확인되지 않습니다.",
+    "The sources do not mention his role in this project.",
+    "His role is not stated in the provided sources.",
+]
+
+
+@pytest.mark.parametrize("sentence", NO_INFO_SEEN_IN_V1)
+def test_r2_allows_no_info_sentences_seen_in_v1(sentence):
+    assert rules(f"PayPal을 연동했습니다[1]. {sentence}") == []
+
+
+@pytest.mark.parametrize(
+    "sentence",
+    [
+        # 사실 주장은 부정문이어도 인용이 있어야 한다
+        "정태환은 Redis를 쓰지 않았습니다.",
+        "자료에 따르면 장애는 한 번도 없습니다.",
+        "출처에서 보듯 그는 테스트를 빠뜨리지 않습니다.",
+        "The project does not use Redis.",
+        "According to the sources, he does not use Kafka.",
+    ],
+)
+def test_r2_still_flags_negative_fact_claims(sentence):
+    assert rules(f"PayPal을 연동했습니다[1]. {sentence}") == ["uncited"]

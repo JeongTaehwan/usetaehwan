@@ -57,8 +57,20 @@ class LLM(Protocol):
     ) -> tuple[str, Usage]: ...
 
 
+KO_TOKEN_RATIO = 0.3
+
+
 def detect_lang(text: str) -> Lang:
-    return "ko" if re.search(r"[가-힣]", text) else "en"
+    """한글이 든 낱말의 비율로 판정한다 (D-30).
+
+    한글이 한 글자라도 있으면 ko로 보던 방식은, 영어 답에 들어간 고유명사(정태환·오늘어디) 때문에 틀렸다.
+    반대로 기술 용어가 많은 한국어 문장("PayPal approve, confirm, capture까지")도 있어서, 문턱은 낮게 둔다.
+    """
+    words = re.findall(r"[가-힣A-Za-z][\w가-힣'-]*", text)
+    if not words:
+        return "en"
+    ko = sum(1 for w in words if re.search(r"[가-힣]", w))
+    return "ko" if ko / len(words) >= KO_TOKEN_RATIO else "en"
 
 
 # ───────── Anthropic ─────────

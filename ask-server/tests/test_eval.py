@@ -88,3 +88,72 @@ def test_runs_one_keeps_single_judge_behaviour():
     j = MajorityJudge(inner, runs=1)
     assert j.name == "scripted"
     assert j.vote(["p"], []) == ([[False]], Usage("judge", "claude-sonnet-5-5", 1000, 100).cost_usd)
+
+
+# ───────── 언어 판정 (D-30) ─────────
+
+
+@pytest.mark.parametrize(
+    ("text", "lang"),
+    [
+        # v1에서 ko로 잘못 판정된 영어 답 (q11·q16)
+        ("The best email address to contact 정태환 (Taehwan) is kt26625417@gmail.com[1].", "en"),
+        (
+            "Three of 정태환's projects are built with Expo: 오늘어디 (a date-course recommendation app)[3], "
+            "쪽쪽 (a feeding-record app)[6], and 끼니 (a dinner-menu app)[7].",
+            "en",
+        ),
+        ("In 오늘어디, how did he stop the AI from inventing source links?", "en"),
+        # 기술 용어가 많은 한국어
+        ("PayPal 주문 생성부터 approve, confirm, capture까지 전 구간을 연동했습니다[1].", "ko"),
+        ("Gak에서 LLM 응답을 어떻게 검증했어?", "ko"),
+        ("Next.js rewrites로 /api 프록시를 두어 same-origin 요청이 되게 했습니다.", "ko"),
+        ("이 사람 결제 연동 경험 있어?", "ko"),
+        ("What is the best email address to contact him?", "en"),
+        ("", "en"),
+    ],
+)
+def test_detect_lang_uses_hangul_word_ratio(text, lang):
+    from ask.llm import detect_lang
+
+    assert detect_lang(text) == lang
+
+
+# ───────── 심사 입력 (D-28) ─────────
+
+
+def test_judge_sees_title_and_site_context_like_the_generator():
+    """v1 심사는 본문만 받아 '정태환은…', 'Orbit에서…' 같은 귀속을 오판했다."""
+    from types import SimpleNamespace
+
+    from ask.eval.judge import AnthropicJudge
+    from ask.graph import prompts
+
+    sent = {}
+
+    class FakeMessages:
+        def create(self, **kw):
+            sent.update(kw)
+            text = '{"verdicts":[{"i":0,"supported":true}]}'
+            return SimpleNamespace(
+                content=[SimpleNamespace(type="text", text=text)],
+                usage=SimpleNamespace(input_tokens=1, output_tokens=1),
+                stop_reason="end_turn",
+            )
+
+    j = AnthropicJudge.__new__(AnthropicJudge)
+    j.client = SimpleNamespace(beta=SimpleNamespace(messages=FakeMessages()))
+    ev = [
+        Hit(
+            "project:orbit#feature-4", "project:orbit", "프로젝트 Orbit", "인증 · 배포", "/p", "a", "Neon으로 이전", 0.7
+        )
+    ]
+    from ask.eval.judge import Pair
+
+    verdicts, _ = j.judge([Pair("q14", "Orbit에서 Neon으로 이전했습니다[1].", (1,), ("x",))], ev)
+
+    user = sent["messages"][0]["content"]
+    assert prompts.sources_block(ev) in user
+    assert 'title="프로젝트 Orbit › 인증 · 배포"' in user
+    assert "정태환" in sent["system"] and "title" in sent["system"]
+    assert verdicts == [True]

@@ -182,7 +182,8 @@ def evaluate(q: dict, st: dict, raw: list[Hit], latency: float, judge) -> dict:
         ev = st.get("evidence", [])
         for sent in citations.split_sentences(answer):
             if sent.cites and all(1 <= c <= len(ev) for c in sent.cites):
-                pairs.append(Pair(q["id"], sent.text, sent.cites, tuple(ev[c - 1].body for c in sent.cites)))
+                srcs = tuple(f"{ev[c - 1].title} › {ev[c - 1].section}\n{ev[c - 1].body}" for c in sent.cites)
+                pairs.append(Pair(q["id"], sent.text, sent.cites, srcs))
         votes: list[list[bool | None]] = [[] for _ in pairs]
         if judge and pairs:
             votes, row["judge_cost_usd"] = judge.vote(pairs, ev)
