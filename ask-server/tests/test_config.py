@@ -15,13 +15,17 @@ from ask.config import (
     ConfigError,
     Settings,
     check_production,
+    env_presence,
     get_settings,
+    lookalike_env_names,
+    required_env,
     runtime_mode,
 )
 
-RAILWAY = {"RAILWAY_ENVIRONMENT_ID": "env-123"}
+RAILWAY = {"RAILWAY_ENVIRONMENT_ID": "env-123", "ANTHROPIC_API_KEY": "sk-test", "GEMINI_API_KEY": "g-test"}
 NEON = "postgresql://u:p@ep-x-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
-OK = Settings(database_url=NEON, proxy_secret="p" * 64, ip_hash_secret="h" * 64)
+OK = Settings(database_url=NEON, proxy_secret="p" * 64, ip_hash_secret="h" * 64, llm="anthropic", embedder="gemini")
+MODEL_KEYS = ("ANTHROPIC_API_KEY", "GEMINI_API_KEY", "VOYAGE_API_KEY")
 
 
 @pytest.mark.parametrize(
@@ -88,8 +92,9 @@ def test_app_factory_stops_before_building_the_app(monkeypatch):
 
 def test_uvicorn_exits_with_clear_message_in_production_without_secrets():
     """실제 시작 경로 — Dockerfile CMD와 같은 uvicorn --factory가 메시지를 찍고 0이 아닌 코드로 끝난다."""
-    env = {k: v for k, v in os.environ.items() if not k.startswith(("ASK_", "RAILWAY_"))}
-    env |= {"RAILWAY_ENVIRONMENT_ID": "env-123", "DATABASE_URL": NEON}
+    env = {k: v for k, v in os.environ.items() if not k.startswith(("ASK_", "RAILWAY_", *MODEL_KEYS))}
+    env |= {"RAILWAY_ENVIRONMENT_ID": "env-123", "DATABASE_URL": NEON, "ASK_LLM": "anthropic"}
+    env |= {"ASK_EMBEDDER": "gemini", "ANTHROPIC_API_KEY": "sk-test", "GEMINI_API_KEY": "g-test"}
     r = subprocess.run(
         [sys.executable, "-m", "uvicorn", "ask.api:app_factory", "--factory", "--port", "0"],
         cwd=SERVER_ROOT,
@@ -100,9 +105,12 @@ def test_uvicorn_exits_with_clear_message_in_production_without_secrets():
     )
     assert r.returncode != 0
     assert "서버를 시작하지 않습니다" in r.stderr
-    assert "ASK_PROXY_SECRET" in r.stderr and "ASK_IP_HASH_SECRET" in r.stderr
-    assert "DATABASE_URL" not in r.stderr
-    assert "Traceback" not in r.stderr  # 메시지가 traceback에 묻히지 않는다
+    assert "ASK_PROXY_SECRET이" in r.stderr and "ASK_IP_HASH_SECRET이" in r.stderr
+    assert "DATABASE_URL이" not in r.stderr  # DB는 문제없음
+    # 검사보다 먼저 있음/없음을 찍는다 — 값은 찍지 않는다
+    assert "env: DATABASE_URL=있음 · ASK_PROXY_SECRET=없음 · ASK_IP_HASH_SECRET=없음" in r.stderr
+    assert NEON not in r.stderr and "sk-test" not in r.stderr
+    assert "Traceback" not in r.stderr
 
 
 # ───────── DATABASE_URL (D-32) ─────────
@@ -149,3 +157,121 @@ def test_min_score_default_depends_on_embedder(monkeypatch, env, expected):
         monkeypatch.setenv(k, v)
     s = get_settings()
     assert (s.min_score, s.top_k) == (expected, 8)
+
+
+# ───────── 환경변수가 항상 이긴다 — 파일은 읽지 않는다 (D-32 변경) ─────────
+
+
+def test_package_never_loads_dotenv_files():
+    """Railway에서 'DATABASE_URL이 없습니다'가 났을 때 의심한 경로 — 코드가 .env를 읽어 실제 값을 덮는지."""
+    offenders = [
+        str(f.relative_to(SERVER_ROOT))
+        for f in (SERVER_ROOT / "ask").rglob("*.py")
+        if any(w in f.read_text() for w in ("dotenv", "env_file", "env_prefix", "BaseSettings"))
+    ]
+    assert offenders == []
+
+
+def _settings_in(cwd, extra_env):
+    env = {k: v for k, v in os.environ.items() if not k.startswith(("ASK_", "RAILWAY_", "DATABASE_URL", *MODEL_KEYS))}
+    env |= {"PYTHONPATH": str(SERVER_ROOT)} | extra_env
+    code = "\n".join(
+        [
+            "import os",
+            "from ask.config import get_settings, check_production",
+            "s = get_settings()",
+            "print(s.database_url == os.environ.get('DATABASE_URL'), s.database_url.startswith('postgresql://ask:ask@localhost'))",
+            "print(check_production(s)[0])",
+        ]
+    )
+    return subprocess.run([sys.executable, "-c", code], cwd=cwd, env=env, capture_output=True, text=True, timeout=30)
+
+
+def test_real_env_wins_over_empty_dotenv_files_in_cwd(tmp_path):
+    # 이미지 안에 빈 값의 .env/.env.example이 있어도(실제로는 .dockerignore로 빠진다) 환경변수가 쓰인다
+    (tmp_path / ".env").write_text("DATABASE_URL=\nASK_PROXY_SECRET=\nASK_IP_HASH_SECRET=\n")
+    (tmp_path / ".env.example").write_text("DATABASE_URL=postgresql://ask:ask@localhost:5433/ask\n")
+    prod = {**RAILWAY, "DATABASE_URL": NEON, "ASK_PROXY_SECRET": "p", "ASK_IP_HASH_SECRET": "h"}
+    prod |= {"ASK_LLM": "anthropic", "ASK_EMBEDDER": "gemini"}
+    r = _settings_in(tmp_path, prod)
+    assert r.returncode == 0, r.stderr
+    assert r.stdout.split() == ["True", "False", "production"]
+
+
+def test_dotenv_file_alone_is_ignored(tmp_path):
+    # 반대로 파일에만 값이 있으면 읽지 않는다 — 환경변수가 유일한 출처
+    (tmp_path / ".env").write_text(f"DATABASE_URL={NEON}\n")
+    r = _settings_in(tmp_path, {})
+    assert r.stdout.split() == ["False", "True", "development"]
+
+
+# ───────── 있음/없음 로그 (D-32 변경) ─────────
+
+
+def test_env_presence_reports_state_never_values():
+    environ = {"DATABASE_URL": NEON, "ASK_PROXY_SECRET": "   ", "ANTHROPIC_API_KEY": "sk-ant-secret"}
+    out = env_presence(("DATABASE_URL", "ASK_PROXY_SECRET", "ASK_IP_HASH_SECRET", "ANTHROPIC_API_KEY"), environ)
+    assert out == "DATABASE_URL=있음 · ASK_PROXY_SECRET=비어 있음 · ASK_IP_HASH_SECRET=없음 · ANTHROPIC_API_KEY=있음"
+    assert NEON not in out and "sk-ant-secret" not in out
+
+
+def test_required_env_follows_chosen_models():
+    assert required_env(OK)[-2:] == ("ANTHROPIC_API_KEY", "GEMINI_API_KEY")
+    assert required_env(replace(OK, llm="fake", embedder="hash")) == (
+        "DATABASE_URL",
+        "ASK_PROXY_SECRET",
+        "ASK_IP_HASH_SECRET",
+        "ASK_LLM",
+        "ASK_EMBEDDER",
+    )
+
+
+def test_lookalike_names_reveal_invisible_and_spelling_differences():
+    environ = {
+        "DATABASE_URL\u200b": "x",  # 보이지 않는 문자
+        "DATABASE_URL ": "x",  # 뒤 공백
+        "database_url": "x",
+        "DATABASE-URL": "x",
+        "PGHOST": "x",
+        "NEON_DATABASE_URL": "x",
+        "ASK_PROXY_SECRET": "x",
+    }
+    got = lookalike_env_names("DATABASE_URL", environ)
+    assert "'DATABASE_URL\\u200b'" in got and "'DATABASE_URL '" in got
+    assert {"'database_url'", "'DATABASE-URL'", "'PGHOST'", "'NEON_DATABASE_URL'"} <= set(got)
+    assert "'ASK_PROXY_SECRET'" not in got
+    assert lookalike_env_names("DATABASE_URL", {"DATABASE_URL": "x"}) == []
+
+
+def test_app_factory_logs_presence_and_lookalikes_before_failing(monkeypatch, caplog):
+    for k in [k for k in os.environ if k.startswith(("ASK_", "RAILWAY_", "DATABASE_URL", *MODEL_KEYS))]:
+        monkeypatch.delenv(k, raising=False)
+    monkeypatch.setenv("RAILWAY_ENVIRONMENT_ID", "env-123")
+    monkeypatch.setenv("DATABASE_URL\u200b", NEON)  # 이름에 보이지 않는 문자가 섞인 경우
+    monkeypatch.setenv("ASK_PROXY_SECRET", "secret-proxy-value")
+    caplog.set_level("INFO", logger="uvicorn.error")
+    with pytest.raises(SystemExit):
+        api.app_factory()
+    text = caplog.text
+    assert "env: DATABASE_URL=없음 · ASK_PROXY_SECRET=있음 · ASK_IP_HASH_SECRET=없음" in text
+    assert "RAILWAY_* 1개" in text
+    assert "비슷한 이름의 변수가 있습니다: 'DATABASE_URL\\u200b'" in text
+    assert "secret-proxy-value" not in text and NEON not in text
+
+
+# ───────── 모델 설정 (D-32 변경) ─────────
+
+
+@pytest.mark.parametrize(
+    ("overrides", "environ_drop", "needle"),
+    [
+        ({"llm": "fake"}, (), "ASK_LLM이 없거나 fake"),
+        ({"embedder": "hash"}, (), "ASK_EMBEDDER가 없거나 hash"),
+        ({}, ("ANTHROPIC_API_KEY",), "ANTHROPIC_API_KEY가 없습니다"),
+        ({}, ("GEMINI_API_KEY",), "GEMINI_API_KEY가 없습니다"),
+    ],
+)
+def test_production_refuses_fake_models_or_missing_keys(overrides, environ_drop, needle):
+    environ = {k: v for k, v in RAILWAY.items() if k not in environ_drop}
+    with pytest.raises(ConfigError, match=needle):
+        check_production(replace(OK, **overrides), environ)

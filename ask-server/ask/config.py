@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import os
+import re
+import unicodedata
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -94,8 +96,53 @@ def runtime_mode(environ: Mapping[str, str] = os.environ) -> tuple[Mode, str]:
     return "development", "ASK_ENV=development" if explicit else "Railway 변수·ASK_ENV 없음"
 
 
+EMBEDDER_KEYS = {"gemini": "GEMINI_API_KEY", "voyage": "VOYAGE_API_KEY"}
+REQUIRED_ENV = ("DATABASE_URL", "ASK_PROXY_SECRET", "ASK_IP_HASH_SECRET", "ASK_LLM", "ASK_EMBEDDER")
+
+
+def required_env(s: Settings) -> tuple[str, ...]:
+    """운영에 필요한 변수 이름. 키는 고른 모델에 따라 달라진다."""
+    names = list(REQUIRED_ENV)
+    if s.llm == "anthropic":
+        names.append("ANTHROPIC_API_KEY")
+    if key := EMBEDDER_KEYS.get(s.embedder):
+        names.append(key)
+    return tuple(names)
+
+
+def env_presence(names: tuple[str, ...], environ: Mapping[str, str] = os.environ) -> str:
+    """'이름=있음/비어 있음/없음'만 — 값은 길이조차 내보내지 않는다 (D-32 변경)."""
+
+    def state(n: str) -> str:
+        if n not in environ:
+            return "없음"
+        return "있음" if environ[n].strip() else "비어 있음"
+
+    return " · ".join(f"{n}={state(n)}" for n in names)
+
+
+def _norm_name(name: str) -> str:
+    return re.sub(r"[^A-Z0-9]", "", unicodedata.normalize("NFKC", name).upper())
+
+
+def lookalike_env_names(target: str, environ: Mapping[str, str] = os.environ) -> list[str]:
+    """target과 정확히 같지는 않은데 비슷한 이름(공백·보이지 않는 문자·대소문자·구분자 차이, DB 관련 이름).
+
+    이름만 돌려준다(ascii 표기라 보이지 않는 문자도 드러난다). 값은 보지 않는다.
+    """
+    want = _norm_name(target)
+    out = []
+    for name in environ:
+        if name == target:
+            continue
+        n = _norm_name(name)
+        if n == want or any(k in n for k in ("DATABASE", "POSTGRES", "NEON")) or n.startswith("PG"):
+            out.append(ascii(name))
+    return sorted(out)
+
+
 def check_production(s: Settings, environ: Mapping[str, str] = os.environ) -> tuple[Mode, str]:
-    """운영 모드면 비밀 두 개를 확인하고, 하나라도 문제면 무엇을 고칠지 적어 ConfigError를 낸다."""
+    """운영 모드면 DB·비밀·모델 설정을 확인하고, 하나라도 문제면 무엇을 고칠지 적어 ConfigError를 낸다."""
     mode, reason = runtime_mode(environ)
     if mode == "development":
         return mode, reason
@@ -103,9 +150,9 @@ def check_production(s: Settings, environ: Mapping[str, str] = os.environ) -> tu
     db_host = urlparse(s.database_url.strip()).hostname or ""
     if s.database_url == DEV_DATABASE_URL:
         problems.append(
-            "DATABASE_URL이 없습니다. 없으면 개발용 기본값(localhost:5433)으로 붙으려다"
-            " 30초 뒤 PoolTimeout으로 죽습니다 (D-32). 이 서비스의 변수에 Neon 연결 문자열을 넣고,"
-            " 변수 변경이 배포에 반영됐는지 확인하세요."
+            "DATABASE_URL이 없습니다. 이 프로세스의 환경변수에 그 이름이 없어서 개발용 기본값(localhost:5433)으로"
+            " 떨어졌습니다 (D-32). 코드는 파일(.env)을 읽지 않고 환경변수만 읽습니다 — 위 'env:' 줄과"
+            " 비슷한 이름 경고를 보고, 플랫폼이 이 서비스·이 환경에 변수를 실제로 넣는지 확인하세요."
         )
     elif not db_host or db_host in LOCAL_HOSTS:
         problems.append(
@@ -122,6 +169,18 @@ def check_production(s: Settings, environ: Mapping[str, str] = os.environ) -> tu
             "ASK_IP_HASH_SECRET이 비었거나 개발용 기본값입니다. 기본값은 저장소에 공개돼 있어서,"
             " IPv4 전체를 대입하면 해시에서 IP를 되찾을 수 있습니다 (D-19). 임의의 긴 값을 넣으세요."
         )
+    if s.llm == "fake":
+        problems.append(
+            "ASK_LLM이 없거나 fake입니다. 방문자에게 규칙 기반 가짜 LLM으로 답하게 됩니다. anthropic을 넣으세요."
+        )
+    elif s.llm == "anthropic" and not environ.get("ANTHROPIC_API_KEY", "").strip():
+        problems.append("ANTHROPIC_API_KEY가 없습니다 (ASK_LLM=anthropic).")
+    if s.embedder == "hash":
+        problems.append(
+            "ASK_EMBEDDER가 없거나 hash입니다. 인제스트한 임베더(gemini)와 다르면 검색이 0건입니다. gemini를 넣으세요."
+        )
+    elif (key := EMBEDDER_KEYS.get(s.embedder)) and not environ.get(key, "").strip():
+        problems.append(f"{key}가 없습니다 (ASK_EMBEDDER={s.embedder}). 없으면 앱을 만들다 KeyError로 죽습니다.")
     if problems:
         lines = "\n".join(f"  - {p}" for p in problems)
         raise ConfigError(
