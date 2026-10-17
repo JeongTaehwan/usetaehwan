@@ -67,6 +67,7 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="python -m ask.eval")
     ap.add_argument("--label", default="run")
     ap.add_argument("--judge", choices=["none", "anthropic"], default="none")
+    ap.add_argument("--questions", type=Path, default=QUESTIONS, help="질문셋 (기본 eval/questions.yaml)")
     ap.add_argument("--only", help="질문 id 쉼표 목록")
     ap.add_argument("--no-report", action="store_true", help="eval-report.md에 쓰지 않는다")
     args = ap.parse_args(argv)
@@ -80,7 +81,7 @@ def main(argv: list[str] | None = None) -> int:
 
         judge = AnthropicJudge()
 
-    questions = yaml.safe_load(QUESTIONS.read_text())
+    questions = yaml.safe_load(args.questions.read_text())
     if args.only:
         wanted = set(args.only.split(","))
         questions = [q for q in questions if q["id"] in wanted]
@@ -116,6 +117,7 @@ def main(argv: list[str] | None = None) -> int:
         "min_score": s.min_score,
         "judge": judge.name if judge else "none",
         "questions": len(rows),
+        "question_set": args.questions.name,
     }
     RUNS.mkdir(parents=True, exist_ok=True)
     run_path = RUNS / f"{datetime.now().strftime('%Y%m%d-%H%M%S')}-{args.label}.json"
@@ -244,7 +246,8 @@ def render(meta: dict, summary: dict, rows: list[dict], run_path: Path, csv_path
         ),
         "",
         f"`commit {meta['commit']}` · llm `{meta['llm']}` · embedder `{meta['embedder']}` · "
-        f"top_k {meta['top_k']} · min_score {meta['min_score']} · judge `{meta['judge']}` · 문항 {meta['questions']}",
+        f"top_k {meta['top_k']} · min_score {meta['min_score']} · judge `{meta['judge']}` · "
+        f"질문셋 `{meta.get('question_set', 'questions.yaml')}` · 문항 {meta['questions']}",
         "",
         "| 지표 | 값 |",
         "|---|---|",
