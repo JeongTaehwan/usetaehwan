@@ -39,7 +39,8 @@ def _csv(name: str) -> tuple[str, ...]:
 
 @dataclass(frozen=True)
 class Settings:
-    database_url: str = field(default_factory=lambda: os.environ.get("DATABASE_URL", DEV_DATABASE_URL))
+    # 앞뒤 공백·줄바꿈은 걷어 낸다 — 붙은 채로는 libpq가 URI로 읽지 못한다 (D-38)
+    database_url: str = field(default_factory=lambda: os.environ.get("DATABASE_URL", DEV_DATABASE_URL).strip())
     llm: str = field(default_factory=lambda: os.environ.get("ASK_LLM", "fake"))  # fake | anthropic
     embedder: str = field(default_factory=lambda: os.environ.get("ASK_EMBEDDER", "hash"))  # hash | voyage | gemini
     anthropic_model: str = field(default_factory=lambda: os.environ.get("ASK_ANTHROPIC_MODEL", "claude-haiku-5-5"))
@@ -141,24 +142,62 @@ def lookalike_env_names(target: str, environ: Mapping[str, str] = os.environ) ->
     return sorted(out)
 
 
+def database_url_problem(value: str, environ: Mapping[str, str] = os.environ) -> str | None:
+    """운영 DATABASE_URL의 문제를 "없음 / 비어 있음 / 있지만 형식이 잘못됨 / 있지만 로컬 주소"로 가른다 (D-38).
+
+    예전 검사는 이름이 있는지 보지 않고, 값이 개발용 기본값과 같으면 "없음"으로 추론했다. 그래서 값이
+    .env.example의 로컬 주소와 같을 때 'env: DATABASE_URL=있음'과 '이름이 없습니다'가 함께 찍혔다.
+    메시지에는 값을 넣지 않는다. 호스트는 URL로 제대로 읽혔을 때만 넣는다.
+    """
+    if value == DEV_DATABASE_URL and "DATABASE_URL" not in environ:
+        return (
+            "DATABASE_URL이 없습니다. 이 프로세스의 환경변수에 그 이름이 없어서 개발용 기본값(localhost:5433)으로"
+            " 떨어졌습니다 (D-32). 코드는 파일(.env)을 읽지 않고 환경변수만 읽습니다 — 위 'env:' 줄과"
+            " 비슷한 이름 경고를 보고, 플랫폼이 이 서비스·이 환경에 변수를 실제로 넣는지 확인하세요."
+        )
+    if not value:
+        return "DATABASE_URL이 비어 있습니다. 이름은 있지만 값이 없습니다. Neon 연결 문자열을 넣으세요."
+    invalid = "DATABASE_URL은 있지만 형식이 잘못됐습니다"
+    if value[0] in "\"'":
+        return f"{invalid}: 값이 따옴표로 감싸져 있습니다. 따옴표 없이 연결 문자열만 넣으세요."
+    if value.upper().startswith("DATABASE_URL="):
+        return f"{invalid}: 값 앞에 'DATABASE_URL='이 붙어 있습니다. 값 칸에는 연결 문자열만 넣으세요."
+    if value.lower().startswith("psql"):
+        return f"{invalid}: psql 명령째 붙여 넣었습니다. Neon 콘솔에서 연결 문자열(postgresql://…)만 복사하세요."
+    url = urlparse(value)
+    if url.scheme not in ("postgresql", "postgres"):
+        return f"{invalid}: postgresql:// 또는 postgres://로 시작하지 않습니다."
+    try:
+        host, _ = url.hostname, url.port  # port는 숫자가 아니면 ValueError — URL이 비밀번호 중간에서 끊긴 경우
+    except ValueError:
+        host = None
+    if host in LOCAL_HOSTS:
+        same = (
+            " 저장소의 .env.example에 적힌 개발용 값과 같습니다 — 그 값이 들어간 것으로 보입니다."
+            if value == DEV_DATABASE_URL
+            else ""
+        )
+        return (
+            f"DATABASE_URL은 있지만 로컬 주소({host})입니다. 운영 컨테이너 안에는 DB가 없습니다 (D-32).{same}"
+            " Neon 연결 문자열을 넣으세요."
+        )
+    if not host or "@" not in url.netloc:
+        return (
+            f"{invalid}: 호스트나 사용자 정보(…@)를 읽을 수 없습니다."
+            " 비밀번호에 '/'·'#'·'?'·'@' 같은 문자가 그대로 있으면 URL이 거기서 끊깁니다 —"
+            " 퍼센트 인코딩해서 넣거나 Neon 콘솔의 연결 문자열을 그대로 복사하세요."
+        )
+    return None
+
+
 def check_production(s: Settings, environ: Mapping[str, str] = os.environ) -> tuple[Mode, str]:
     """운영 모드면 DB·비밀·모델 설정을 확인하고, 하나라도 문제면 무엇을 고칠지 적어 ConfigError를 낸다."""
     mode, reason = runtime_mode(environ)
     if mode == "development":
         return mode, reason
     problems = []
-    db_host = urlparse(s.database_url.strip()).hostname or ""
-    if s.database_url == DEV_DATABASE_URL:
-        problems.append(
-            "DATABASE_URL이 없습니다. 이 프로세스의 환경변수에 그 이름이 없어서 개발용 기본값(localhost:5433)으로"
-            " 떨어졌습니다 (D-32). 코드는 파일(.env)을 읽지 않고 환경변수만 읽습니다 — 위 'env:' 줄과"
-            " 비슷한 이름 경고를 보고, 플랫폼이 이 서비스·이 환경에 변수를 실제로 넣는지 확인하세요."
-        )
-    elif not db_host or db_host in LOCAL_HOSTS:
-        problems.append(
-            f"DATABASE_URL이 비었거나 로컬 주소({db_host or '호스트 없음'})입니다. 운영 컨테이너 안에는 DB가 없습니다"
-            " (D-32). Neon 연결 문자열을 넣으세요."
-        )
+    if db := database_url_problem(s.database_url, environ):
+        problems.append(db)
     if not s.proxy_secret.strip():
         problems.append(
             "ASK_PROXY_SECRET이 비어 있습니다. 비어 있으면 프록시 비밀 검사가 꺼져"
