@@ -100,9 +100,18 @@ export const AI_TALK = {
   body: "참조 앱의 파일:라인을 정답으로 먼저 고정하는 증거 기반 시나리오 작성법으로, 77개 페이지 시나리오 약 700건 · Cypress 515케이스 · QA 체크리스트 83항목 기준선을 만들고 팀에 공유했습니다.",
 };
 
-export type SideProject = { name: string; period: string; stack: string; body: string; href?: string };
+/** body가 없으면 이름·스택·기간·링크 한 줄만 (2쪽 맞춤) */
+export type SideProject = { name: string; period: string; stack: string; body?: string; href?: string; live?: string };
 
 export const SIDE_PROJECTS: SideProject[] = [
+  {
+    name: "정태환에게 물어보기",
+    period: "2026.10",
+    stack: "LangGraph · pgvector · FastAPI",
+    body: "이 사이트의 글로만 답하는 RAG 챗봇. 인용 번호·숫자는 코드가 검증하고, 측정부터 고쳐 인용 정확도 98.1%(LLM 심사).",
+    href: repo("ask"),
+    live: live("ask"),
+  },
   {
     name: "오늘어디",
     period: "2026.09 ~",
@@ -128,7 +137,6 @@ export const SIDE_PROJECTS: SideProject[] = [
     name: "끼니",
     period: "2026.09 ~",
     stack: "Expo · Claude Code 에이전트 팀",
-    body: "역할별 모델(opus·sonnet·haiku)을 나눈 7개 에이전트 팀으로 한 줄 요구에서 요구사항 초안·Expo 프로토타입까지 만든 PoC. Playwright 스모크 53건.",
     href: repo("kkini"),
   },
 ];
