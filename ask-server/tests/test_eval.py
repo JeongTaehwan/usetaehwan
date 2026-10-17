@@ -261,7 +261,7 @@ def test_every_multi_question_lists_items_with_valid_patterns():
 
     from ask.eval.__main__ import QUESTIONS
 
-    for path in [QUESTIONS, QUESTIONS.with_name("holdout.yaml")]:
+    for path in [QUESTIONS, QUESTIONS.with_name("holdout.yaml"), QUESTIONS.with_name("holdout-2.yaml")]:
         for q in yaml.safe_load(path.read_text()):
             if q["type"] != "multi":
                 continue

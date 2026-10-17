@@ -1,0 +1,75 @@
+# 홀드아웃 질문셋 2 — 생성 프롬프트 v3 측정(prompt-v3) **전에** 만들어 커밋했다 (2026-10-17, D-35).
+#
+# eval/holdout.yaml은 tuned 설정으로 이미 한 번 썼다(D-31). 이 파일은 최종 채택 설정으로 마지막에 한 번만 돌린다.
+# 조정(프롬프트 문구·k·하한) 중에는 이 파일로 평가를 돌리지 않는다.
+# 형식은 questions.yaml과 같다. 기대 출처·기대 항목은 Neon 코퍼스 123청크 본문을 읽고 정했다.
+# 기존 질문(q01~q30, h01~h08)과 질문 주제가 겹치지 않게 골랐다. h2-01은 h07과 같은 청크(home#exp-5)지만 다른 사실(i18n)을 묻는다.
+# no_answer 주제는 코퍼스에 없음을 확인했다 (2026-10-17: Terraform·테라폼·Rust·러스트 0건).
+
+- id: h2-01
+  type: single
+  question: 어드민 다국어(i18n)는 어떻게 도입했어?
+  expect: answer
+  sources: [home#exp-5|resume#jobs]
+
+- id: h2-02
+  type: single
+  question: 쪽쪽은 왜 Capacitor에서 Expo로 옮겼어?
+  expect: answer
+  sources: [project:zzokzzok#case-3|project:zzokzzok#feature-4]
+
+- id: h2-03
+  type: single
+  lang: en
+  question: Why does the demo site of his UI library import the built package instead of the source code?
+  expect: answer
+  sources: [project:usetaehwan-ui#case-3]
+
+- id: h2-04
+  type: single
+  question: 커머스 어드민의 마진 통계는 왜 프론트에서 다시 계산하지 않았어?
+  expect: answer
+  sources: [home#exp-6|resume#jobs~6]
+
+- id: h2-05
+  type: no_answer
+  question: Terraform으로 인프라를 코드로 관리해 본 적 있어?
+  expect: no_evidence
+
+- id: h2-06
+  type: no_answer
+  lang: en
+  question: Has he built anything with Rust?
+  expect: no_evidence
+
+- id: h2-07
+  type: multi
+  lang: en
+  question: Which of his personal projects have Playwright tests?
+  expect: answer
+  sources:
+    - project:orbit#case-3|resume#case-orbit|resume#side-projects~3|ai:test-automation#case-4
+    - resume#side-projects~4
+  # 끼니의 Playwright 스모크 53건은 ai:agent-team#case-4에도 있지만, 그 청크만으로는 끼니라는 이름을 알 수 없어 넣지 않았다
+  mentions:
+      - item: Orbit
+        match: [Orbit]
+        sources: project:orbit#case-3|resume#case-orbit|resume#side-projects~3|ai:test-automation#case-4
+      - item: 끼니
+        match: [끼니, Kkini]
+        sources: resume#side-projects~4
+
+- id: h2-08
+  type: multi
+  question: 사람·구현 AI·검증 AI로 역할을 나눠서 개발한 프로젝트는 뭐고, 어떻게 나눴어?
+  expect: answer
+  sources:
+    - ai:role-isolation#case-1|ai:test-automation#case-4|project:gak#feature-4|resume#case-gak|resume#side-projects~2
+    - project:kkini#case-1|project:kkini#feature-1|project:kkini#feature-2|resume#side-projects~4|ai:agent-team#intro
+  mentions:
+      - item: 각(Gak)
+        match: ['Gak', '(?<![가-힣])각(?=\(|에서|은|과|의|이 |으로)']
+        sources: ai:role-isolation#case-1|ai:test-automation#case-4|project:gak#feature-4|resume#case-gak|resume#side-projects~2
+      - item: 끼니
+        match: [끼니, Kkini]
+        sources: project:kkini#case-1|project:kkini#feature-1|project:kkini#feature-2|resume#side-projects~4|ai:agent-team#intro
