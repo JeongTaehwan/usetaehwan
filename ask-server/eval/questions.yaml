@@ -7,6 +7,11 @@
 #           hit@k  = 항목 중 하나라도 top-k에 있으면 적중 / recall@k = top-k에 있는 항목의 비율
 # numbers   답에 반드시 나와야 하는 숫자 (근거 원문 그대로)
 # must_not  답에 나오면 안 되는 문구
+# mentions  답에 언급돼야 하는 항목 (D-34, multi만). 항목마다
+#             item    이름
+#             match   답에서 찾을 정규식 목록(대소문자 무시) — 하나라도 맞으면 언급
+#             sources 그 항목을 뒷받침하는 근거(형식은 sources와 같다) — 근거에 들어왔는데 빠뜨렸나를 가른다
+#           기대 항목은 Neon 코퍼스 본문을 읽고 정했다 (2026-10-17). 근거가 애매한 항목은 넣지 않았다.
 # no_answer 질문의 주제는 코퍼스에 없음을 grep으로 확인했다 (2026-10-12: Kubernetes·Kafka·Redis·GraphQL·Swift 0건)
 
 - id: q01
@@ -86,6 +91,15 @@
   sources:
     - project:gak|ai:hallucination-control|resume#case-gak
     - project:oneureodi|resume#case-oneureodi
+  # 끼니는 넣지 않았다 — 끼니의 검증은 에이전트가 지적하는 방식(project:kkini#case-2)이고, 코드로 검증한 것은
+  # 에이전트 보고의 숫자를 grep으로 다시 센 것(ai:agent-team#case-4)이라 "LLM 결과를 코드로 검증"인지 애매하다
+  mentions:
+      - item: 각(Gak)
+        match: ['Gak', '(?<![가-힣])각(?=\(|에서|은|과|의|이 |으로)']
+        sources: project:gak#case-2|project:gak#feature-2|resume#case-gak|resume#side-projects~2
+      - item: 오늘어디
+        match: [오늘어디, Oneureodi]
+        sources: project:oneureodi#case-1|project:oneureodi#case-2|project:oneureodi#feature-1|resume#case-oneureodi
 
 - id: q13
   type: multi
@@ -94,12 +108,26 @@
   sources:
     - home#exp-3|resume#jobs~4|resume#case-payments
     - project:orbit|resume#case-orbit
+  mentions:
+      - item: 결제 중개 서비스 (회사)
+        match: [결제, PayPal, payment]
+        sources: home#exp-3|resume#jobs~4|resume#case-payments
+      - item: Orbit
+        match: [Orbit]
+        sources: project:orbit#overview|project:orbit#case-3|project:orbit#feature-3|resume#case-orbit|resume#side-projects~3
 
 - id: q14
   type: multi
   question: Neon Postgres를 쓴 프로젝트는 뭐야?
   expect: answer
   sources: [project:gak, project:orbit]
+  mentions:
+      - item: 각(Gak)
+        match: ['Gak', '(?<![가-힣])각(?=\(|에서|은|과|의|이 |으로)']
+        sources: project:gak#overview|resume#case-gak
+      - item: Orbit
+        match: [Orbit]
+        sources: project:orbit#overview|project:orbit#case-3|project:orbit#feature-4|resume#case-orbit
 
 - id: q15
   type: multi
@@ -108,6 +136,13 @@
   sources:
     - ai:role-isolation#case-4|ai:hallucination-control#case-4|ai:test-automation
     - talk:e2e-automation-with-claude-code|resume#ai-talk
+  mentions:
+      - item: 리팩토링 가이드와 AI 규칙(CLAUDE.md) 연결
+        match: [리팩토링, refactor]
+        sources: ai:role-isolation#case-4
+      - item: 참조 구현을 정답으로 고정한 테스트 시나리오 작성
+        match: [시나리오, E2E, Cypress, 테스트]
+        sources: ai:hallucination-control#case-4|talk:e2e-automation-with-claude-code|resume#ai-talk|resume#case-commerce-core
 
 - id: q16
   type: multi
@@ -115,6 +150,16 @@
   question: Which of his projects are built with Expo?
   expect: answer
   sources: [project:oneureodi, project:kkini, project:zzokzzok]
+  mentions:
+      - item: 오늘어디
+        match: [오늘어디, Oneureodi]
+        sources: project:oneureodi#overview|resume#case-oneureodi|resume#side-projects
+      - item: 끼니
+        match: [끼니, Kkini]
+        sources: project:kkini#overview|project:kkini#feature-3|resume#side-projects~4|ai:agent-team#intro
+      - item: 쪽쪽
+        match: [쪽쪽, Jjokjjok, Zzokzzok]
+        sources: project:zzokzzok#overview|project:zzokzzok#case-3|project:zzokzzok#feature-4
 
 - id: q17
   type: no_answer

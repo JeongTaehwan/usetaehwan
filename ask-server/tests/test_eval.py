@@ -176,3 +176,124 @@ def test_no_answer_counts_as_abstained_when_a_sentence_says_not_in_materials():
     row = evaluate(q, st, ev, 100.0, None)
     assert row["behavior_ok"] is True
     assert row["timings"] == {"retrieve": 412}
+
+
+# ───────── 답의 항목 재현율 (D-34) ─────────
+
+
+def test_mentions_count_items_left_out_even_when_their_evidence_was_there():
+    """holdout h08 — 쪽쪽 근거가 판정을 통과했는데 답은 오늘어디만 말했다. 인용·행동 지표는 모두 OK였다."""
+    q = {
+        "id": "h08",
+        "type": "multi",
+        "expect": "answer",
+        "question": "로직을 순수 함수로 떼어 내서 테스트한 개인 프로젝트를 알려줘",
+        "sources": ["project:zzokzzok", "project:oneureodi"],
+        "mentions": [
+            {"item": "쪽쪽", "match": ["쪽쪽", "Zzokzzok"], "sources": "project:zzokzzok#case-2"},
+            {"item": "오늘어디", "match": ["오늘어디"], "sources": "project:oneureodi#feature-4"},
+            {"item": "끼니", "match": ["끼니"], "sources": "project:kkini"},
+        ],
+    }
+    ev = [
+        Hit("project:oneureodi#feature-4", "project:oneureodi", "오늘어디", "f4", "/p", "a", "순수 함수 56개", 0.7),
+        Hit("project:zzokzzok#case-2", "project:zzokzzok", "쪽쪽", "c2", "/p", "b", "순수 함수로", 0.7),
+    ]
+    st = {
+        "outcome": "answered",
+        "answer": "순수 함수로 떼어 테스트한 개인 프로젝트는 '오늘어디'입니다[1].",
+        "evidence": ev,
+        "citations": [],
+        "attempts": 1,
+        "usage": [],
+    }
+    row = evaluate(q, st, ev, 100.0, None)
+    assert row["behavior_ok"] is True
+    assert row["mentions"] == [
+        {"item": "쪽쪽", "mentioned": False, "in_evidence": True},
+        {"item": "오늘어디", "mentioned": True, "in_evidence": True},
+        {"item": "끼니", "mentioned": False, "in_evidence": False},
+    ]
+    summary = summarize([row])
+    assert summary["답의 항목 재현율"] == "33.3% (1/3)"
+    assert summary["근거에 든 항목 → 답에 언급"] == "50.0% (1/2)"
+
+
+def test_mentions_are_missed_when_not_answered_and_absent_from_summary_without_items():
+    from ask.eval.__main__ import mention_scores
+
+    items = [{"item": "Orbit", "match": ["Orbit"], "sources": "project:orbit"}]
+    assert mention_scores(items, "Orbit에서 Neon을 썼습니다.", False, ["project:orbit#case-3"]) == [
+        {"item": "Orbit", "mentioned": False, "in_evidence": True}
+    ]
+    q = {"id": "q01", "type": "single", "expect": "answer", "question": "?"}
+    st = {"outcome": "answered", "answer": "네[1].", "evidence": [], "citations": [], "attempts": 1, "usage": []}
+    row = evaluate(q, st, [], 1.0, None)
+    assert "mentions" not in row
+    assert "답의 항목 재현율" not in summarize([row])
+
+
+@pytest.mark.parametrize(
+    ("text", "found"),
+    [
+        ("Neon을 쓴 프로젝트는 Orbit과 각(Gak)입니다.", True),
+        ("각에서는 빈 응답을 거부했습니다.", True),
+        ("각과 오늘어디 두 프로젝트입니다.", True),
+        ("The Gak project uses Neon.", True),
+        ("회사와 개인 프로젝트에서 각각 썼습니다.", False),
+        ("이렇게 생각했습니다.", False),
+        ("각 페이지마다 시나리오를 썼습니다.", False),
+    ],
+)
+def test_gak_pattern_does_not_match_common_words(text, found):
+    import yaml
+
+    from ask.eval.__main__ import QUESTIONS, mention_scores
+
+    gak = next(m for q in yaml.safe_load(QUESTIONS.read_text()) if q["id"] == "q14" for m in q["mentions"])
+    assert mention_scores([gak], text, True, [])[0]["mentioned"] is found
+
+
+def test_every_multi_question_lists_items_with_valid_patterns():
+    import re
+
+    import yaml
+
+    from ask.eval.__main__ import QUESTIONS
+
+    for path in [QUESTIONS, QUESTIONS.with_name("holdout.yaml")]:
+        for q in yaml.safe_load(path.read_text()):
+            if q["type"] != "multi":
+                continue
+            assert len(q.get("mentions", [])) >= 2, q["id"]
+            for m in q["mentions"]:
+                assert m["item"] and m["sources"], q["id"]
+                for pat in m["match"]:
+                    re.compile(pat)
+
+
+def test_rescore_reads_saved_answers(tmp_path, capsys):
+    import json
+
+    from ask.eval.__main__ import main
+
+    run = tmp_path / "run.json"
+    run.write_text(
+        json.dumps(
+            {
+                "rows": [
+                    {
+                        "id": "q16",
+                        "outcome": "answered",
+                        "answer": "Built with Expo: 끼니[1], 쪽쪽[2].",
+                        "evidence": ["project:kkini#overview", "project:zzokzzok#overview"],
+                    }
+                ]
+            }
+        )
+    )
+    assert main(["--rescore", str(run)]) == 0
+    out = capsys.readouterr().out
+    assert "q16 빠진 항목: 오늘어디(근거 없음)" in out
+    assert "답의 항목 재현율: 66.7% (2/3)" in out
+    assert "근거에 든 항목 → 답에 언급: 100.0% (2/2)" in out
