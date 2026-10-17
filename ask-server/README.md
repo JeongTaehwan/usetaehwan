@@ -47,6 +47,6 @@ uv run python -m ask.eval --label baseline       # 평가 → docs/ask/eval-repo
 절차·환경변수 전체 목록·배포 후 확인 순서는 [`docs/ask/deploy.md`](../docs/ask/deploy.md)에 있다. 요점만:
 
 - Root Directory `/ask-server`, 빌더 Dockerfile, 헬스체크 `/healthz`, 리전 싱가포르, 레플리카 1 — **대시보드에서 직접 설정**한다(Config as Code는 Railway에서 지원 중단, D-26 변경).
-- **필수 — Gemini 결제 활성화**(D-22), Anthropic 월 지출 한도.
+- Gemini는 **무료 티어 유지, 패널 안내 문구로 대체**(D-39). Anthropic 월 지출 한도는 건다.
 - 인제스트는 로컬에서 운영 `DATABASE_URL`로 실행한다. 그 전에 `denylist.txt`(gitignore됨)를 채운다.
 - Vercel에는 `ASK_API_URL`·`ASK_PROXY_SECRET`을 넣고 **재배포**한다(패널 표시 여부가 빌드 시점에 정해짐).
