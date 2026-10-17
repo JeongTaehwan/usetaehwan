@@ -156,7 +156,7 @@ def test_min_score_default_depends_on_embedder(monkeypatch, env, expected):
     for k, v in env.items():
         monkeypatch.setenv(k, v)
     s = get_settings()
-    assert (s.min_score, s.top_k) == (expected, 8)
+    assert (s.min_score, s.top_k) == (expected, 15)
 
 
 # ───────── 환경변수가 항상 이긴다 — 파일은 읽지 않는다 (D-32 변경) ─────────

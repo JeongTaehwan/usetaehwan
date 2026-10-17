@@ -12,10 +12,12 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import re
 import statistics
 import subprocess
 import sys
 import time
+from collections import Counter
 from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
@@ -37,8 +39,29 @@ RUNS = SERVER_ROOT / "eval" / "runs"
 REPORT = REPO_ROOT / "docs" / "ask" / "eval-report.md"
 
 
+def id_matches(chunk_id: str, source: str) -> bool:
+    """chunk_id가 source(doc_id 또는 chunk_id, a|b)에 해당하나. doc_id는 chunk_id의 # 앞이다."""
+    doc_id = chunk_id.split("#")[0]
+    return any(doc_id == s or chunk_id == s or chunk_id.startswith(s + "~") for s in source.split("|"))
+
+
 def matches(hit: Hit, source: str) -> bool:
-    return any(hit.doc_id == s or hit.chunk_id == s or hit.chunk_id.startswith(s + "~") for s in source.split("|"))
+    return id_matches(hit.chunk_id, source)
+
+
+def mention_scores(items: list[dict], answer: str, answered: bool, evidence: list[str]) -> list[dict]:
+    """답의 항목 재현율 (D-34) — 기대 항목마다 답에 언급됐나, 그 항목의 근거가 판정을 통과했나.
+
+    match는 정규식 목록(대소문자 무시)이고 하나라도 맞으면 언급이다. 답하지 못했으면 언급하지 않은 것으로 센다.
+    """
+    return [
+        {
+            "item": it["item"],
+            "mentioned": answered and any(re.search(m, answer, re.IGNORECASE) for m in it["match"]),
+            "in_evidence": any(id_matches(e, it["sources"]) for e in evidence),
+        }
+        for it in items
+    ]
 
 
 def retrieval_scores(hits: list[Hit], sources: list[str], k: int) -> tuple[bool, float]:
@@ -56,6 +79,24 @@ def p(values: list[float], q: float) -> float:
     return s[min(len(s) - 1, round(q * (len(s) - 1)))]
 
 
+class DraftRecorder:
+    """생성 초안을 모두 남기는 LLM 래퍼 — 상태에는 마지막 초안만 남아 1차 실패 원인을 볼 수 없다 (D-36)."""
+
+    def __init__(self, llm):
+        self.llm, self.name, self.drafts = llm, llm.name, []
+
+    def classify(self, question):
+        return self.llm.classify(question)
+
+    def grade(self, question, candidates):
+        return self.llm.grade(question, candidates)
+
+    def generate(self, question, evidence, lang, previous=None, feedback=None):
+        draft, usage = self.llm.generate(question, evidence, lang, previous, feedback)
+        self.drafts.append((draft, [h.body for h in evidence]))
+        return draft, usage
+
+
 def git_commit() -> str:
     try:
         return subprocess.check_output(["git", "describe", "--always", "--dirty"], cwd=REPO_ROOT, text=True).strip()
@@ -71,10 +112,13 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--questions", type=Path, default=QUESTIONS, help="질문셋 (기본 eval/questions.yaml)")
     ap.add_argument("--only", help="질문 id 쉼표 목록")
     ap.add_argument("--no-report", action="store_true", help="eval-report.md에 쓰지 않는다")
+    ap.add_argument("--rescore", type=Path, help="저장된 실행(eval/runs/*.json)의 답으로 항목 재현율만 다시 잰다")
     args = ap.parse_args(argv)
+    if args.rescore:
+        return rescore(args.rescore, args.questions)
 
     s = get_settings()
-    llm = make_llm(s.llm, s.anthropic_model)
+    llm = DraftRecorder(make_llm(s.llm, s.anthropic_model))
     embedder = make_embedder(s.embedder)
     judge = None
     if args.judge == "anthropic":
@@ -99,10 +143,11 @@ def main(argv: list[str] | None = None) -> int:
         for q in questions:
             # 검색 품질은 점수 하한 없이 top-8 원래 순위로 잰다 (리트리버 자체의 성능)
             raw = retrieve(conn, embedder, q["question"], 8, -1.0)
+            llm.drafts = []
             t0 = time.perf_counter()
             st = graph.invoke({"question": q["question"]})
             latency = (time.perf_counter() - t0) * 1000
-            rows.append(evaluate(q, st, raw, latency, judge))
+            rows.append(evaluate(q, st, raw, latency, judge, llm.drafts))
             print(
                 f"  {q['id']} {rows[-1]['outcome']:12s} {'OK ' if rows[-1]['behavior_ok'] else 'NG '} {latency:6.0f}ms"
             )
@@ -133,7 +178,7 @@ def main(argv: list[str] | None = None) -> int:
     return 0
 
 
-def evaluate(q: dict, st: dict, raw: list[Hit], latency: float, judge) -> dict:
+def evaluate(q: dict, st: dict, raw: list[Hit], latency: float, judge, drafts=()) -> dict:
     expect = q["expect"].split("|")
     outcome = st["outcome"]
     answer = st.get("answer", "")
@@ -156,6 +201,8 @@ def evaluate(q: dict, st: dict, raw: list[Hit], latency: float, judge) -> dict:
         "candidates": [h.chunk_id for h in st.get("candidates", [])],  # 하한 통과
         "evidence": [h.chunk_id for h in st.get("evidence", [])],  # 판정 통과
         "timings": {k: round(v) for k, v in st.get("timings", {}).items()},  # 노드별 ms — 지연 원인 분해
+        # 초안마다 런타임 검증 위반 [규칙, 문장] — 1차 검증 실패 원인 분류용 (D-36)
+        "drafts": [[[v.rule, v.sentence] for v in citations.verify(d, ev)] for d, ev in drafts],
     }
 
     if sources:
@@ -163,8 +210,11 @@ def evaluate(q: dict, st: dict, raw: list[Hit], latency: float, judge) -> dict:
         row["hit@8"], row["recall@8"] = retrieval_scores(raw, sources, 8)
 
     answered = outcome in ("answered", "fallback")
+    if q.get("mentions"):
+        row["mentions"] = mention_scores(q["mentions"], answer, answered, row["evidence"])
     # "자료에 없음" 문장은 문장 단위로 찾는다 — 런타임 검증(citations.verify)과 같은 단위 (D-29 변경)
-    no_info = any(p.search(sent.text) for sent in citations.split_sentences(answer) for p in citations.NO_INFO)
+    # 인용 표기를 뺀 본문에 댄다 — v3는 이 문장에도 [1]을 붙여, 문장 끝 조건($)에 걸렸다 (D-36 변경)
+    no_info = any(p.search(sent.content) for sent in citations.split_sentences(answer) for p in citations.NO_INFO)
     abstained = outcome == "no_evidence" or (answered and no_info)
     if "answer" in expect and answered:
         ok = True
@@ -206,6 +256,9 @@ def summarize(rows: list[dict]) -> dict:
     voted = [pr for pr in pairs if pr.get("votes")]
     lat = [r["latency_ms"] for r in rows]
     cost = [r["cost_usd"] for r in rows]
+    items = [m for r in rows for m in r.get("mentions", [])]
+    first = [r["drafts"][0] for r in rows if r.get("drafts")]
+    rules = Counter(v[0] for vs in first for v in vs)
     return {
         "hit@5": pct([r["hit@5"] for r in ans]),
         "hit@8": pct([r["hit@8"] for r in ans]),
@@ -215,7 +268,9 @@ def summarize(rows: list[dict]) -> dict:
         "답 없는 질문 → 근거 없음": pct([r["behavior_ok"] for r in by("no_answer")]),
         "범위 밖·개인정보 → 거절": pct([r["behavior_ok"] for r in by("out_of_scope", "personal")]),
         "인젝션 → 거절 또는 안전 답변": pct([r["behavior_ok"] and r["must_not_ok"] for r in by("injection")]),
+        **mention_summary(items),
         "1차 검증 통과 (답한 것 중)": pct([r["attempts"] == 1 and r["outcome"] == "answered" for r in answered]),
+        "1차 초안 위반 (규칙별 문장 수)": " · ".join(f"{k} {n}" for k, n in rules.most_common()) if first else "—",
         "재생성 후 통과": pct([r["attempts"] == 2 and r["outcome"] == "answered" for r in answered]),
         "fallback": pct([r["outcome"] == "fallback" for r in answered]),
         "필수 숫자 포함": pct([r["numbers_ok"] for r in rows if r.get("numbers_ok") is not None]),
@@ -226,6 +281,33 @@ def summarize(rows: list[dict]) -> dict:
         "응답 시간 p50 / p95": f"{p(lat, 0.5):.0f}ms / {p(lat, 0.95):.0f}ms",
         "질문당 비용 평균 / 최대": f"${statistics.mean(cost):.5f} / ${max(cost):.5f}",
     }
+
+
+def mention_summary(items: list[dict]) -> dict:
+    """항목 재현율 두 가지 — 전체(검색 누락 포함)와, 근거에 들어온 항목만(생성이 빠뜨린 것만)."""
+    if not items:
+        return {}
+    return {
+        "답의 항목 재현율": pct([m["mentioned"] for m in items]),
+        "근거에 든 항목 → 답에 언급": pct([m["mentioned"] for m in items if m["in_evidence"]]),
+    }
+
+
+def rescore(run_path: Path, questions_path: Path) -> int:
+    """저장된 답·근거로 항목 재현율을 다시 잰다. 기대 항목을 나중에 적은 실행(v2·tuned 등)과 비교하려고 둔다."""
+    run = json.loads(run_path.read_text())
+    qs = {q["id"]: q for q in yaml.safe_load(questions_path.read_text())}
+    items = []
+    for r in run["rows"]:
+        q = qs.get(r["id"])
+        if q and q.get("mentions"):
+            ms = mention_scores(q["mentions"], r["answer"], r["outcome"] in ("answered", "fallback"), r["evidence"])
+            items += ms
+            missed = [m["item"] + ("" if m["in_evidence"] else "(근거 없음)") for m in ms if not m["mentioned"]]
+            print(f"  {r['id']} 빠진 항목: {', '.join(missed) or '-'}")
+    for k, v in mention_summary(items).items():
+        print(f"{k}: {v}")
+    return 0
 
 
 def write_pairs_csv(rows: list[dict], path: Path) -> Path | None:
@@ -290,6 +372,30 @@ def render(meta: dict, summary: dict, rows: list[dict], run_path: Path, csv_path
                 f"| {r['id']} | {r['type']} | {r['expect']} | {r['outcome']} | {r.get('hit@8', '—')} | {note} |"
             )
         lines += ["", "</details>", ""]
+    failed = [(r["id"], v) for r in rows if r.get("drafts") for v in r["drafts"][0]]
+    if failed:
+        lines += [
+            "<details><summary>1차 초안이 검증에 걸린 문장</summary>",
+            "",
+            "| id | 규칙 | 문장 |",
+            "|---|---|---|",
+            *[f"| {qid} | {rule} | {sent.replace('|', chr(92) + '|')[:100]} |" for qid, (rule, sent) in failed],
+            "",
+            "</details>",
+            "",
+        ]
+    omitted = [(r, m) for r in rows for m in r.get("mentions", []) if not m["mentioned"]]
+    if omitted:
+        lines += [
+            "<details><summary>답에서 빠진 항목</summary>",
+            "",
+            "| id | 항목 | 근거에 있었나 |",
+            "|---|---|---|",
+            *[f"| {r['id']} | {m['item']} | {'예' if m['in_evidence'] else '아니오'} |" for r, m in omitted],
+            "",
+            "</details>",
+            "",
+        ]
     split = [pr for r in rows for pr in r.get("pairs", []) if pr.get("split")]
     if split:
         lines += [

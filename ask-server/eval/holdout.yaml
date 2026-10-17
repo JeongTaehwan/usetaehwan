@@ -2,6 +2,7 @@
 #
 # 2026-10-17, tuned-gemini 실행 **전**에 만들어 커밋했다. 조정 중에는 이 파일로 평가를 돌리지 않는다.
 # 형식은 questions.yaml과 같다. 기대 출처는 Neon 코퍼스에서 본문을 읽고 정했다.
+# mentions(답에 언급돼야 하는 항목)는 2026-10-17 holdout-tuned 실행 **후에** 더했다 (D-34). 조정에 쓰지 않는다.
 # no_answer 주제는 코퍼스에 없음을 확인했다 (2026-10-17: AWS·Lambda·MongoDB·Elasticsearch 0건).
 
 - id: h01
@@ -47,6 +48,13 @@
   sources:
     - home#exp-5
     - project:orbit#case-3|project:orbit#feature-4|resume#case-orbit
+  mentions:
+      - item: 회사 배포 파이프라인
+        match: [GitLab, 브랜드, 레지스트리, publish]
+        sources: home#exp-5|resume#jobs|home#exp-1|resume#jobs~2|resume#case-commerce-core
+      - item: Orbit
+        match: [Orbit]
+        sources: project:orbit#overview|project:orbit#case-3|project:orbit#feature-4|resume#case-orbit|resume#side-projects~3
 
 - id: h08
   type: multi
@@ -55,3 +63,10 @@
   sources:
     - project:zzokzzok#case-2|project:zzokzzok#feature-4
     - project:oneureodi#feature-4
+  mentions:
+      - item: 쪽쪽
+        match: [쪽쪽, Jjokjjok, Zzokzzok]
+        sources: project:zzokzzok#case-2|project:zzokzzok#feature-4
+      - item: 오늘어디
+        match: [오늘어디, Oneureodi]
+        sources: project:oneureodi#feature-4

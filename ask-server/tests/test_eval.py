@@ -176,3 +176,187 @@ def test_no_answer_counts_as_abstained_when_a_sentence_says_not_in_materials():
     row = evaluate(q, st, ev, 100.0, None)
     assert row["behavior_ok"] is True
     assert row["timings"] == {"retrieve": 412}
+
+
+# ───────── 답의 항목 재현율 (D-34) ─────────
+
+
+def test_mentions_count_items_left_out_even_when_their_evidence_was_there():
+    """holdout h08 — 쪽쪽 근거가 판정을 통과했는데 답은 오늘어디만 말했다. 인용·행동 지표는 모두 OK였다."""
+    q = {
+        "id": "h08",
+        "type": "multi",
+        "expect": "answer",
+        "question": "로직을 순수 함수로 떼어 내서 테스트한 개인 프로젝트를 알려줘",
+        "sources": ["project:zzokzzok", "project:oneureodi"],
+        "mentions": [
+            {"item": "쪽쪽", "match": ["쪽쪽", "Zzokzzok"], "sources": "project:zzokzzok#case-2"},
+            {"item": "오늘어디", "match": ["오늘어디"], "sources": "project:oneureodi#feature-4"},
+            {"item": "끼니", "match": ["끼니"], "sources": "project:kkini"},
+        ],
+    }
+    ev = [
+        Hit("project:oneureodi#feature-4", "project:oneureodi", "오늘어디", "f4", "/p", "a", "순수 함수 56개", 0.7),
+        Hit("project:zzokzzok#case-2", "project:zzokzzok", "쪽쪽", "c2", "/p", "b", "순수 함수로", 0.7),
+    ]
+    st = {
+        "outcome": "answered",
+        "answer": "순수 함수로 떼어 테스트한 개인 프로젝트는 '오늘어디'입니다[1].",
+        "evidence": ev,
+        "citations": [],
+        "attempts": 1,
+        "usage": [],
+    }
+    row = evaluate(q, st, ev, 100.0, None)
+    assert row["behavior_ok"] is True
+    assert row["mentions"] == [
+        {"item": "쪽쪽", "mentioned": False, "in_evidence": True},
+        {"item": "오늘어디", "mentioned": True, "in_evidence": True},
+        {"item": "끼니", "mentioned": False, "in_evidence": False},
+    ]
+    summary = summarize([row])
+    assert summary["답의 항목 재현율"] == "33.3% (1/3)"
+    assert summary["근거에 든 항목 → 답에 언급"] == "50.0% (1/2)"
+
+
+def test_mentions_are_missed_when_not_answered_and_absent_from_summary_without_items():
+    from ask.eval.__main__ import mention_scores
+
+    items = [{"item": "Orbit", "match": ["Orbit"], "sources": "project:orbit"}]
+    assert mention_scores(items, "Orbit에서 Neon을 썼습니다.", False, ["project:orbit#case-3"]) == [
+        {"item": "Orbit", "mentioned": False, "in_evidence": True}
+    ]
+    q = {"id": "q01", "type": "single", "expect": "answer", "question": "?"}
+    st = {"outcome": "answered", "answer": "네[1].", "evidence": [], "citations": [], "attempts": 1, "usage": []}
+    row = evaluate(q, st, [], 1.0, None)
+    assert "mentions" not in row
+    assert "답의 항목 재현율" not in summarize([row])
+
+
+@pytest.mark.parametrize(
+    ("text", "found"),
+    [
+        ("Neon을 쓴 프로젝트는 Orbit과 각(Gak)입니다.", True),
+        ("각에서는 빈 응답을 거부했습니다.", True),
+        ("각과 오늘어디 두 프로젝트입니다.", True),
+        ("The Gak project uses Neon.", True),
+        ("회사와 개인 프로젝트에서 각각 썼습니다.", False),
+        ("이렇게 생각했습니다.", False),
+        ("각 페이지마다 시나리오를 썼습니다.", False),
+    ],
+)
+def test_gak_pattern_does_not_match_common_words(text, found):
+    import yaml
+
+    from ask.eval.__main__ import QUESTIONS, mention_scores
+
+    gak = next(m for q in yaml.safe_load(QUESTIONS.read_text()) if q["id"] == "q14" for m in q["mentions"])
+    assert mention_scores([gak], text, True, [])[0]["mentioned"] is found
+
+
+def test_every_multi_question_lists_items_with_valid_patterns():
+    import re
+
+    import yaml
+
+    from ask.eval.__main__ import QUESTIONS
+
+    for path in [QUESTIONS, QUESTIONS.with_name("holdout.yaml"), QUESTIONS.with_name("holdout-2.yaml")]:
+        for q in yaml.safe_load(path.read_text()):
+            if q["type"] != "multi":
+                continue
+            assert len(q.get("mentions", [])) >= 2, q["id"]
+            for m in q["mentions"]:
+                assert m["item"] and m["sources"], q["id"]
+                for pat in m["match"]:
+                    re.compile(pat)
+
+
+def test_rescore_reads_saved_answers(tmp_path, capsys):
+    import json
+
+    from ask.eval.__main__ import main
+
+    run = tmp_path / "run.json"
+    run.write_text(
+        json.dumps(
+            {
+                "rows": [
+                    {
+                        "id": "q16",
+                        "outcome": "answered",
+                        "answer": "Built with Expo: 끼니[1], 쪽쪽[2].",
+                        "evidence": ["project:kkini#overview", "project:zzokzzok#overview"],
+                    }
+                ]
+            }
+        )
+    )
+    assert main(["--rescore", str(run)]) == 0
+    out = capsys.readouterr().out
+    assert "q16 빠진 항목: 오늘어디(근거 없음)" in out
+    assert "답의 항목 재현율: 66.7% (2/3)" in out
+    assert "근거에 든 항목 → 답에 언급: 100.0% (2/2)" in out
+
+
+# ───────── 1차 초안 기록 (D-36) ─────────
+
+
+def test_first_draft_violations_are_kept_even_when_the_retry_passes():
+    """상태에는 마지막 초안만 남는다. 1차 실패 원인(인용 없는 머리·꼬리 문장)을 세려고 초안을 따로 남긴다."""
+    from ask.eval.__main__ import DraftRecorder
+    from ask.llm import FakeLLM
+
+    ev = [_hit(1, "PayPal 결제를 연동했습니다.")]
+    rec = DraftRecorder(FakeLLM())
+    rec.drafts = [
+        ("결제 연동 경험을 정리하면 다음과 같습니다. PayPal 결제를 연동했습니다[1].", [h.body for h in ev]),
+        ("PayPal 결제를 연동했습니다[1].", [h.body for h in ev]),
+    ]
+    q = {"id": "q01", "type": "single", "expect": "answer", "question": "결제 연동 경험?"}
+    st = {
+        "outcome": "answered",
+        "answer": "PayPal 결제를 연동했습니다[1].",
+        "evidence": ev,
+        "citations": [],
+        "attempts": 2,
+        "usage": [],
+    }
+    row = evaluate(q, st, ev, 1.0, None, rec.drafts)
+    assert row["drafts"] == [[["uncited", "결제 연동 경험을 정리하면 다음과 같습니다."]], []]
+    assert summarize([row])["1차 초안 위반 (규칙별 문장 수)"] == "uncited 1"
+
+
+def test_draft_recorder_passes_calls_through_and_records_generate():
+    from ask.eval.__main__ import DraftRecorder
+    from ask.llm import FakeLLM
+
+    rec = DraftRecorder(FakeLLM())
+    ev = [_hit(1, "PayPal 결제를 연동했습니다.")]
+    draft, _ = rec.generate("결제 연동 경험?", ev, "ko")
+    assert rec.name == FakeLLM().name
+    assert rec.drafts == [(draft, ["PayPal 결제를 연동했습니다."])]
+
+
+@pytest.mark.parametrize("language", ["Korean", "English"])
+def test_generate_prompt_formats_without_stray_braces(language):
+    from ask.graph import prompts
+
+    text = prompts.GENERATE_SYSTEM.format(language=language)
+    assert f"Answer in {language}" in text and "{" not in text
+
+
+def test_no_answer_counts_a_cited_not_in_materials_sentence():
+    """prompt-v3 q19 — '자료에 없다' 문장에도 인용을 붙였다. 인용 표기 때문에 문장 끝 조건에 걸리지 않게 한다."""
+    q = {"id": "q19", "type": "no_answer", "expect": "no_evidence", "question": "Redis 캐시를 설계해 본 경험은?"}
+    ev = [_hit(1, "같은 좌표 격자와 반경을 일주일 동안 캐시했습니다.")]
+    st = {
+        "outcome": "answered",
+        "answer": "제공된 자료에서는 정태환의 Redis 캐시 설계 경험을 확인할 수 없습니다[1]. "
+        "다만 같은 좌표 격자와 반경을 일주일 동안 캐시했습니다[1].",
+        "evidence": ev,
+        "citations": [],
+        "attempts": 1,
+        "usage": [],
+    }
+    assert evaluate(q, st, ev, 1.0, None)["behavior_ok"] is True

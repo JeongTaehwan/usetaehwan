@@ -45,7 +45,7 @@ class Settings:
     anthropic_model: str = field(default_factory=lambda: os.environ.get("ASK_ANTHROPIC_MODEL", "claude-haiku-5-5"))
 
     # 검색
-    top_k: int = field(default_factory=lambda: _int("ASK_TOP_K", 8))
+    top_k: int = field(default_factory=lambda: _int("ASK_TOP_K", 15))  # 생성 프롬프트 v3와 함께 8 → 15 (D-37)
     min_score: float = field(default_factory=_min_score)
 
     # 가드레일 (design §6)
