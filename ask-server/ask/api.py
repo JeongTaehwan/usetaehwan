@@ -45,11 +45,24 @@ def sse(event: str, data: dict) -> str:
     return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
 
 
+def make_pool(url: str, *, max_size: int = 4, kwargs: dict | None = None, check: bool = True) -> ConnectionPool:
+    """Neon은 쉬는 연결을 서버 쪽에서 끊는다. 풀이 끊긴 연결을 그대로 내주면 그 요청이 500이 된다.
+    그래서 내주기 전에 살아 있는지 확인하고, 죽었으면 버리고 새로 연다 (D-23)."""
+    return ConnectionPool(
+        url,
+        min_size=1,
+        max_size=max_size,
+        open=False,
+        kwargs=kwargs,
+        check=ConnectionPool.check_connection if check else None,
+    )
+
+
 def create_app(settings: Settings | None = None, *, llm=None, embedder=None, pool: ConnectionPool | None = None):
     s = settings or get_settings()
     llm = llm or make_llm(s.llm, s.anthropic_model)
     embedder = embedder or make_embedder(s.embedder)
-    pool = pool or ConnectionPool(s.database_url, min_size=1, max_size=4, open=False)
+    pool = pool or make_pool(s.database_url)
     minute = guard.MinuteWindow(s.per_ip_per_minute)
 
     def search(question: str):
