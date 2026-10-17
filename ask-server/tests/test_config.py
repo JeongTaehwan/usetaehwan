@@ -121,7 +121,8 @@ def test_uvicorn_exits_with_clear_message_in_production_without_secrets():
     [
         (DEV_DATABASE_URL, "localhost:5433"),  # 변수가 없어 기본값으로 떨어진 경우 — Railway 첫 배포 실패 원인
         ("postgresql://ask:ask@127.0.0.1:5432/ask", "127.0.0.1"),
-        ("", "호스트 없음"),
+        ("", "비어 있습니다"),
+        ("postgresql://localhost/ask", "로컬 주소(localhost)"),  # 사용자 정보가 없어도 로컬로 분류
     ],
 )
 def test_production_refuses_missing_or_local_database_url(url, hint):
@@ -275,3 +276,93 @@ def test_production_refuses_fake_models_or_missing_keys(overrides, environ_drop,
     environ = {k: v for k, v in RAILWAY.items() if k not in environ_drop}
     with pytest.raises(ConfigError, match=needle):
         check_production(replace(OK, **overrides), environ)
+
+
+# ───────── DATABASE_URL — "없음"과 "있지만 형식이 잘못됨"을 가른다 (D-38) ─────────
+
+# 운영 Neon 주소와 같은 모양. 비밀번호는 가짜다.
+NEON_PROD = (
+    "postgresql://neondb_owner:npg_FAKEfake123@ep-cool-name-a1b2c3d4-pooler.ap-southeast-1.aws.neon.tech"
+    "/neondb?sslmode=require&channel_binding=require"
+)
+NEON_HOST = "ep-cool-name-a1b2c3d4-pooler.ap-southeast-1.aws.neon.tech"
+PROD_ENV = {
+    **RAILWAY,
+    "ASK_PROXY_SECRET": "p" * 64,
+    "ASK_IP_HASH_SECRET": "h" * 64,
+    "ASK_LLM": "anthropic",
+    "ASK_EMBEDDER": "gemini",
+}
+
+
+def _prod_settings(monkeypatch, environ):
+    for k in [k for k in os.environ if k.startswith(("ASK_", "RAILWAY_", "DATABASE_URL", *MODEL_KEYS))]:
+        monkeypatch.delenv(k, raising=False)
+    for k, v in environ.items():
+        monkeypatch.setenv(k, v)
+    return get_settings()
+
+
+def test_neon_production_url_starts(monkeypatch):
+    s = _prod_settings(monkeypatch, {**PROD_ENV, "DATABASE_URL": NEON_PROD})
+    assert s.database_url == NEON_PROD
+    assert check_production(s, os.environ)[0] == "production"
+
+
+def test_present_dev_default_value_is_not_reported_as_missing(monkeypatch):
+    """#15 배포 로그의 모순 — env 줄은 'DATABASE_URL=있음'인데 검사는 '이름이 없어서 기본값으로 떨어졌다'고 했다.
+
+    검사가 이름이 있는지 보지 않고, 값이 개발용 기본값과 같으면 '없음'으로 추론했다.
+    값이 .env.example의 로컬 주소와 같을 때 정확히 이 두 줄이 나온다.
+    """
+    s = _prod_settings(monkeypatch, {**PROD_ENV, "DATABASE_URL": DEV_DATABASE_URL})
+    assert env_presence(("DATABASE_URL",)) == "DATABASE_URL=있음"
+    with pytest.raises(ConfigError) as e:
+        check_production(s, os.environ)
+    msg = str(e.value)
+    assert "DATABASE_URL이 없습니다" not in msg and "이름이 없" not in msg
+    assert "DATABASE_URL은 있지만" in msg and "localhost" in msg and ".env.example" in msg
+
+
+def test_missing_and_blank_database_url_are_named_as_such(monkeypatch):
+    s = _prod_settings(monkeypatch, PROD_ENV)
+    with pytest.raises(ConfigError, match="DATABASE_URL이 없습니다"):
+        check_production(s, os.environ)
+    s = _prod_settings(monkeypatch, {**PROD_ENV, "DATABASE_URL": "   "})
+    with pytest.raises(ConfigError, match="DATABASE_URL이 비어 있습니다"):
+        check_production(s, os.environ)
+
+
+@pytest.mark.parametrize(
+    ("value", "hint"),
+    [
+        (f'"{NEON_PROD}"', "따옴표"),
+        (f"DATABASE_URL={NEON_PROD}", "'DATABASE_URL='"),
+        (f"psql '{NEON_PROD}'", "psql"),
+        (NEON_PROD.replace("postgresql://", "mysql://"), "postgresql://"),
+        (NEON_PROD.replace("npg_FAKEfake123", "npg_FAKE/fake#123"), "인코딩"),  # 비밀번호의 / # 가 URL을 끊는다
+    ],
+)
+def test_malformed_database_url_says_present_but_invalid_without_leaking_value(monkeypatch, value, hint):
+    s = _prod_settings(monkeypatch, {**PROD_ENV, "DATABASE_URL": value})
+    with pytest.raises(ConfigError) as e:
+        check_production(s, os.environ)
+    msg = str(e.value)
+    assert "DATABASE_URL은 있지만 형식이 잘못됐습니다" in msg and hint in msg
+    assert "DATABASE_URL이 없습니다" not in msg
+    assert "npg_" not in msg and "neondb_owner" not in msg and "FAKE" not in msg
+
+
+def test_database_url_is_stripped_before_use(monkeypatch):
+    # 앞뒤 공백은 검사를 통과해도 libpq가 URI로 읽지 못한다 — 읽을 때 걷어 낸다
+    s = _prod_settings(monkeypatch, {**PROD_ENV, "DATABASE_URL": f"  {NEON_PROD}\n"})
+    assert s.database_url == NEON_PROD
+
+
+def test_app_factory_presence_line_and_check_agree_for_neon_url(monkeypatch, caplog):
+    _prod_settings(monkeypatch, {**PROD_ENV, "DATABASE_URL": NEON_PROD})
+    monkeypatch.setattr(api, "create_app", lambda s: "app")  # DB 연결 없이 시작 검사까지만
+    caplog.set_level("INFO", logger="uvicorn.error")
+    assert api.app_factory() == "app"
+    assert "env: DATABASE_URL=있음" in caplog.text and f"db={NEON_HOST}" in caplog.text
+    assert "npg_FAKEfake123" not in caplog.text
