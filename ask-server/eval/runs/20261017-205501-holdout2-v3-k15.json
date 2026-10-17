@@ -1,0 +1,1060 @@
+{
+  "meta": {
+    "label": "holdout2-v3-k15",
+    "at": "2026-10-17T20:55:00+09:00",
+    "commit": "33d40b6",
+    "llm": "claude-haiku-5-5",
+    "embedder": "gemini-embedding-001@768",
+    "top_k": 15,
+    "min_score": 0.55,
+    "judge": "claude-sonnet-5-5 ×3 다수결",
+    "questions": 8,
+    "question_set": "holdout-2.yaml"
+  },
+  "summary": {
+    "hit@5": "100.0% (6/6)",
+    "hit@8": "100.0% (6/6)",
+    "recall@8 (multi)": "1.00",
+    "답해야 할 질문 → 답함": "83.3% (5/6)",
+    "잘못된 거절률": "16.7% (1/6)",
+    "답 없는 질문 → 근거 없음": "100.0% (2/2)",
+    "범위 밖·개인정보 → 거절": "—",
+    "인젝션 → 거절 또는 안전 답변": "—",
+    "답의 항목 재현율": "50.0% (2/4)",
+    "근거에 든 항목 → 답에 언급": "100.0% (2/2)",
+    "1차 검증 통과 (답한 것 중)": "80.0% (4/5)",
+    "1차 초안 위반 (규칙별 문장 수)": "uncited 1",
+    "재생성 후 통과": "20.0% (1/5)",
+    "fallback": "0.0% (0/5)",
+    "필수 숫자 포함": "—",
+    "인용 정확도 (심사)": "100.0% (15/15)",
+    "심사 판정이 갈린 쌍": "0.0% (0/15)",
+    "심사 비용 합계": "$0.0571",
+    "질문 언어로 답함": "100.0% (8/8)",
+    "응답 시간 p50 / p95": "4410ms / 6959ms",
+    "질문당 비용 평균 / 최대": "$0.00085 / $0.00158"
+  },
+  "rows": [
+    {
+      "id": "h2-01",
+      "type": "single",
+      "expect": "answer",
+      "outcome": "answered",
+      "latency_ms": 4960,
+      "attempts": 1,
+      "violations": [],
+      "cost_usd": 0.0010101,
+      "tokens": [
+        8776,
+        265
+      ],
+      "answer": "정태환은 운영 중인 어드민의 국제화를 기능 개발과 병행해 교체했고, vue-i18n 세팅부터 87개 파일의 하드코딩 문자열 치환까지 약 1주에 단독으로 수행했습니다[1]. 라우트 name을 번역문으로 쓰던 구조가 언어 전환 시 페이지 이동을 깨뜨리는 문제를 찾아 교정한 뒤 5개 언어 체계로 확장했습니다[1]. 이 작업은 한 코드베이스를 2개 브랜드 서비스로 운영하는 경력 중 하나로 소개되어 있습니다[2].",
+      "citations": [
+        "/#exp-5",
+        "/resume#jobs"
+      ],
+      "category": "in_scope",
+      "retrieved": [
+        [
+          "home#exp-5",
+          0.6584
+        ],
+        [
+          "resume#jobs~3",
+          0.6381
+        ],
+        [
+          "resume#case-admin-refactor",
+          0.6375
+        ],
+        [
+          "resume#jobs~6",
+          0.6131
+        ],
+        [
+          "resume#jobs",
+          0.5975
+        ],
+        [
+          "home#exp-6",
+          0.5916
+        ],
+        [
+          "home#exp-2",
+          0.588
+        ],
+        [
+          "ai:test-automation#case-3",
+          0.5874
+        ]
+      ],
+      "candidates": [
+        "home#exp-5",
+        "resume#jobs~3",
+        "resume#case-admin-refactor",
+        "resume#jobs~6",
+        "resume#jobs",
+        "home#exp-6",
+        "home#exp-2",
+        "ai:test-automation#case-3",
+        "project:zzokzzok#feature-4",
+        "ai:role-isolation#case-4",
+        "project:zzokzzok#case-3",
+        "ai:agent-team#intro",
+        "project:orbit#feature-4",
+        "project:zzokzzok#feature-1",
+        "resume#case-gak"
+      ],
+      "evidence": [
+        "home#exp-5",
+        "resume#jobs"
+      ],
+      "timings": {
+        "pre_guard": 0,
+        "classify": 1709,
+        "retrieve": 667,
+        "grade": 1123,
+        "generate": 1452,
+        "verify": 0,
+        "finalize": 0
+      },
+      "drafts": [
+        []
+      ],
+      "hit@5": true,
+      "recall@5": 1.0,
+      "hit@8": true,
+      "recall@8": 1.0,
+      "behavior_ok": true,
+      "false_refusal": false,
+      "lang_ok": true,
+      "numbers_ok": null,
+      "must_not_ok": true,
+      "judge_cost_usd": 0.010896,
+      "pairs": [
+        {
+          "qid": "h2-01",
+          "sentence": "정태환은 운영 중인 어드민의 국제화를 기능 개발과 병행해 교체했고, vue-i18n 세팅부터 87개 파일의 하드코딩 문자열 치환까지 약 1주에 단독으로 수행했습니다[1].",
+          "cites": [
+            1
+          ],
+          "sources": [
+            "홈 › 경력: 프론트엔드 기반 개선 — i18n · Vite · 부트스트랩 · 배포 파이프라인\n(주)셀메이트 · 개발그룹 · 선임 · 2022.11 – 재직 중\n2023.08 – 2024 · 프론트엔드 기반 개선 — i18n · Vite · 부트스트랩 · 배포 파이프라인\n운영 중인 어드민의 국제화·빌드·환경설정·배포 기반을 기능 개발과 병행해 교체했습니다. i18n은 vue-i18n 세팅부터 87개 파일의 하드코딩 문자열 치환까지 약 1주에 단독 수행했고, 라우트 name을 번역문으로 쓰던 구조가 언어 전환 시 페이지 이동을 깨뜨리는 문제를 찾아 교정한 뒤 5개 언어 체계로 확장했습니다. Webpack → Vite, Jest → Vitest 전환(196개 파일), 화면마다 반복 호출되던 환경설정 API를 boot 체인 + Pinia 캐싱으로 1회 로드 통합(45개 파일), GitLab CI를 템플릿 잡으로 추상화해 한 코드베이스를 2개 브랜드 서비스로 빌드·배포하는 파이프라인을 구성했습니다.\n수치: Files 87 · 196 · 45 · Locales ×5 · Brands ×2"
+          ],
+          "supported": true,
+          "votes": [
+            true,
+            true,
+            true
+          ],
+          "split": false
+        },
+        {
+          "qid": "h2-01",
+          "sentence": "라우트 name을 번역문으로 쓰던 구조가 언어 전환 시 페이지 이동을 깨뜨리는 문제를 찾아 교정한 뒤 5개 언어 체계로 확장했습니다[1].",
+          "cites": [
+            1
+          ],
+          "sources": [
+            "홈 › 경력: 프론트엔드 기반 개선 — i18n · Vite · 부트스트랩 · 배포 파이프라인\n(주)셀메이트 · 개발그룹 · 선임 · 2022.11 – 재직 중\n2023.08 – 2024 · 프론트엔드 기반 개선 — i18n · Vite · 부트스트랩 · 배포 파이프라인\n운영 중인 어드민의 국제화·빌드·환경설정·배포 기반을 기능 개발과 병행해 교체했습니다. i18n은 vue-i18n 세팅부터 87개 파일의 하드코딩 문자열 치환까지 약 1주에 단독 수행했고, 라우트 name을 번역문으로 쓰던 구조가 언어 전환 시 페이지 이동을 깨뜨리는 문제를 찾아 교정한 뒤 5개 언어 체계로 확장했습니다. Webpack → Vite, Jest → Vitest 전환(196개 파일), 화면마다 반복 호출되던 환경설정 API를 boot 체인 + Pinia 캐싱으로 1회 로드 통합(45개 파일), GitLab CI를 템플릿 잡으로 추상화해 한 코드베이스를 2개 브랜드 서비스로 빌드·배포하는 파이프라인을 구성했습니다.\n수치: Files 87 · 196 · 45 · Locales ×5 · Brands ×2"
+          ],
+          "supported": true,
+          "votes": [
+            true,
+            true,
+            true
+          ],
+          "split": false
+        },
+        {
+          "qid": "h2-01",
+          "sentence": "이 작업은 한 코드베이스를 2개 브랜드 서비스로 운영하는 경력 중 하나로 소개되어 있습니다[2].",
+          "cites": [
+            2
+          ],
+          "sources": [
+            "이력서 · 포트폴리오 › 경력: 회사\n(주)셀메이트 · 개발그룹 선임 · 2022.11 ~ 재직 중 (3년 11개월)\n일본 시장 중심 커머스 플랫폼(입점 브랜드 어드민 · 쇼핑몰 웹앱 · 결제 중개)의 프론트엔드. 2개 브랜드 · 4개 마켓 · 5개 언어를 한 코드베이스로 운영합니다.\n그 외: i18n 5개 언어 도입, Webpack→Vite·Jest→Vitest 전환(196개 파일), 2개 브랜드 배포 CI 구성, 전사 컨퍼런스 발표 「브라우저 렌더링과 SSR·CSR」(2024)"
+          ],
+          "supported": true,
+          "votes": [
+            true,
+            true,
+            true
+          ],
+          "split": false
+        }
+      ]
+    },
+    {
+      "id": "h2-02",
+      "type": "single",
+      "expect": "answer",
+      "outcome": "answered",
+      "latency_ms": 4638,
+      "attempts": 1,
+      "violations": [],
+      "cost_usd": 0.0009033,
+      "tokens": [
+        7563,
+        294
+      ],
+      "answer": "쪽쪽을 Capacitor에서 Expo로 옮긴 이유는, 첫 버전에서 폰으로 QR을 찍어 바로 테스트할 수 없었고 iOS 빌드에 Mac이 필요했기 때문입니다[1]. Expo로 바꾼 뒤에는 Expo Go로 QR을 찍어 바로 실행해 볼 수 있고, EAS Build나 로컬 Gradle 스크립트로 APK를 만들 수 있게 되었습니다[1]. 옮기는 과정에서 도메인 로직은 프레임워크와 무관하게 짜여 있어 바뀌지 않았고, 바뀐 것은 포트 구현과 화면뿐입니다[1][2].",
+      "citations": [
+        "/projects/zzokzzok#case-3",
+        "/projects/zzokzzok#feature-4"
+      ],
+      "category": "in_scope",
+      "retrieved": [
+        [
+          "project:zzokzzok#case-3",
+          0.8262
+        ],
+        [
+          "project:zzokzzok#feature-4",
+          0.7603
+        ],
+        [
+          "project:zzokzzok#overview",
+          0.7252
+        ],
+        [
+          "project:kkini#feature-3",
+          0.6527
+        ],
+        [
+          "project:zzokzzok#case-1",
+          0.6525
+        ],
+        [
+          "project:oneureodi#overview",
+          0.6446
+        ],
+        [
+          "project:zzokzzok#feature-3",
+          0.6407
+        ],
+        [
+          "resume#side-projects",
+          0.6361
+        ]
+      ],
+      "candidates": [
+        "project:zzokzzok#case-3",
+        "project:zzokzzok#feature-4",
+        "project:zzokzzok#overview",
+        "project:kkini#feature-3",
+        "project:zzokzzok#case-1",
+        "project:oneureodi#overview",
+        "project:zzokzzok#feature-3",
+        "resume#side-projects",
+        "project:zzokzzok#case-2",
+        "project:zzokzzok#feature-2",
+        "resume#case-orbit",
+        "project:kkini#overview",
+        "project:usetaehwan-ui#case-3",
+        "project:orbit#case-1",
+        "project:orbit#case-3"
+      ],
+      "evidence": [
+        "project:zzokzzok#case-3",
+        "project:zzokzzok#feature-4"
+      ],
+      "timings": {
+        "pre_guard": 0,
+        "classify": 1320,
+        "retrieve": 693,
+        "grade": 869,
+        "generate": 1751,
+        "verify": 0,
+        "finalize": 0
+      },
+      "drafts": [
+        []
+      ],
+      "hit@5": true,
+      "recall@5": 1.0,
+      "hit@8": true,
+      "recall@8": 1.0,
+      "behavior_ok": true,
+      "false_refusal": false,
+      "lang_ok": true,
+      "numbers_ok": null,
+      "must_not_ok": true,
+      "judge_cost_usd": 0.00957,
+      "pairs": [
+        {
+          "qid": "h2-02",
+          "sentence": "쪽쪽을 Capacitor에서 Expo로 옮긴 이유는, 첫 버전에서 폰으로 QR을 찍어 바로 테스트할 수 없었고 iOS 빌드에 Mac이 필요했기 때문입니다[1].",
+          "cites": [
+            1
+          ],
+          "sources": [
+            "프로젝트 쪽쪽 › 사례: Capacitor에서 Expo로 옮기다\n문제: 첫 버전은 웹 앱을 네이티브 껍데기로 감싼 Capacitor였는데, 폰에서 QR로 바로 테스트할 수 없었고 iOS 빌드에는 Mac이 필요했습니다.\n파악: 도메인 로직은 프레임워크와 무관하게 짜 두었기 때문에, 바뀌는 곳은 포트 구현과 화면뿐이었습니다.\n해결: 도메인 코드는 그대로 두고 포트만 AsyncStorage·expo-notifications·expo-haptics로 바꾼 뒤, 화면과 마스코트를 react-native-svg로 다시 그렸습니다. 이제 Expo Go로 QR을 찍어 바로 돌려 보고, EAS Build나 로컬 Gradle 스크립트로 APK를 만듭니다. 이전 버전은 v0.1.0 태그로 남겨 두었습니다."
+          ],
+          "supported": true,
+          "votes": [
+            true,
+            true,
+            true
+          ],
+          "split": false
+        },
+        {
+          "qid": "h2-02",
+          "sentence": "Expo로 바꾼 뒤에는 Expo Go로 QR을 찍어 바로 실행해 볼 수 있고, EAS Build나 로컬 Gradle 스크립트로 APK를 만들 수 있게 되었습니다[1].",
+          "cites": [
+            1
+          ],
+          "sources": [
+            "프로젝트 쪽쪽 › 사례: Capacitor에서 Expo로 옮기다\n문제: 첫 버전은 웹 앱을 네이티브 껍데기로 감싼 Capacitor였는데, 폰에서 QR로 바로 테스트할 수 없었고 iOS 빌드에는 Mac이 필요했습니다.\n파악: 도메인 로직은 프레임워크와 무관하게 짜 두었기 때문에, 바뀌는 곳은 포트 구현과 화면뿐이었습니다.\n해결: 도메인 코드는 그대로 두고 포트만 AsyncStorage·expo-notifications·expo-haptics로 바꾼 뒤, 화면과 마스코트를 react-native-svg로 다시 그렸습니다. 이제 Expo Go로 QR을 찍어 바로 돌려 보고, EAS Build나 로컬 Gradle 스크립트로 APK를 만듭니다. 이전 버전은 v0.1.0 태그로 남겨 두었습니다."
+          ],
+          "supported": true,
+          "votes": [
+            true,
+            true,
+            true
+          ],
+          "split": false
+        },
+        {
+          "qid": "h2-02",
+          "sentence": "옮기는 과정에서 도메인 로직은 프레임워크와 무관하게 짜여 있어 바뀌지 않았고, 바뀐 것은 포트 구현과 화면뿐입니다[1][2].",
+          "cites": [
+            1,
+            2
+          ],
+          "sources": [
+            "프로젝트 쪽쪽 › 사례: Capacitor에서 Expo로 옮기다\n문제: 첫 버전은 웹 앱을 네이티브 껍데기로 감싼 Capacitor였는데, 폰에서 QR로 바로 테스트할 수 없었고 iOS 빌드에는 Mac이 필요했습니다.\n파악: 도메인 로직은 프레임워크와 무관하게 짜 두었기 때문에, 바뀌는 곳은 포트 구현과 화면뿐이었습니다.\n해결: 도메인 코드는 그대로 두고 포트만 AsyncStorage·expo-notifications·expo-haptics로 바꾼 뒤, 화면과 마스코트를 react-native-svg로 다시 그렸습니다. 이제 Expo Go로 QR을 찍어 바로 돌려 보고, EAS Build나 로컬 Gradle 스크립트로 APK를 만듭니다. 이전 버전은 v0.1.0 태그로 남겨 두었습니다.",
+            "프로젝트 쪽쪽 › 핵심 기능: 도메인과 플랫폼 분리\n문구 규칙·시간·세션·알람·통계·상태 리듀서는 프레임워크를 모르는 순수 로직이고, 저장소·알림·진동은 포트로 갈아 끼웁니다. 덕분에 Capacitor에서 Expo로 옮길 때 도메인 코드는 한 줄도 바꾸지 않았습니다."
+          ],
+          "supported": true,
+          "votes": [
+            true,
+            true,
+            true
+          ],
+          "split": false
+        }
+      ]
+    },
+    {
+      "id": "h2-03",
+      "type": "single",
+      "expect": "answer",
+      "outcome": "refused",
+      "latency_ms": 1042,
+      "attempts": 0,
+      "violations": [],
+      "cost_usd": 6.930000000000002e-05,
+      "tokens": [
+        593,
+        20
+      ],
+      "answer": "I only answer questions about Taehwan's career, projects and way of working. Try something like \"Has he integrated payment gateways?\"",
+      "citations": [],
+      "category": "out_of_scope",
+      "retrieved": [
+        [
+          "project:usetaehwan-ui#case-3",
+          0.7537
+        ],
+        [
+          "project:usetaehwan-ui#case-1",
+          0.6905
+        ],
+        [
+          "project:usetaehwan-ui#feature-3",
+          0.6579
+        ],
+        [
+          "project:usetaehwan-ui#overview",
+          0.6449
+        ],
+        [
+          "project:usetaehwan-ui#feature-4",
+          0.6396
+        ],
+        [
+          "project:usetaehwan-ui#feature-2",
+          0.636
+        ],
+        [
+          "project:orbit#feature-1",
+          0.6296
+        ],
+        [
+          "project:usetaehwan-ui#feature-1",
+          0.6263
+        ]
+      ],
+      "candidates": [],
+      "evidence": [],
+      "timings": {
+        "pre_guard": 0,
+        "classify": 1039,
+        "refuse": 0
+      },
+      "drafts": [],
+      "hit@5": true,
+      "recall@5": 1.0,
+      "hit@8": true,
+      "recall@8": 1.0,
+      "behavior_ok": false,
+      "false_refusal": true,
+      "lang_ok": true,
+      "numbers_ok": null,
+      "must_not_ok": true
+    },
+    {
+      "id": "h2-04",
+      "type": "single",
+      "expect": "answer",
+      "outcome": "answered",
+      "latency_ms": 4072,
+      "attempts": 1,
+      "violations": [],
+      "cost_usd": 0.0009784,
+      "tokens": [
+        8844,
+        188
+      ],
+      "answer": "정태환은 마진 통계를 서버와의 금액 불일치를 막기 위해 \"응답값 그대로 표시, 재계산 금지\" 원칙을 세웠습니다[1]. 프론트가 재계산하면 서버와 어긋날 수 있다는 점이 이유로 명시되어 있습니다[2]. 다만 재계산을 하지 않는 대신 0 나눗셈과 음수만 가드했습니다[2].",
+      "citations": [
+        "/resume#jobs",
+        "/#exp-6"
+      ],
+      "category": "in_scope",
+      "retrieved": [
+        [
+          "resume#jobs~6",
+          0.6595
+        ],
+        [
+          "home#exp-6",
+          0.6463
+        ],
+        [
+          "resume#case-commerce-core",
+          0.5904
+        ],
+        [
+          "project:orbit#case-2",
+          0.5901
+        ],
+        [
+          "resume#case-admin-refactor",
+          0.5885
+        ],
+        [
+          "home#about",
+          0.5848
+        ],
+        [
+          "resume#jobs",
+          0.5827
+        ],
+        [
+          "ai:test-automation#case-2",
+          0.5796
+        ]
+      ],
+      "candidates": [
+        "resume#jobs~6",
+        "home#exp-6",
+        "resume#case-commerce-core",
+        "project:orbit#case-2",
+        "resume#case-admin-refactor",
+        "home#about",
+        "resume#jobs",
+        "ai:test-automation#case-2",
+        "project:kkini#case-3",
+        "talk:e2e-automation-with-claude-code#numbers",
+        "resume#jobs~2",
+        "project:oneureodi#case-3",
+        "home#exp-5",
+        "project:orbit#case-1",
+        "project:orbit#case-3"
+      ],
+      "evidence": [
+        "resume#jobs~6",
+        "home#exp-6"
+      ],
+      "timings": {
+        "pre_guard": 0,
+        "classify": 1024,
+        "retrieve": 845,
+        "grade": 867,
+        "generate": 1329,
+        "verify": 0,
+        "finalize": 0
+      },
+      "drafts": [
+        []
+      ],
+      "hit@5": true,
+      "recall@5": 1.0,
+      "hit@8": true,
+      "recall@8": 1.0,
+      "behavior_ok": true,
+      "false_refusal": false,
+      "lang_ok": true,
+      "numbers_ok": null,
+      "must_not_ok": true,
+      "judge_cost_usd": 0.009876,
+      "pairs": [
+        {
+          "qid": "h2-04",
+          "sentence": "정태환은 마진 통계를 서버와의 금액 불일치를 막기 위해 \"응답값 그대로 표시, 재계산 금지\" 원칙을 세웠습니다[1].",
+          "cites": [
+            1
+          ],
+          "sources": [
+            "이력서 · 포트폴리오 › 경력: 커머스 어드민 — 금액이 걸린 도메인 구축\n커머스 어드민 — 금액이 걸린 도메인 구축 · 2023.05 ~ 현재 · MR 642건\nPG·MID, 쿠폰·할인정책·정산·마진 통계, 세트상품을 신규 구축했습니다. 마진 통계는 \"응답값 그대로 표시, 재계산 금지\" 원칙으로 서버와의 금액 불일치를 차단했습니다.\n세트상품을 등록부터 주문 8개 페이지·구성상품 조합(cartesian product)까지 관통 구현하고, 매출·주문 통계 4종을 만들었습니다."
+          ],
+          "supported": true,
+          "votes": [
+            true,
+            true,
+            true
+          ],
+          "split": false
+        },
+        {
+          "qid": "h2-04",
+          "sentence": "프론트가 재계산하면 서버와 어긋날 수 있다는 점이 이유로 명시되어 있습니다[2].",
+          "cites": [
+            2
+          ],
+          "sources": [
+            "홈 › 경력: 커머스 어드민 — 금액이 걸린 도메인 구축\n(주)셀메이트 · 개발그룹 · 선임 · 2022.11 – 재직 중\n2023.05 – 현재 · 커머스 어드민 — 금액이 걸린 도메인 구축\nPG·MID 관리, 쿠폰·할인정책·정산·마진 통계, 세트상품처럼 금액 계산이 얽힌 도메인을 신규 구축했습니다. 실제 마진 통계는 프론트가 재계산하면 서버와 어긋날 수 있어 '응답값 그대로 표시, 재계산 금지' 원칙을 세우고 0 나눗셈·음수만 가드했습니다. 세트상품은 등록·상세부터 주문 8개 페이지와 신규주문 생성(구성상품 variants의 cartesian product 조합)까지 관통 구현했고, 입점 브랜드 상품 검수 워크플로(5개월·MR 41건)와 매출·주문 통계 4종(추세선 최소제곱법 직접 계산, 월 선택기 자체 제작)도 만들었습니다.\n수치: Order pages ×8 · MR 41 · Stats ×4"
+          ],
+          "supported": true,
+          "votes": [
+            true,
+            true,
+            true
+          ],
+          "split": false
+        },
+        {
+          "qid": "h2-04",
+          "sentence": "다만 재계산을 하지 않는 대신 0 나눗셈과 음수만 가드했습니다[2].",
+          "cites": [
+            2
+          ],
+          "sources": [
+            "홈 › 경력: 커머스 어드민 — 금액이 걸린 도메인 구축\n(주)셀메이트 · 개발그룹 · 선임 · 2022.11 – 재직 중\n2023.05 – 현재 · 커머스 어드민 — 금액이 걸린 도메인 구축\nPG·MID 관리, 쿠폰·할인정책·정산·마진 통계, 세트상품처럼 금액 계산이 얽힌 도메인을 신규 구축했습니다. 실제 마진 통계는 프론트가 재계산하면 서버와 어긋날 수 있어 '응답값 그대로 표시, 재계산 금지' 원칙을 세우고 0 나눗셈·음수만 가드했습니다. 세트상품은 등록·상세부터 주문 8개 페이지와 신규주문 생성(구성상품 variants의 cartesian product 조합)까지 관통 구현했고, 입점 브랜드 상품 검수 워크플로(5개월·MR 41건)와 매출·주문 통계 4종(추세선 최소제곱법 직접 계산, 월 선택기 자체 제작)도 만들었습니다.\n수치: Order pages ×8 · MR 41 · Stats ×4"
+          ],
+          "supported": true,
+          "votes": [
+            true,
+            true,
+            true
+          ],
+          "split": false
+        }
+      ]
+    },
+    {
+      "id": "h2-05",
+      "type": "no_answer",
+      "expect": "no_evidence",
+      "outcome": "no_evidence",
+      "latency_ms": 3730,
+      "attempts": 0,
+      "violations": [],
+      "cost_usd": 0.0008053000000000001,
+      "tokens": [
+        7913,
+        28
+      ],
+      "answer": "사이트에 있는 자료에서는 그 내용을 찾지 못했어요. 자료에 없는 내용은 추측해서 답하지 않아요.",
+      "citations": [],
+      "category": "in_scope",
+      "retrieved": [
+        [
+          "project:orbit#case-3",
+          0.622
+        ],
+        [
+          "resume#ai-talk",
+          0.613
+        ],
+        [
+          "resume#jobs~2",
+          0.6094
+        ],
+        [
+          "resume#jobs~3",
+          0.6059
+        ],
+        [
+          "resume#case-commerce-core",
+          0.6032
+        ],
+        [
+          "home#exp-5",
+          0.6028
+        ],
+        [
+          "resume#case-gak",
+          0.6027
+        ],
+        [
+          "resume#side-projects~2",
+          0.6004
+        ]
+      ],
+      "candidates": [
+        "project:orbit#case-3",
+        "resume#ai-talk",
+        "resume#jobs~2",
+        "resume#jobs~3",
+        "resume#case-commerce-core",
+        "home#exp-5",
+        "resume#case-gak",
+        "resume#side-projects~2",
+        "resume#side-projects~4",
+        "resume#case-admin-refactor",
+        "project:orbit#feature-4",
+        "home#about",
+        "resume#side-projects",
+        "ai:hallucination-control#case-4",
+        "ai:role-isolation#case-4"
+      ],
+      "evidence": [],
+      "timings": {
+        "pre_guard": 0,
+        "classify": 2090,
+        "retrieve": 730,
+        "grade": 905,
+        "no_evidence": 0
+      },
+      "drafts": [],
+      "behavior_ok": true,
+      "false_refusal": false,
+      "lang_ok": true,
+      "numbers_ok": null,
+      "must_not_ok": true
+    },
+    {
+      "id": "h2-06",
+      "type": "no_answer",
+      "expect": "no_evidence",
+      "outcome": "no_evidence",
+      "latency_ms": 3067,
+      "attempts": 0,
+      "violations": [],
+      "cost_usd": 0.0006604,
+      "tokens": [
+        6464,
+        28
+      ],
+      "answer": "I couldn't find that in the materials on this site, and I don't guess beyond them.",
+      "citations": [],
+      "category": "in_scope",
+      "retrieved": [
+        [
+          "resume#side-projects~3",
+          0.6025
+        ],
+        [
+          "resume#side-projects~4",
+          0.5956
+        ],
+        [
+          "resume#jobs~5",
+          0.5954
+        ],
+        [
+          "resume#side-projects",
+          0.589
+        ],
+        [
+          "project:orbit#case-3",
+          0.5889
+        ],
+        [
+          "resume#case-orbit",
+          0.5868
+        ],
+        [
+          "project:orbit#feature-4",
+          0.5864
+        ],
+        [
+          "project:orbit#feature-3",
+          0.5859
+        ]
+      ],
+      "candidates": [
+        "resume#side-projects~3",
+        "resume#side-projects~4",
+        "resume#jobs~5",
+        "resume#side-projects",
+        "project:orbit#case-3",
+        "resume#case-orbit",
+        "project:orbit#feature-4",
+        "project:orbit#feature-3",
+        "project:oneureodi#overview",
+        "resume#side-projects~2",
+        "resume#ai-talk",
+        "resume#case-gak",
+        "project:kkini#overview",
+        "resume#jobs~2",
+        "project:orbit#overview"
+      ],
+      "evidence": [],
+      "timings": {
+        "pre_guard": 0,
+        "classify": 1123,
+        "retrieve": 590,
+        "grade": 1348,
+        "no_evidence": 0
+      },
+      "drafts": [],
+      "behavior_ok": true,
+      "false_refusal": false,
+      "lang_ok": true,
+      "numbers_ok": null,
+      "must_not_ok": true
+    },
+    {
+      "id": "h2-07",
+      "type": "multi",
+      "expect": "answer",
+      "outcome": "answered",
+      "latency_ms": 4410,
+      "attempts": 1,
+      "violations": [],
+      "cost_usd": 0.0007713,
+      "tokens": [
+        7083,
+        126
+      ],
+      "answer": "Orbit is the personal project with Playwright tests, and it has 29 of them that verify the login and record flows[1][2]. The Orbit project was built with FastAPI, PostgreSQL, and Next.js[1]. The materials do not mention any other personal projects with Playwright tests.",
+      "citations": [
+        "/resume#side-projects",
+        "/projects/orbit#case-3"
+      ],
+      "category": "in_scope",
+      "retrieved": [
+        [
+          "resume#side-projects~4",
+          0.6734
+        ],
+        [
+          "resume#side-projects~3",
+          0.6732
+        ],
+        [
+          "ai:test-automation#case-4",
+          0.667
+        ],
+        [
+          "resume#side-projects",
+          0.6542
+        ],
+        [
+          "resume#ai-talk",
+          0.654
+        ],
+        [
+          "resume#side-projects~2",
+          0.6485
+        ],
+        [
+          "talk:e2e-automation-with-claude-code#context",
+          0.6425
+        ],
+        [
+          "project:oneureodi#feature-4",
+          0.6399
+        ]
+      ],
+      "candidates": [
+        "resume#side-projects~4",
+        "resume#side-projects~3",
+        "ai:test-automation#case-4",
+        "resume#side-projects",
+        "resume#ai-talk",
+        "resume#side-projects~2",
+        "talk:e2e-automation-with-claude-code#context",
+        "project:oneureodi#feature-4",
+        "project:orbit#case-3",
+        "ai:test-automation#intro",
+        "talk:e2e-automation-with-claude-code#outline",
+        "ai:test-automation#case-1",
+        "talk:e2e-automation-with-claude-code#numbers",
+        "ai:test-automation#case-3",
+        "resume#case-commerce-core"
+      ],
+      "evidence": [
+        "resume#side-projects~3",
+        "project:orbit#case-3"
+      ],
+      "timings": {
+        "pre_guard": 0,
+        "classify": 1068,
+        "retrieve": 716,
+        "grade": 1427,
+        "generate": 1193,
+        "verify": 0,
+        "finalize": 0
+      },
+      "drafts": [
+        []
+      ],
+      "hit@5": true,
+      "recall@5": 1.0,
+      "hit@8": true,
+      "recall@8": 1.0,
+      "mentions": [
+        {
+          "item": "Orbit",
+          "mentioned": true,
+          "in_evidence": true
+        },
+        {
+          "item": "끼니",
+          "mentioned": false,
+          "in_evidence": false
+        }
+      ],
+      "behavior_ok": true,
+      "false_refusal": false,
+      "lang_ok": true,
+      "numbers_ok": null,
+      "must_not_ok": true,
+      "judge_cost_usd": 0.0081,
+      "pairs": [
+        {
+          "qid": "h2-07",
+          "sentence": "Orbit is the personal project with Playwright tests, and it has 29 of them that verify the login and record flows[1][2].",
+          "cites": [
+            1,
+            2
+          ],
+          "sources": [
+            "이력서 · 포트폴리오 › 개인 프로젝트: Orbit\nOrbit · 2026.07 · FastAPI · PostgreSQL · Next.js\n학습 기록 동기부여 웹앱을 백엔드·DB·인증·배포까지 혼자 구성. iOS Safari 쿠키 차단을 동일 출처 프록시로 해결, pytest 65 · Vitest 102 · Playwright 29.",
+            "프로젝트 Orbit › 사례: 프론트엔드 개발자가 배포 파이프라인까지\n문제: 화면만 만들어 본 상태에서 백엔드·DB·에셋·인증을 각각 어디에 두고 어떻게 이어야 하는지가 비어 있었습니다.\n파악: 한 서비스에 몰아넣으면 쉽지만 무료 플랜 범위를 넘고, 나누면 크로스 도메인 문제(위 쿠키 이슈)가 따라옵니다. 나누되 경계 문제를 코드로 흡수하는 쪽을 택했습니다.\n해결: Vercel(프론트)·Railway(FastAPI)·Neon(PostgreSQL)·Cloudinary(이미지)로 분리 배포하고, GitHub Actions CI에서 ruff + pytest 65개 / tsc + eslint + Vitest 102개를 돌립니다. Playwright e2e 29개로 로그인·기록 흐름을 회귀 검증하고, 처음 SVG로 그렸던 행성은 React Three Fiber 3D로 교체했습니다."
+          ],
+          "supported": true,
+          "votes": [
+            true,
+            true,
+            true
+          ],
+          "split": false
+        },
+        {
+          "qid": "h2-07",
+          "sentence": "The Orbit project was built with FastAPI, PostgreSQL, and Next.js[1].",
+          "cites": [
+            1
+          ],
+          "sources": [
+            "이력서 · 포트폴리오 › 개인 프로젝트: Orbit\nOrbit · 2026.07 · FastAPI · PostgreSQL · Next.js\n학습 기록 동기부여 웹앱을 백엔드·DB·인증·배포까지 혼자 구성. iOS Safari 쿠키 차단을 동일 출처 프록시로 해결, pytest 65 · Vitest 102 · Playwright 29."
+          ],
+          "supported": true,
+          "votes": [
+            true,
+            true,
+            true
+          ],
+          "split": false
+        }
+      ]
+    },
+    {
+      "id": "h2-08",
+      "type": "multi",
+      "expect": "answer",
+      "outcome": "answered",
+      "latency_ms": 6959,
+      "attempts": 2,
+      "violations": [],
+      "cost_usd": 0.0015831999999999999,
+      "tokens": [
+        12637,
+        639
+      ],
+      "answer": "사람이 요구사항을 확정하고 구현 AI가 구현하며 검증 AI가 리뷰하는 역할 분리 방식은 정태환의 개인 프로젝트 각(Gak)에서 적용됐습니다[1]. 사람은 만들 것을 말하고 요구사항을 확정하며 직접 눌러보고 판단하고, 구현 AI는 질문·요구사항 초안·구현을 맡으며, 검증 AI는 인수 테스트 케이스를 뽑아 diff만 보고 리뷰합니다[1]. 검증 AI는 구현과 다른 벤더를 쓰고 구현 코드가 아니라 요구사항 문서에서 테스트 케이스를 뽑습니다[1][5]. 이 방식으로 화면 3개를 완주했고 인수 테스트는 109건(입력 30·타임라인 42·진단 37)입니다[1].",
+      "citations": [
+        "/ai/role-isolation#case-1",
+        "/ai/test-automation#case-4"
+      ],
+      "category": "in_scope",
+      "retrieved": [
+        [
+          "ai:role-isolation#case-1",
+          0.7688
+        ],
+        [
+          "ai:role-isolation#intro",
+          0.7404
+        ],
+        [
+          "ai:agent-team#case-1",
+          0.7201
+        ],
+        [
+          "project:kkini#case-2",
+          0.7134
+        ],
+        [
+          "ai:role-isolation#rules",
+          0.7113
+        ],
+        [
+          "ai:agent-team#intro",
+          0.7097
+        ],
+        [
+          "project:kkini#case-1",
+          0.7024
+        ],
+        [
+          "ai:agent-team#rules",
+          0.6954
+        ]
+      ],
+      "candidates": [
+        "ai:role-isolation#case-1",
+        "ai:role-isolation#intro",
+        "ai:agent-team#case-1",
+        "project:kkini#case-2",
+        "ai:role-isolation#rules",
+        "ai:agent-team#intro",
+        "project:kkini#case-1",
+        "ai:agent-team#rules",
+        "ai:role-isolation#case-2",
+        "project:kkini#feature-1",
+        "ai:agent-team#case-3",
+        "ai:test-automation#case-4",
+        "ai:agent-team#case-4",
+        "project:oneureodi#case-1",
+        "ai:hallucination-control#case-4"
+      ],
+      "evidence": [
+        "ai:role-isolation#case-1",
+        "ai:role-isolation#intro",
+        "ai:role-isolation#rules",
+        "ai:role-isolation#case-2",
+        "ai:test-automation#case-4"
+      ],
+      "timings": {
+        "pre_guard": 0,
+        "classify": 1090,
+        "retrieve": 653,
+        "grade": 1405,
+        "generate": 1988,
+        "verify": 0,
+        "finalize": 0
+      },
+      "drafts": [
+        [
+          [
+            "uncited",
+            "정태환의 개인 프로젝트 각(Gak)이 해당 사례입니다."
+          ]
+        ],
+        []
+      ],
+      "hit@5": true,
+      "recall@5": 0.5,
+      "hit@8": true,
+      "recall@8": 1.0,
+      "mentions": [
+        {
+          "item": "각(Gak)",
+          "mentioned": true,
+          "in_evidence": true
+        },
+        {
+          "item": "끼니",
+          "mentioned": false,
+          "in_evidence": false
+        }
+      ],
+      "behavior_ok": true,
+      "false_refusal": false,
+      "lang_ok": true,
+      "numbers_ok": null,
+      "must_not_ok": true,
+      "judge_cost_usd": 0.018642,
+      "pairs": [
+        {
+          "qid": "h2-08",
+          "sentence": "사람이 요구사항을 확정하고 구현 AI가 구현하며 검증 AI가 리뷰하는 역할 분리 방식은 정태환의 개인 프로젝트 각(Gak)에서 적용됐습니다[1].",
+          "cites": [
+            1
+          ],
+          "sources": [
+            "AI 노트 역할 분리 파이프라인과 규칙의 코드화 › 사례: 구현과 검증을 다른 회사의 AI로 나눈다\n문제: 구현한 AI에게 리뷰를 맡기면 자기 코드를 자기 기준으로 통과시킵니다. 오류가 상관돼 있어 검증이 검증이 아니었습니다.\n설계: 사람(만들 것 말하기·요구사항 확정·직접 눌러보기·판단) / 구현 AI(질문·요구사항 초안·구현) / 검증 AI(인수 테스트 케이스·diff만 보고 리뷰)의 10단계. 검증 AI는 구현과 다른 벤더를 쓰고, 구현 코드가 아니라 요구사항 문서에서 테스트 케이스를 뽑습니다.\n결과: 각(Gak)에서 화면 3개를 이 순서로 완주 — 인수 테스트 109건(입력 30·타임라인 42·진단 37), 백엔드 자동 테스트 289개. 검증 AI가 요구사항에서 뽑은 케이스가 구현 AI의 해석과 어긋난 지점이 BLOCKER로 먼저 드러났습니다."
+          ],
+          "supported": true,
+          "votes": [
+            true,
+            true,
+            true
+          ],
+          "split": false
+        },
+        {
+          "qid": "h2-08",
+          "sentence": "사람은 만들 것을 말하고 요구사항을 확정하며 직접 눌러보고 판단하고, 구현 AI는 질문·요구사항 초안·구현을 맡으며, 검증 AI는 인수 테스트 케이스를 뽑아 diff만 보고 리뷰합니다[1].",
+          "cites": [
+            1
+          ],
+          "sources": [
+            "AI 노트 역할 분리 파이프라인과 규칙의 코드화 › 사례: 구현과 검증을 다른 회사의 AI로 나눈다\n문제: 구현한 AI에게 리뷰를 맡기면 자기 코드를 자기 기준으로 통과시킵니다. 오류가 상관돼 있어 검증이 검증이 아니었습니다.\n설계: 사람(만들 것 말하기·요구사항 확정·직접 눌러보기·판단) / 구현 AI(질문·요구사항 초안·구현) / 검증 AI(인수 테스트 케이스·diff만 보고 리뷰)의 10단계. 검증 AI는 구현과 다른 벤더를 쓰고, 구현 코드가 아니라 요구사항 문서에서 테스트 케이스를 뽑습니다.\n결과: 각(Gak)에서 화면 3개를 이 순서로 완주 — 인수 테스트 109건(입력 30·타임라인 42·진단 37), 백엔드 자동 테스트 289개. 검증 AI가 요구사항에서 뽑은 케이스가 구현 AI의 해석과 어긋난 지점이 BLOCKER로 먼저 드러났습니다."
+          ],
+          "supported": true,
+          "votes": [
+            true,
+            true,
+            true
+          ],
+          "split": false
+        },
+        {
+          "qid": "h2-08",
+          "sentence": "검증 AI는 구현과 다른 벤더를 쓰고 구현 코드가 아니라 요구사항 문서에서 테스트 케이스를 뽑습니다[1][5].",
+          "cites": [
+            1,
+            5
+          ],
+          "sources": [
+            "AI 노트 역할 분리 파이프라인과 규칙의 코드화 › 사례: 구현과 검증을 다른 회사의 AI로 나눈다\n문제: 구현한 AI에게 리뷰를 맡기면 자기 코드를 자기 기준으로 통과시킵니다. 오류가 상관돼 있어 검증이 검증이 아니었습니다.\n설계: 사람(만들 것 말하기·요구사항 확정·직접 눌러보기·판단) / 구현 AI(질문·요구사항 초안·구현) / 검증 AI(인수 테스트 케이스·diff만 보고 리뷰)의 10단계. 검증 AI는 구현과 다른 벤더를 쓰고, 구현 코드가 아니라 요구사항 문서에서 테스트 케이스를 뽑습니다.\n결과: 각(Gak)에서 화면 3개를 이 순서로 완주 — 인수 테스트 109건(입력 30·타임라인 42·진단 37), 백엔드 자동 테스트 289개. 검증 AI가 요구사항에서 뽑은 케이스가 구현 AI의 해석과 어긋난 지점이 BLOCKER로 먼저 드러났습니다.",
+            "AI 노트 AI와 테스트 자동화 — 기준선 만들기 › 사례: 개인 프로젝트 — 인수 테스트를 검증 AI가 요구사항에서 뽑는다\n문제: 구현한 사람(또는 구현 AI)이 테스트를 쓰면 구현의 해석이 그대로 테스트가 됩니다.\n설계: 각(Gak)에서는 요구사항이 승인된 뒤 다른 벤더의 검증 AI가 요구사항 문서만 보고 인수 테스트 케이스를 작성합니다. 구현 AI는 그 케이스를 통과시키는 방향으로 구현합니다.\n결과: 화면 3개 인수 테스트 109건(BLOCKED 7건 별도 관리), 백엔드 자동 테스트 289개. Orbit은 pytest 65·Vitest 102·Playwright e2e 29를 CI에서 실행합니다."
+          ],
+          "supported": true,
+          "votes": [
+            true,
+            true,
+            true
+          ],
+          "split": false
+        },
+        {
+          "qid": "h2-08",
+          "sentence": "이 방식으로 화면 3개를 완주했고 인수 테스트는 109건(입력 30·타임라인 42·진단 37)입니다[1].",
+          "cites": [
+            1
+          ],
+          "sources": [
+            "AI 노트 역할 분리 파이프라인과 규칙의 코드화 › 사례: 구현과 검증을 다른 회사의 AI로 나눈다\n문제: 구현한 AI에게 리뷰를 맡기면 자기 코드를 자기 기준으로 통과시킵니다. 오류가 상관돼 있어 검증이 검증이 아니었습니다.\n설계: 사람(만들 것 말하기·요구사항 확정·직접 눌러보기·판단) / 구현 AI(질문·요구사항 초안·구현) / 검증 AI(인수 테스트 케이스·diff만 보고 리뷰)의 10단계. 검증 AI는 구현과 다른 벤더를 쓰고, 구현 코드가 아니라 요구사항 문서에서 테스트 케이스를 뽑습니다.\n결과: 각(Gak)에서 화면 3개를 이 순서로 완주 — 인수 테스트 109건(입력 30·타임라인 42·진단 37), 백엔드 자동 테스트 289개. 검증 AI가 요구사항에서 뽑은 케이스가 구현 AI의 해석과 어긋난 지점이 BLOCKER로 먼저 드러났습니다."
+          ],
+          "supported": true,
+          "votes": [
+            true,
+            true,
+            true
+          ],
+          "split": false
+        }
+      ]
+    }
+  ]
+}

@@ -8,7 +8,7 @@
 
 - [ ] **Gemini 결제 활성화** (필수, D-22). 무료 등급은 입력을 Google이 제품 개선에 쓸 수 있는 약관이라, 방문자 질문을 보내면 안 된다. 분당 100건 한도도 함께 풀린다.
 - [ ] **Anthropic 월 지출 한도**를 콘솔의 워크스페이스에 건다 (design §6).
-- [ ] 검색 설정은 코드 기본값을 쓴다: `ASK_TOP_K` 8, `ASK_MIN_SCORE`는 `ASK_EMBEDDER=gemini`일 때 0.55(D-31). Railway에 따로 넣지 않는다.
+- [ ] 검색 설정은 코드 기본값을 쓴다: `ASK_TOP_K` 15(D-37), `ASK_MIN_SCORE`는 `ASK_EMBEDDER=gemini`일 때 0.55(D-31). Railway에 따로 넣지 않는다.
 - [ ] `denylist.txt`(또는 `ASK_DENYLIST`)를 채운 뒤 인제스트를 다시 돌린다. 로컬 `ask-server`에서 운영 `DATABASE_URL`로 실행한다. 컨테이너는 서빙만 하고 인제스트는 하지 않으므로, **denylist는 Railway에 필요 없다**(D-33).
 - [ ] **배포할 코드가 GitHub의 배포 브랜치(main)에 있는지** 확인한다. Railway는 원격 브랜치를 빌드한다. 로컬에만 있는 커밋은 배포되지 않는다(첫 배포 실패 원인 중 하나).
 - [ ] 비밀 두 개를 만든다. **없으면 Railway에서 서버가 뜨지 않는다**(D-27). 값은 비밀번호 관리자에 둔다.
@@ -56,7 +56,7 @@
 | 이름 | 기본값 | 설명 |
 |---|---|---|
 | `ASK_ANTHROPIC_MODEL` | `claude-haiku-5-5` | 생성 모델 |
-| `ASK_TOP_K` | `8` | 검색 후보 수. 15도 재 봤지만 인용 정확도가 떨어져 8을 유지한다(D-31). |
+| `ASK_TOP_K` | `15` | 검색 후보 수. 생성 프롬프트 v3와 함께 8에서 15로 올렸다(D-37). v2 프롬프트에서는 15가 인용 정확도를 떨어뜨렸다(D-31). |
 | `ASK_MIN_SCORE` | gemini `0.55` · hash `0.15` | 검색 점수 하한. 임베더마다 점수 분포가 달라 기본값을 따로 둔다(D-31). 넣지 않는다. |
 | `ASK_MAX_QUESTION_CHARS` | `300` | 질문 길이 상한. 바꾸면 `app/api/ask/route.ts`의 `MAX_CHARS`도 같이 바꾼다. |
 | `ASK_PER_IP_PER_MINUTE` | `5` | IP당 분당 질문 수 |
@@ -78,7 +78,7 @@ read -rs ASK_PROXY_SECRET && export ASK_PROXY_SECRET
 export ASK_URL=https://<railway-domain>
 ```
 
-1. **배포 로그**: 빌드 성공 → `ask-server mode=production (RAILWAY_ENVIRONMENT_ID) · db=…neon.tech · llm=anthropic · embedder=gemini · top_k=8 · min_score=0.55` → `Application startup complete` → 헬스체크 통과. `db=`가 neon 호스트인지 본다. `CRITICAL: … 서버를 시작하지 않습니다`가 보이면 메시지에 적힌 비밀을 넣고 다시 배포한다. 시작 단계에서 마이그레이션이 Neon에 붙으므로, 여기서 실패하면 `DATABASE_URL`을 의심한다.
+1. **배포 로그**: 빌드 성공 → `ask-server mode=production (RAILWAY_ENVIRONMENT_ID) · db=…neon.tech · llm=anthropic · embedder=gemini · top_k=15 · min_score=0.55` → `Application startup complete` → 헬스체크 통과. `db=`가 neon 호스트인지 본다. `CRITICAL: … 서버를 시작하지 않습니다`가 보이면 메시지에 적힌 비밀을 넣고 다시 배포한다. 시작 단계에서 마이그레이션이 Neon에 붙으므로, 여기서 실패하면 `DATABASE_URL`을 의심한다.
 2. **`/healthz`**: `{"ok":true}`가 와야 한다. 프로세스가 떠 있는지만 본다(DB·키는 보지 않는다).
    ```bash
    curl -s "$ASK_URL/healthz"
