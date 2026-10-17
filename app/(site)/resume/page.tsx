@@ -210,10 +210,10 @@ function ResumeSecond() {
         <p className="mt-1 text-ink-2">{AI_TALK.body}</p>
       </aside>
 
-      <Label id={anchors.resume.sideProjects} className="mt-3.5">
+      <Label id={anchors.resume.sideProjects} className="mt-3">
         개인 프로젝트
       </Label>
-      <ul className="mt-2 flex flex-col gap-2">
+      <ul className="mt-2 flex flex-col gap-1.5">
         {SIDE_PROJECTS.map((p) => (
           <li key={p.name}>
             <div className="flex items-baseline justify-between gap-4">
@@ -238,7 +238,7 @@ function ResumeSecond() {
         ))}
       </ul>
 
-      <Label id={anchors.resume.education} className="mt-3.5">
+      <Label id={anchors.resume.education} className="mt-3">
         학력
       </Label>
       <ul className="mt-2 flex flex-col gap-1">
@@ -256,7 +256,7 @@ function ResumeSecond() {
         ))}
       </ul>
 
-      <Label id={anchors.resume.awards} className="mt-3.5">
+      <Label id={anchors.resume.awards} className="mt-3">
         자격 · 수상
       </Label>
       <ul className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1">
@@ -271,8 +271,8 @@ function ResumeSecond() {
         ))}
       </ul>
 
-      <Label className="mt-3.5">포트폴리오</Label>
-      <ol className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1.5">
+      <Label className="mt-3">포트폴리오</Label>
+      <ol className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1">
         {CASES.map((c, i) => (
           <li key={c.slug} className="flex items-baseline gap-2">
             <span className="shrink-0 font-bold text-[var(--brick)]">
@@ -293,7 +293,7 @@ function ResumeSecond() {
   );
 }
 
-/* ───────── 3~8쪽 포트폴리오 ───────── */
+/* ───────── 3~9쪽 포트폴리오 ───────── */
 
 function Node({ n }: { n: FlowNode }) {
   return (
