@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { PROJECTS } from "../_data/projects";
-import { AWARDS, CERTIFICATIONS, COMPANY, EDUCATION, EXPERIENCE } from "../_data/experience";
+import { FEATURED, PROJECTS, getProject } from "../_data/projects";
+import { AWARDS, CERTIFICATIONS, COMPANY, EDUCATION, EXPERIENCE, GROWTH } from "../_data/experience";
 import { PRACTICES } from "../_data/ai-practices";
 import { TALKS } from "../_data/talks";
 import { RECORDS, TRAITS } from "../_data/profile";
@@ -18,6 +18,10 @@ const CONTACTS = [
   { label: "GitHub", href: GITHUB_URL },
   { label: "블로그", href: BLOG_URL },
 ];
+
+/** 프로젝트 — 대표는 카드로, 나머지는 접힌 목록으로 */
+const FEATURED_PROJECTS = FEATURED.flatMap((slug) => getProject(slug) ?? []);
+const OTHER_PROJECTS = PROJECTS.filter((p) => !FEATURED.includes(p.slug));
 
 /** 홈 — 왼쪽은 이름과 목차, 오른쪽은 한 번의 스크롤로 읽히는 본문 */
 export default function Home() {
@@ -83,7 +87,7 @@ export default function Home() {
               ))}
             </div>
 
-            <dl className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-line bg-line">
+            <dl className="mt-10 grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-3">
               {RECORDS.map((r) => (
                 <div key={r.k} className="flex flex-col bg-card p-4 sm:p-5">
                   <dt className="order-2 mt-1 text-[13px] font-medium text-ink-2">{r.k}</dt>
@@ -96,45 +100,18 @@ export default function Home() {
             <DefList className="mt-8" rows={TRAITS} />
           </section>
 
-          {/* 프로젝트 */}
-          <section aria-labelledby="projects" className="mt-24">
-            <SectionTitle id="projects" count={PROJECTS.length}>
-              프로젝트
-            </SectionTitle>
-            <ul className="flex flex-col gap-3">
-              {PROJECTS.map((p) => {
-                const body = (
-                  <>
-                    <ProjectMark project={p} />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-baseline justify-between gap-3">
-                        <h3 className="text-[17px] font-bold">{p.name}</h3>
-                        <span className="shrink-0 font-mono text-[12.5px] text-mute">{p.year}</span>
-                      </div>
-                      <p className="mt-1.5 text-[15px] leading-[1.75] text-ink-2">{p.summary}</p>
-                      <Pills items={p.tags} className="mt-3" />
-                    </div>
-                  </>
-                );
-                return (
-                  <li key={p.slug}>
-                    {p.detail ? (
-                      <Link href={`/projects/${p.slug}`} className="group flex gap-4 rounded-xl border border-line bg-card p-4 transition-colors hover:border-line-2 hover:bg-hover sm:gap-5 sm:p-5">
-                        {body}
-                      </Link>
-                    ) : (
-                      <div className="flex gap-4 rounded-xl border border-line bg-card p-4 sm:gap-5 sm:p-5">{body}</div>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-
           {/* 경력 */}
           <section aria-labelledby="experience" className="mt-24">
             <SectionTitle id="experience">경력</SectionTitle>
-            <p className="-mt-3 mb-8 text-[14px] text-mute">{COMPANY}</p>
+            <p className="-mt-3 text-[14px] text-mute">{COMPANY}</p>
+            <ol aria-label="입사 후 성장 과정" className="mt-6 mb-7 flex flex-col gap-2 border-b border-line pb-7">
+              {GROWTH.map((g) => (
+                <li key={g.date} className="grid gap-x-8 gap-y-0.5 sm:grid-cols-[8.5rem_minmax(0,1fr)]">
+                  <p className="font-mono text-[13px] leading-[1.9] text-mute">{g.date}</p>
+                  <p className="text-[15px] leading-[1.75] text-ink-2">{g.text}</p>
+                </li>
+              ))}
+            </ol>
             <ol className="flex flex-col">
               {EXPERIENCE.map((e, i) => (
                 <li key={e.start + e.title} id={anchors.home.experience(i)} className="grid gap-x-8 gap-y-2 border-t border-line py-7 first:border-t-0 first:pt-0 sm:grid-cols-[8.5rem_minmax(0,1fr)]">
@@ -196,13 +173,83 @@ export default function Home() {
             </div>
           </section>
 
+          {/* 프로젝트 */}
+          <section aria-labelledby="projects" className="mt-24">
+            <SectionTitle id="projects" count={PROJECTS.length}>
+              프로젝트
+            </SectionTitle>
+            <ul className="flex flex-col gap-3">
+              {FEATURED_PROJECTS.map((p) => {
+                const body = (
+                  <>
+                    <ProjectMark project={p} />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-baseline justify-between gap-3">
+                        <h3 className="text-[17px] font-bold">{p.name}</h3>
+                        <span className="shrink-0 font-mono text-[12.5px] text-mute">{p.year}</span>
+                      </div>
+                      <p className="mt-1.5 text-[15px] leading-[1.75] text-ink-2">{p.summary}</p>
+                      <Pills items={p.tags} className="mt-3" />
+                    </div>
+                  </>
+                );
+                return (
+                  <li key={p.slug}>
+                    {p.detail ? (
+                      <Link href={`/projects/${p.slug}`} className="group flex gap-4 rounded-xl border border-line bg-card p-4 transition-colors hover:border-line-2 hover:bg-hover sm:gap-5 sm:p-5">
+                        {body}
+                      </Link>
+                    ) : (
+                      <div className="flex gap-4 rounded-xl border border-line bg-card p-4 sm:gap-5 sm:p-5">{body}</div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+            {OTHER_PROJECTS.length > 0 && (
+              <details className="group mt-3 overflow-hidden rounded-xl border border-line bg-card">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 transition-colors hover:bg-hover sm:px-5 [&::-webkit-details-marker]:hidden">
+                  <span className="flex items-baseline gap-2 text-[15px] font-bold">
+                    그 외 프로젝트
+                    <span className="font-mono text-[12.5px] font-normal text-mute">{OTHER_PROJECTS.length}</span>
+                  </span>
+                  <Arrow className="text-mute group-open:rotate-90" />
+                </summary>
+                <ul className="divide-y divide-line border-t border-line">
+                  {OTHER_PROJECTS.map((p) => {
+                    const row = (
+                      <>
+                        <div className="flex items-baseline justify-between gap-3">
+                          <h3 className="text-[15px] font-bold">{p.name}</h3>
+                          <span className="shrink-0 font-mono text-[12.5px] text-mute">{p.year}</span>
+                        </div>
+                        <p className="mt-1 text-[14px] leading-[1.7] text-ink-2">{p.summary}</p>
+                      </>
+                    );
+                    return (
+                      <li key={p.slug}>
+                        {p.detail ? (
+                          <Link href={`/projects/${p.slug}`} className="block px-4 py-3.5 transition-colors hover:bg-hover sm:px-5">
+                            {row}
+                          </Link>
+                        ) : (
+                          <div className="px-4 py-3.5 sm:px-5">{row}</div>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </details>
+            )}
+          </section>
+
           {/* AI 노트 */}
           <section aria-labelledby="ai" className="mt-24">
             <SectionTitle id="ai" count={PRACTICES.length}>
               AI 노트
             </SectionTitle>
             <Prose className="-mt-1 mb-8 text-[15px]">
-              AI를 코드 생성기가 아니라 절차 안에 두는 통제 대상으로 다룹니다. 역할을 나누고, 환각을 코드로 막고, 테스트의 정답을 먼저 고정하고, 체감 대신 숫자로 판단하고, 에이전트 팀과 스킬 저장소를 운영한 기록입니다. 회사 코드베이스와 개인 프로젝트에서 실측한 값만 씁니다.
+              AI에게 코드를 맡기되 그냥 믿지 않고, 정해진 절차 안에서 씁니다. 역할을 나누고, 환각을 코드로 막고, 테스트의 정답을 먼저 고정하고, 체감 대신 숫자로 판단하고, 에이전트 팀과 스킬 저장소를 운영한 기록입니다. 회사 코드베이스와 개인 프로젝트에서 실측한 값만 씁니다.
             </Prose>
             <ol className="flex flex-col gap-3">
               {PRACTICES.map((p, i) => (

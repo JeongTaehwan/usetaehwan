@@ -9,7 +9,7 @@
  */
 import { writeFileSync } from "node:fs";
 import { PROJECTS } from "../app/_data/projects";
-import { AWARDS, CERTIFICATIONS, COMPANY as COMPANY_LINE, EDUCATION, EXPERIENCE } from "../app/_data/experience";
+import { AWARDS, CERTIFICATIONS, COMPANY as COMPANY_LINE, EDUCATION, EXPERIENCE, GROWTH } from "../app/_data/experience";
 import { PRACTICES } from "../app/_data/ai-practices";
 import { TALKS } from "../app/_data/talks";
 import { RECORDS, TRAITS } from "../app/_data/profile";
@@ -40,6 +40,7 @@ docs.push({
       section: "소개",
       text: lines(
         ...INTRO,
+        "성장 과정: " + GROWTH.map((g) => `${g.date} ${g.text}`).join(" · "),
         "대표 기록: " + RECORDS.map((r) => `${r.k} ${r.v} (${r.note})`).join(" · "),
         ...TRAITS.map((t) => `${t.k}: ${t.v}`),
       ),
@@ -152,7 +153,7 @@ docs.push({
     {
       anchor: anchors.resume.jobs,
       section: "경력: 회사",
-      text: lines(`${R.COMPANY.name} · ${R.COMPANY.role} · ${R.COMPANY.period}`, R.COMPANY.about, `그 외: ${R.JOB_ETC}`),
+      text: lines(`${R.COMPANY.name} · ${R.COMPANY.role} · ${R.COMPANY.period}`, R.COMPANY.about, R.GROWTH_LINE, `그 외: ${R.JOB_ETC}`),
     },
     ...R.JOBS.map((j) => ({
       anchor: anchors.resume.jobs,

@@ -8,6 +8,7 @@ import {
   COMPANY,
   CONTACTS,
   EDUCATION,
+  GROWTH_LINE,
   HEADLINE,
   JOB_ETC,
   JOBS,
@@ -104,7 +105,7 @@ const P1_JOBS = 4;
 
 function Jobs({ from, to }: { from: number; to?: number }) {
   return (
-    <ol className={`flex flex-col gap-2.5 ${from === 0 ? "mt-2.5" : "mt-2"}`}>
+    <ol className={`flex flex-col gap-2 ${from === 0 ? "mt-2.5" : "mt-2"}`}>
       {JOBS.slice(from, to).map((j, k) => {
         const i = from + k;
         return (
@@ -162,10 +163,10 @@ function ResumeFirst() {
       </p>
       <p className="mt-1.5 text-ink-2">{SUMMARY}</p>
 
-      <Label id={anchors.resume.stack} className="mt-4">
+      <Label id={anchors.resume.stack} className="mt-3">
         기술 스택
       </Label>
-      <dl className="mt-2 grid grid-cols-[4.2rem_minmax(0,1fr)] gap-x-3 gap-y-0.5">
+      <dl className="mt-2 grid grid-cols-[4.2rem_minmax(0,1fr)] gap-x-3">
         {STACK.map((s) => (
           <div key={s.k} className="contents">
             <dt className="font-bold text-ink">{s.k}</dt>
@@ -174,7 +175,7 @@ function ResumeFirst() {
         ))}
       </dl>
 
-      <Label id={anchors.resume.jobs} className="mt-4">
+      <Label id={anchors.resume.jobs} className="mt-3">
         경력
       </Label>
       <div className="mt-2 flex items-baseline justify-between gap-4">
@@ -185,6 +186,7 @@ function ResumeFirst() {
         <p className="shrink-0 text-[9.5pt] text-mute">{COMPANY.period}</p>
       </div>
       <p className="mt-0.5 text-ink-2">{COMPANY.about}</p>
+      <p className="mt-0.5 text-ink-2">{GROWTH_LINE}</p>
 
       <Jobs from={0} to={P1_JOBS} />
     </Sheet>

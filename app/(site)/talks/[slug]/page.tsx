@@ -1,4 +1,7 @@
+import { existsSync } from "node:fs";
+import path from "node:path";
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { TALKS, getTalk } from "../../../_data/talks";
 import { anchors } from "../../../_site/anchors";
@@ -16,7 +19,10 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   return talk ? { title: talk.title, description: talk.summary } : { title: "Talk" };
 }
 
-/** 발표 상세 — 배경 · 구성 · 핵심 메시지 · 인용 수치 */
+/** 사진 폭 — 문서 본문 폭(46rem - 좌우 여백)에 맞춘다 */
+const PHOTO_SIZES = "(min-width: 46rem) 42rem, calc(100vw - 2.5rem)";
+
+/** 발표 상세 — 현장 사진 · 배경 · 구성 · 핵심 메시지 · 인용 수치 */
 export default async function TalkDetail({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
   const talk = getTalk(slug);
@@ -24,21 +30,56 @@ export default async function TalkDetail({ params }: { params: Promise<Params> }
   const i = TALKS.findIndex((t) => t.slug === slug);
   const prev = TALKS[i - 1];
   const next = TALKS[i + 1];
+  const [cover, ...rest] = talk.photos ?? [];
+  // 발표 자료는 빌드 시점에 public/에 파일이 있을 때만 버튼을 보인다
+  const slides = talk.slides && existsSync(path.join(process.cwd(), "public", talk.slides)) ? talk.slides : undefined;
 
   return (
     <DocShell bar={<DocBar back="/#talks" backLabel="발표" play={`/play/talks/${slug}`} />}>
       <DocHeader kicker={`발표 · ${talk.date}`} title={talk.title} lead={talk.summary} />
 
-      <div className="mt-10 rounded-xl border border-line bg-card p-5 sm:p-6">
+      {cover && (
+        <div className="mt-10 flex flex-col gap-3">
+          {/* 대표 사진은 본문 폭 그대로, 세로로 긴 사진은 아래(무대 쪽)를 남기고 잘라 높이를 맞춘다 */}
+          <Image
+            src={cover.src}
+            alt={cover.alt}
+            width={cover.width}
+            height={cover.height}
+            sizes={PHOTO_SIZES}
+            loading="eager"
+            className="max-h-[28rem] w-full rounded-xl border border-line object-cover object-bottom"
+          />
+          {rest.length > 0 && (
+            <div className="grid gap-3 sm:grid-cols-2">
+              {rest.map((p) => (
+                <Image
+                  key={p.src}
+                  src={p.src}
+                  alt={p.alt}
+                  width={p.width}
+                  height={p.height}
+                  sizes="(min-width: 46rem) 21rem, calc(100vw - 2.5rem)"
+                  className="h-auto w-full rounded-xl border border-line"
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className={`${cover ? "mt-6" : "mt-10"} rounded-xl border border-line bg-card p-5 sm:p-6`}>
         <DefList
           rows={[
             { k: "무대", v: talk.venue },
             { k: "날짜", v: talk.date },
           ]}
         />
-        {talk.href && (
+        {slides && (
           <div className="mt-6">
-            <ButtonLink href={talk.href}>발표 자료</ButtonLink>
+            <ButtonLink href={slides} newTab>
+              발표 자료
+            </ButtonLink>
           </div>
         )}
       </div>

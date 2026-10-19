@@ -4,8 +4,8 @@ import { cn } from "../_ui/cn";
 
 export const SECTIONS = [
   { id: "about", label: "소개" },
-  { id: "projects", label: "프로젝트" },
   { id: "experience", label: "경력" },
+  { id: "projects", label: "프로젝트" },
   { id: "ai", label: "AI 노트" },
   { id: "talks", label: "발표" },
   { id: "contact", label: "연락" },
