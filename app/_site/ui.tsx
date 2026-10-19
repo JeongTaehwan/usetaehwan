@@ -33,9 +33,9 @@ export function Pills({ items, className }: { items: string[]; className?: strin
   );
 }
 
-/** 버튼 모양 링크 — 외부 링크면 새 탭 */
-export function ButtonLink({ href, children, primary, className }: { href: string; children: React.ReactNode; primary?: boolean; className?: string }) {
-  const external = /^https?:/.test(href);
+/** 버튼 모양 링크 — 외부 링크면 새 탭 (newTab이면 사이트 안 파일도 새 탭) */
+export function ButtonLink({ href, children, primary, newTab, className }: { href: string; children: React.ReactNode; primary?: boolean; newTab?: boolean; className?: string }) {
+  const external = newTab || /^https?:/.test(href);
   return (
     <a
       href={href}

@@ -19,7 +19,7 @@ const noto = Noto_Sans_KR({ variable: "--font-noto-next", subsets: ["latin"], we
 
 const SITE_URL = "https://usetaehwan.page";
 const SITE_TITLE = "Taehwan Jeong — Frontend engineer";
-const SITE_DESCRIPTION = `커머스 프론트엔드 ${CAREER_LENGTH} — 결제·정산·쿠폰 등 금액 도메인과 외부 시스템 연동. AI는 역할을 나누고 코드로 검증하고 숫자로 판단하는 통제 대상으로 다룹니다.`;
+const SITE_DESCRIPTION = `커머스 프론트엔드 ${CAREER_LENGTH} — 결제·정산·쿠폰 등 금액 도메인과 외부 시스템 연동. AI에게 코드를 맡길 때도 역할을 나누고, 코드로 검증하고, 재본 숫자로 판단합니다.`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

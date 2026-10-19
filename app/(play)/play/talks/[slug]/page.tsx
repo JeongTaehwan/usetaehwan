@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import path from "node:path";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { TALKS, getTalk } from "../../../../_data/talks";
@@ -21,6 +23,8 @@ export default async function TalkDetail({ params }: { params: Promise<Params> }
   const talk = getTalk(slug);
   if (!talk) notFound();
   const i = TALKS.findIndex((t) => t.slug === slug);
+  // 발표 자료는 빌드 시점에 public/에 파일이 있을 때만 링크한다
+  const slides = talk.slides && existsSync(path.join(process.cwd(), "public", talk.slides)) ? talk.slides : undefined;
 
   return (
     <Console label={`라이브캐스터 · ${talkNo(i)}`} backHref="/play#caster" top={<div className="detail-top">        <DocHero sprite="caster" no={talkNo(i)} title={talk.title} bg="var(--color-ink)" fg="var(--color-lcd)" accent="var(--color-gold)">
@@ -85,9 +89,9 @@ export default async function TalkDetail({ params }: { params: Promise<Params> }
           </>
         )}
 
-        {talk.href && (
+        {slides && (
           <div className="mt-5">
-            <a href={talk.href} target="_blank" rel="noreferrer" data-nav className="pbtn pbtn-sm">
+            <a href={slides} target="_blank" rel="noreferrer" data-nav className="pbtn pbtn-sm">
               발표 자료 ↗
             </a>
           </div>
