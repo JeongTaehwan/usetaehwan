@@ -186,7 +186,7 @@ function ResumeFirst() {
         <p className="shrink-0 text-[9.5pt] text-mute">{COMPANY.period}</p>
       </div>
       <p className="mt-0.5 text-ink-2">{COMPANY.about}</p>
-      <p className="mt-0.5 text-ink-2">{GROWTH_LINE}</p>
+      <p className="mt-1 text-[9pt] leading-[1.55] text-ink-2">{GROWTH_LINE}</p>
 
       <Jobs from={0} to={P1_JOBS} />
     </Sheet>
@@ -294,7 +294,7 @@ function ResumeSecond() {
         ))}
       </ol>
       <p className="mt-2 text-[9pt] text-mute">
-        수치는 머지된 MR·테스트 기록과 각 저장소 문서에서 확인한 값입니다 · 자세히는{" "}
+        수치는 머지된 MR·테스트 기록, 저장소 문서, 사내 분석 도구에서 확인한 값입니다 · 자세히는{" "}
         <Ext href="https://usetaehwan.page">usetaehwan.page</Ext>
       </p>
     </Sheet>
