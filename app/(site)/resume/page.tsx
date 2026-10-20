@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fragment } from "react";
 import { anchors } from "../../_site/anchors";
 import {
+  AI_NOTES,
   AI_TALK,
   AWARDS,
   CASES,
@@ -198,12 +199,12 @@ function ResumeSecond() {
     <Sheet page={2}>
       <Label>경력 (계속)</Label>
       <Jobs from={P1_JOBS} />
-      <p className="mt-2.5 text-ink-2">
+      <p className="mt-2 text-ink-2">
         <span className="font-bold text-ink">그 외 · </span>
         {JOB_ETC}
       </p>
 
-      <aside id={anchors.resume.aiTalk} className="mt-2.5 rounded-lg border border-[var(--brick)] bg-[var(--brick-soft)] px-4 py-3">
+      <aside id={anchors.resume.aiTalk} className="mt-2 rounded-lg border border-[var(--brick)] bg-[var(--brick-soft)] px-4 py-2">
         <p className="text-[9pt] font-bold tracking-[0.04em] text-[var(--brick)]">
           {AI_TALK.label}
         </p>
@@ -212,10 +213,22 @@ function ResumeSecond() {
         <p className="mt-1 text-ink-2">{AI_TALK.body}</p>
       </aside>
 
-      <Label id={anchors.resume.sideProjects} className="mt-3">
+      <Label id={anchors.resume.aiNotes} className="mt-2">
+        AI 노트
+      </Label>
+      <ul className="mt-1 flex flex-col gap-0.5 text-[9pt] leading-[1.5]">
+        {AI_NOTES.map((n) => (
+          <li key={n.href}>
+            <Ext href={n.href}>{n.title}</Ext>
+            <span className="text-ink-2"> — {n.line}</span>
+          </li>
+        ))}
+      </ul>
+
+      <Label id={anchors.resume.sideProjects} className="mt-2">
         개인 프로젝트
       </Label>
-      <ul className="mt-2 flex flex-col gap-1">
+      <ul className="mt-1 flex flex-col gap-0.5">
         {SIDE_PROJECTS.map((p) => (
           <li key={p.name}>
             <div className="flex items-baseline justify-between gap-4">
@@ -246,10 +259,10 @@ function ResumeSecond() {
         ))}
       </ul>
 
-      <Label id={anchors.resume.education} className="mt-3">
+      <Label id={anchors.resume.education} className="mt-2">
         학력
       </Label>
-      <ul className="mt-2 flex flex-col gap-1">
+      <ul className="mt-1 flex flex-col gap-0.5">
         {EDUCATION.map((e) => (
           <li
             key={e.name}
@@ -264,10 +277,10 @@ function ResumeSecond() {
         ))}
       </ul>
 
-      <Label id={anchors.resume.awards} className="mt-3">
+      <Label id={anchors.resume.awards} className="mt-2">
         자격 · 수상
       </Label>
-      <ul className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1">
+      <ul className="mt-1 grid grid-cols-2 gap-x-6 gap-y-0.5">
         {AWARDS.map((a) => (
           <li
             key={a.name}
@@ -279,8 +292,8 @@ function ResumeSecond() {
         ))}
       </ul>
 
-      <Label className="mt-3">포트폴리오</Label>
-      <ol className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1">
+      <Label className="mt-2">포트폴리오</Label>
+      <ol className="mt-1 grid grid-cols-2 gap-x-6 gap-y-0.5">
         {CASES.map((c, i) => (
           <li key={c.slug} className="flex items-baseline gap-2">
             <span className="shrink-0 font-bold text-[var(--brick)]">
@@ -293,7 +306,7 @@ function ResumeSecond() {
           </li>
         ))}
       </ol>
-      <p className="mt-2 text-[9pt] text-mute">
+      <p className="mt-1 text-[9pt] text-mute">
         수치는 머지된 MR·테스트 기록, 저장소 문서, 사내 분석 도구에서 확인한 값입니다 · 자세히는{" "}
         <Ext href="https://usetaehwan.page">usetaehwan.page</Ext>
       </p>

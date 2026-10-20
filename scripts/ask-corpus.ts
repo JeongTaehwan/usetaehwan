@@ -161,6 +161,7 @@ docs.push({
       text: lines(`${j.title} · ${j.period} · ${j.mr}`, ...j.lines.map(plain)),
     })),
     { anchor: anchors.resume.aiTalk, section: R.AI_TALK.label, text: lines(`「${R.AI_TALK.title}」 · ${R.AI_TALK.venue}`, R.AI_TALK.body) },
+    { anchor: anchors.resume.aiNotes, section: "AI 노트", text: lines(...R.AI_NOTES.map((n) => `${n.title} — ${n.line}`)) },
     ...R.SIDE_PROJECTS.map((s) => ({
       anchor: anchors.resume.sideProjects,
       section: `개인 프로젝트: ${s.name}`,

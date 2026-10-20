@@ -32,6 +32,7 @@ export const anchors = {
     stack: "stack",
     jobs: "jobs",
     aiTalk: "ai-talk",
+    aiNotes: "ai-notes",
     sideProjects: "side-projects",
     education: "education",
     awards: "awards",
