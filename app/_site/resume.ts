@@ -4,6 +4,7 @@
  * 넣지 않는 것: 연봉 · 가족 · 주민번호 · 생년월일 · 성별 · 주소 · 사진 · 휴대폰
  */
 import { getProject } from "../_data/projects";
+import { getPractice } from "../_data/ai-practices";
 import { EMAIL, GITHUB_URL } from "../_data/links";
 import { CAREER_LENGTH } from "../_data/career";
 
@@ -103,6 +104,22 @@ export const AI_TALK = {
   venue: "사내 AI 활용 공유 세션 7회차 · 2026.05",
   body: "참조 앱의 파일:라인을 정답으로 먼저 고정하는 증거 기반 시나리오 작성법으로, 77개 페이지 시나리오 약 700건 · Cypress 515케이스 · QA 체크리스트 83항목 기준선을 만들고 팀에 공유했습니다.",
 };
+
+/** 2쪽 「AI 노트」 — 지원 직무에 가까운 글만 골라 제목(사이트 링크) + 한 줄 (사용자 승인 문구) */
+const AI_NOTE_LINES = [
+  { slug: "hallucination-control", line: "형식만 맞는 빈 응답과 서버를 켤 때마다 바뀌던 프롬프트를 코드 검증으로 잡은 사례" },
+  { slug: "role-isolation", line: "판단은 사람, 구현·검증은 서로 다른 벤더의 AI로 나누고 절차는 게이트로 강제" },
+  {
+    slug: "agent-team",
+    line: "역할 7개 팀은 계획대로 돌았지만, 사람에게 묻기 전에 만든 프로토타입은 다시 만들었고 채팅으로만 받은 사람의 답은 문서와 어긋났던 기록",
+  },
+];
+
+export const AI_NOTES = AI_NOTE_LINES.map(({ slug, line }) => ({
+  title: getPractice(slug)!.title,
+  line,
+  href: `${SITE_URL}/ai/${slug}`,
+}));
 
 /** body가 없으면 이름·스택·기간·링크 한 줄만 (2쪽 맞춤) */
 export type SideProject = { name: string; period: string; stack: string; body?: string; href?: string; live?: string };
