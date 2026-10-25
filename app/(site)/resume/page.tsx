@@ -10,7 +10,6 @@ import {
   CONTACTS,
   EDUCATION,
   GROWTH_LINE,
-  HEADLINE,
   JOB_ETC,
   JOBS,
   SIDE_PROJECTS,
@@ -159,10 +158,9 @@ function ResumeFirst() {
         </ul>
       </header>
 
-      <p id={anchors.resume.summary} className="mt-3.5 text-[10.5pt] leading-[1.6] font-bold text-[var(--brick)]">
-        {HEADLINE}
+      <p id={anchors.resume.summary} className="mt-3.5 text-ink-2">
+        {SUMMARY}
       </p>
-      <p className="mt-1.5 text-ink-2">{SUMMARY}</p>
 
       <Label id={anchors.resume.stack} className="mt-3">
         기술 스택

@@ -148,7 +148,7 @@ docs.push({
   url: "/resume",
   kind: "resume",
   chunks: [
-    { anchor: anchors.resume.summary, section: "요약", text: lines(R.HEADLINE, R.SUMMARY) },
+    { anchor: anchors.resume.summary, section: "요약", text: R.SUMMARY },
     { anchor: anchors.resume.stack, section: "기술 스택", text: R.STACK.map((s) => `${s.k}: ${s.v}`).join("\n") },
     {
       anchor: anchors.resume.jobs,

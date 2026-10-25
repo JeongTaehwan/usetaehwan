@@ -7,6 +7,7 @@ import { getProject } from "../_data/projects";
 import { getPractice } from "../_data/ai-practices";
 import { EMAIL, GITHUB_URL } from "../_data/links";
 import { CAREER_LENGTH } from "../_data/career";
+import { INTRO } from "./intro";
 
 const repo = (slug: string) => getProject(slug)?.detail?.links?.find((l) => l.label === "GitHub")?.href;
 const live = (slug: string) => getProject(slug)?.detail?.links?.find((l) => l.label === "Live")?.href;
@@ -19,10 +20,8 @@ export const CONTACTS = [
   { label: "usetaehwan.page", href: SITE_URL },
 ];
 
-export const HEADLINE = "커머스 실무에서 금액이 틀리지 않게 검증해 온 경험으로, LLM의 결과를 코드로 검증하는 AI 서비스를 설계합니다.";
-
-export const SUMMARY =
-  `${CAREER_LENGTH}차 프론트엔드 개발자. 2023년 7월부터 프론트엔드 리드로 글로벌 커머스의 주문·결제·정산 도메인에서 금액 검증과 구조 개선을 맡아 왔고, 개인 프로젝트에서 LLM의 판단 범위를 코드로 검증하는 AI 서비스를 설계·배포했습니다. React·Next.js·TypeScript와 FastAPI·NestJS로 화면부터 API·DB까지 직접 구성하고, AI 코딩 도구는 역할을 나누고 결과를 테스트로 검증하는 절차 안에서 씁니다.`;
+/** 상단 소개 — 홈 소개(intro.ts)를 한 문단으로 잇는다 (1쪽 공간) */
+export const SUMMARY = INTRO.join(" ");
 
 export const STACK = [
   { k: "Frontend", v: "React, Next.js, Vue 3, TypeScript" },
