@@ -8,7 +8,7 @@ import { RECORDS, TRAITS } from "../_data/profile";
 import { BLOG_URL, GITHUB_URL, GMAIL_COMPOSE } from "../_data/links";
 import { Chibi } from "../_console/Chibi";
 import { Arrow, ButtonLink, DefList, Pill, Pills, ProjectMark, Prose, SectionTitle, no2 } from "../_site/ui";
-import { Clamp, LegacyHash, SideNav, TopNav } from "../_site/nav";
+import { LegacyHash, More, SideNav, TopNav } from "../_site/nav";
 import portrait from "../_site/portrait.jpg";
 import { INTRO } from "../_site/intro";
 import { anchors } from "../_site/anchors";
@@ -44,7 +44,7 @@ export default function Home() {
             />
             <p className="font-mono text-[13px] text-mute">useTaehwan()</p>
             <h1 className="mt-3 text-[40px] leading-none font-bold tracking-[-0.03em]">정태환</h1>
-            <p className="mt-3 text-[17px] font-medium text-ink-2">프론트엔드 개발자 · 서울</p>
+            <p className="mt-3 text-[17px] font-medium text-ink-2">프론트엔드 개발자</p>
             <p className="mt-6 max-w-[22rem] text-[16px] leading-[1.8] text-ink-2">
               잘 만든 코드는 잘 쓴 문서와 닮았다고 생각합니다. 구조를 먼저 그리고, 숫자로 확인하고, 문서로 남깁니다.
             </p>
@@ -66,10 +66,7 @@ export default function Home() {
               <span className="flex h-12 w-12 shrink-0 items-end justify-center overflow-hidden rounded-lg bg-hover">
                 <Chibi className="h-11 w-auto" title="게임기 버전의 픽셀 캐릭터" />
               </span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-[14px] font-medium">게임기 버전</span>
-                <span className="block text-[12.5px] leading-[1.5] text-mute">같은 내용을 두 화면 휴대용 기기로</span>
-              </span>
+              <span className="min-w-0 flex-1 text-[14px] font-medium">게임기 버전</span>
               <Arrow className="text-mute transition-colors group-hover:text-ink" />
             </Link>
           </div>
@@ -117,15 +114,26 @@ export default function Home() {
                 <li key={e.start + e.title} id={anchors.home.experience(i)} className="grid gap-x-8 gap-y-2 border-t border-line py-7 first:border-t-0 first:pt-0 sm:grid-cols-[8.5rem_minmax(0,1fr)]">
                   <p className="font-mono text-[13px] leading-[1.9] text-mute">{e.period}</p>
                   <div className="min-w-0">
-                    <h3 className="text-[17px] leading-[1.5] font-bold">{e.title}</h3>
-                    <Clamp className="mt-2">{e.summary}</Clamp>
-                    <ul className="mt-3 flex flex-wrap gap-1.5">
-                      {e.dims.map((d) => (
-                        <li key={d}>
-                          <Pill className="font-mono text-[12px]">{d}</Pill>
-                        </li>
-                      ))}
-                    </ul>
+                    <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_9rem] sm:gap-6">
+                      <div className="min-w-0">
+                        <h3 className="text-[17px] leading-[1.5] font-bold">{e.title}</h3>
+                        <p className="mt-1.5 text-[15px] leading-[1.75] text-ink-2">{e.headline}</p>
+                      </div>
+                      <div className="flex items-baseline gap-3 border-t border-line pt-3 sm:flex-col sm:items-start sm:gap-1 sm:border-t-0 sm:border-l sm:pt-0 sm:pl-5">
+                        <span className="font-mono text-[22px] leading-tight font-medium whitespace-nowrap text-accent">{e.stat.value}</span>
+                        <span className="text-[12.5px] leading-[1.5] text-mute">{e.stat.label}</span>
+                      </div>
+                    </div>
+                    <More className="mt-3">
+                      <p className="text-[15px] leading-[1.8] text-ink-2">{e.summary}</p>
+                      <ul className="mt-3 flex flex-wrap gap-1.5">
+                        {e.dims.map((d) => (
+                          <li key={d}>
+                            <Pill className="font-mono text-[12px]">{d}</Pill>
+                          </li>
+                        ))}
+                      </ul>
+                    </More>
                   </div>
                 </li>
               ))}
@@ -189,6 +197,12 @@ export default function Home() {
                         <span className="shrink-0 font-mono text-[12.5px] text-mute">{p.year}</span>
                       </div>
                       <p className="mt-1.5 text-[15px] leading-[1.75] text-ink-2">{p.summary}</p>
+                      {p.stat && (
+                        <p className="mt-3 flex flex-wrap items-baseline gap-x-2">
+                          <span className="font-mono text-[18px] leading-tight font-medium whitespace-nowrap text-accent">{p.stat.value}</span>
+                          <span className="text-[12.5px] leading-[1.5] text-mute">{p.stat.label}</span>
+                        </p>
+                      )}
                       <Pills items={p.tags} className="mt-3" />
                     </div>
                   </>
@@ -314,15 +328,8 @@ export default function Home() {
             </div>
           </section>
 
-          <footer className="mt-24 flex flex-col gap-2 border-t border-line pt-8 text-[13px] text-mute sm:flex-row sm:items-center sm:justify-between">
+          <footer className="mt-24 border-t border-line pt-8 text-[13px] text-mute">
             <p>© 2026 정태환 · usetaehwan.page</p>
-            <p>
-              Next.js · Tailwind CSS로 만들었습니다.{" "}
-              <Link href="/play" className="underline decoration-line-2 underline-offset-4 transition-colors hover:text-ink">
-                게임기 버전
-              </Link>
-              도 있어요.
-            </p>
           </footer>
         </main>
       </div>

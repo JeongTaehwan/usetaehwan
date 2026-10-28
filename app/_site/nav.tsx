@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { cn } from "../_ui/cn";
 
 export const SECTIONS = [
@@ -112,19 +112,23 @@ export function LegacyHash() {
   return null;
 }
 
-/** 긴 문단 — 세 줄까지 보이고 펼친다 */
-export function Clamp({ children, className }: { children: React.ReactNode; className?: string }) {
+/** 접어 둔 상세 — "자세히"로 연다. 닫혀 있어도 HTML에는 남는다(hidden) */
+export function More({ children, className }: { children: React.ReactNode; className?: string }) {
   const [open, setOpen] = useState(false);
+  const id = useId();
   return (
     <div className={className}>
-      <p className={cn("text-[15px] leading-[1.8] text-ink-2", !open && "line-clamp-3")}>{children}</p>
+      <div id={id} hidden={!open}>
+        {children}
+      </div>
       <button
         type="button"
         aria-expanded={open}
+        aria-controls={id}
         onClick={() => setOpen((v) => !v)}
-        className="mt-1.5 -ml-1 rounded px-1 text-[13.5px] font-medium text-accent transition-colors hover:text-ink"
+        className={cn("-ml-1 rounded px-1 text-[13.5px] font-medium text-accent transition-colors hover:text-ink", open && "mt-1.5")}
       >
-        {open ? "접기" : "더 읽기"}
+        {open ? "접기" : "자세히"}
       </button>
     </div>
   );
