@@ -23,6 +23,8 @@ export type Project = {
   year: string;
   /** 카드에 보이는 한 줄 요약 */
   summary: string;
+  /** 대표 카드에서 요약 아래 보이는 숫자 */
+  stat?: { value: string; label: string };
   /** 카드에 바로 보이는 작업 사례 — 문제 → 파악 → 해결 3단 (상세로 안 들어가지 않아도 읽히게) */
   cases?: ProjectCase[];
   tags: string[];
@@ -82,6 +84,7 @@ export const PROJECTS: Project[] = [
     year: "2026.10",
     summary:
       "이 사이트의 글만 근거로 경력·프로젝트 질문에 답하는 RAG 챗봇. 문장마다 출처 번호를 달고, 인용 번호와 숫자는 코드가 검증해 통과한 답만 내보냅니다. 근거가 없으면 답하지 않습니다.",
+    stat: { value: "98.1%", label: "인용 정확도 (처음 78%)" },
     tags: ["Python", "LangGraph", "pgvector"],
     cases: [
       {
@@ -158,6 +161,7 @@ export const PROJECTS: Project[] = [
     year: "2026.07 – 현재",
     summary:
       "직접 만들어 npm에 배포한 토큰 기반 React 디자인 시스템. 10개의 컴포넌트로 구성되고, 토큰만 덮어쓰면 프로젝트마다 다른 테마를 입힐 수 있어 Orbit(우주)·각(볼트 그린) 두 프로덕트가 같은 패키지를 씁니다.",
+    stat: { value: "10개", label: "컴포넌트 · Orbit·각이 같은 패키지 사용" },
     tags: ["TypeScript", "Tailwind v4", "React"],
     cases: [
       {
@@ -417,6 +421,7 @@ export const PROJECTS: Project[] = [
     year: "2026.09 – 현재",
     summary:
       "성향·위치·예산·차·시간을 넣으면 데이트 코스 5개를 짜 주는 앱. 장소는 카카오맵에서, 분위기·가격·주차 힌트는 블로그·인스타 글에서 모으고, AI는 후보 안에서 코스를 조합하는 일만 맡습니다.",
+    stat: { value: "3~5초", label: "출처별 동시 추출 (한 번에는 20초 넘게)" },
     tags: ["Expo", "NestJS", "Gemini"],
     cases: [
       {
@@ -560,7 +565,7 @@ export const PROJECTS: Project[] = [
     name: "쪽쪽",
     year: "2026",
     summary:
-      "수유 시작·종료를 한 번씩 누르면, 끝난 시각에서 정해 둔 시간이 지났을 때 \"지민아~ 맘마먹자\" 알림으로 다음 수유를 알려 주는 앱. 새벽 3시에 한 손으로 쓰는 것만 생각해 기능을 시작·종료·알람 세 가지로 줄였습니다.",
+      "수유 시작·종료를 한 번씩 누르면, 끝난 시각에서 정해 둔 시간이 지났을 때 \"맘마먹자\" 알림으로 다음 수유를 알려 주는 앱. 새벽 3시에 한 손으로 쓰는 것만 생각해 기능을 시작·종료·알람 세 가지로 줄였습니다.",
     tags: ["Expo", "React Native", "로컬 알림"],
     cases: [
       {
@@ -600,7 +605,7 @@ export const PROJECTS: Project[] = [
       highlights: [
         {
           title: "이름에 맞춘 알림 문구",
-          body: "이름 마지막 글자의 받침을 한글 유니코드로 계산해 \"아/야\"를 붙입니다. 지민 → 지민아~ 맘마먹자, 수아 → 수아야~ 맘마먹자. 한글이 아니면 \"아\", 이름이 없으면 \"아가야\"로 부릅니다.",
+          body: "이름 마지막 글자의 받침을 한글 유니코드로 계산해 받침이 있으면 \"아\", 없으면 \"야\"를 붙입니다. 한글이 아니면 \"아\", 이름이 없으면 \"아가야\"로 부릅니다.",
         },
         {
           title: "새벽 모드",
@@ -622,7 +627,7 @@ export const PROJECTS: Project[] = [
 ];
 
 /** 홈에서 카드로 보이는 대표 프로젝트 — 이 순서대로. 나머지는 PROJECTS 순서대로 「그 외 프로젝트」에 접힌다 */
-export const FEATURED = ["ask", "gak", "oneureodi"];
+export const FEATURED = ["ask", "usetaehwan-ui", "gak", "oneureodi"];
 
 export function getProject(slug: string): Project | undefined {
   return PROJECTS.find((p) => p.slug === slug);
