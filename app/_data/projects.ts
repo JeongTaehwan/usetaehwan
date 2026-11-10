@@ -21,10 +21,14 @@ export type Project = {
   palette: ProjectPalette;
   name: string;
   year: string;
-  /** 카드에 보이는 한 줄 요약 */
+  /** 프로젝트 설명 — 상세 페이지 · 게임기 버전 · 챗봇 코퍼스 */
   summary: string;
-  /** 대표 카드에서 요약 아래 보이는 숫자 */
+  /** 홈 카드 한 줄 — "이런 프로젝트"가 아니라 "이걸 해결했다" */
+  hook: string;
+  /** 카드에서 한 줄 아래 보이는 결과 숫자 하나 (hook과 같은 이야기의 숫자만) */
   stat?: { value: string; label: string };
+  /** 「기술·AI 활용」 블록 — 프로젝트에서 AI를 어디에 썼나 (tags는 기술) */
+  ai?: string;
   /** 카드에 바로 보이는 작업 사례 — 문제 → 파악 → 해결 3단 (상세로 안 들어가지 않아도 읽히게) */
   cases?: ProjectCase[];
   tags: string[];
@@ -84,7 +88,9 @@ export const PROJECTS: Project[] = [
     year: "2026.10",
     summary:
       "이 사이트의 글만 근거로 경력·프로젝트 질문에 답하는 RAG 챗봇. 문장마다 출처 번호를 달고, 인용 번호와 숫자는 코드가 검증해 통과한 답만 내보냅니다. 근거가 없으면 답하지 않습니다.",
-    stat: { value: "98.1%", label: "인용 정확도 (처음 78%)" },
+    hook: "포트폴리오 질문에 LLM이 지어내지 않도록 인용 번호·숫자를 코드로 검증하고, 수치가 나쁠 때는 측정 도구부터 고쳤습니다.",
+    stat: { value: "78% → 98.1%", label: "인용 정확도 (LLM 심사)" },
+    ai: "Claude Haiku(질문 분류·관련성 판정·답변 작성 세 곳만) · Gemini 임베딩",
     tags: ["Python", "LangGraph", "pgvector"],
     cases: [
       {
@@ -161,7 +167,8 @@ export const PROJECTS: Project[] = [
     year: "2026.07 – 현재",
     summary:
       "직접 만들어 npm에 배포한 토큰 기반 React 디자인 시스템. 10개의 컴포넌트로 구성되고, 토큰만 덮어쓰면 프로젝트마다 다른 테마를 입힐 수 있어 Orbit(우주)·각(볼트 그린) 두 프로덕트가 같은 패키지를 씁니다.",
-    stat: { value: "10개", label: "컴포넌트 · Orbit·각이 같은 패키지 사용" },
+    hook: "디자인 시스템 API를 미리 고정하면 틀리기 쉬워, 이 사이트에서 먼저 써 보며 검증한 뒤 패키지로 뽑아 npm에 배포했습니다.",
+    stat: { value: "2개 프로덕트", label: "Orbit·각이 테마만 바꿔 같은 패키지 사용" },
     tags: ["TypeScript", "Tailwind v4", "React"],
     cases: [
       {
@@ -240,6 +247,9 @@ export const PROJECTS: Project[] = [
     year: "2026.07 – 현재",
     summary:
       "축구 팀의 일정 밀집도로 부진을 진단하고 다음 경기를 예측하는 웹앱. 사람·구현 AI·검증 AI의 역할을 나눈 파이프라인으로 만들었습니다.",
+    hook: "외부 데이터 API가 하루 100요청뿐이라, 실호출 응답을 한 번 캡처해 두고 개발 중에는 리플레이로 돌렸습니다.",
+    stat: { value: "0회", label: "캡처 이후 개발 중 실 API 호출" },
+    ai: "Anthropic API(서버가 계산한 지표를 문장으로만) · 구현 AI(Claude Code)와 다른 벤더 검증 AI로 역할 분리",
     tags: ["Spring Boot", "Next.js", "PostgreSQL"],
     cases: [
       {
@@ -332,6 +342,7 @@ export const PROJECTS: Project[] = [
     year: "2026.07",
     summary:
       "공부하면 내 우주가 자라나는 학습 동기부여 웹앱. 기록을 남길수록 행성이 테라포밍됩니다.",
+    hook: "iOS Safari에서만 로그인 직후 세션이 사라지던 문제를, /api 프록시로 같은 출처를 만들어 해결했습니다.",
     tags: ["Next.js", "FastAPI", "Three.js"],
     cases: [
       {
@@ -378,8 +389,8 @@ export const PROJECTS: Project[] = [
           body: "React Three Fiber로 행성을 실시간 렌더링하고, 학습 진행도에 따라 표면이 단계적으로 테라포밍되도록 구현했습니다. 기록이라는 추상적 행위에 눈에 보이는 성장의 피드백을 붙였습니다.",
         },
         {
-          title: "계층형 백엔드 + 테스트",
-          body: "FastAPI 백엔드를 api → services → models 계층으로 분리해 관심사를 나누고, PostgreSQL과 연결했습니다. 핵심 로직에 테스트를 붙여 프론트 밖의 안정성도 직접 책임졌습니다.",
+          title: "간단한 API · DB",
+          body: "FastAPI로 간단한 API와 PostgreSQL 저장을 구현하고, 진행도 계산 같은 핵심 로직에 테스트를 붙였습니다.",
         },
         {
           title: "인증 · 배포",
@@ -421,7 +432,9 @@ export const PROJECTS: Project[] = [
     year: "2026.09 – 현재",
     summary:
       "성향·위치·예산·차·시간을 넣으면 데이트 코스 5개를 짜 주는 앱. 장소는 카카오맵에서, 분위기·가격·주차 힌트는 블로그·인스타 글에서 모으고, AI는 후보 안에서 코스를 조합하는 일만 맡습니다.",
-    stat: { value: "3~5초", label: "출처별 동시 추출 (한 번에는 20초 넘게)" },
+    hook: "웹 조사를 LLM 한 번에 맡기면 20초가 넘어, 출처별로 나눠 동시에 추출했습니다.",
+    stat: { value: "20초+ → 3~5초", label: "추천 1회의 웹 조사 추출 (무료 등급 모델)" },
+    ai: "Gemini(비정형 글 구조화와 후보 안에서 코스 고르기만) · Tavily 웹 검색",
     tags: ["Expo", "NestJS", "Gemini"],
     cases: [
       {
@@ -495,6 +508,8 @@ export const PROJECTS: Project[] = [
     year: "2026.09 – 현재",
     summary:
       "\"오늘 저녁 뭐 먹지?\"를 대신 끝내 주는 앱. 선택지를 늘리지 않고, 예산·인분에 맞는 메뉴 하나를 재료비와 레시피까지 붙여 정해 줍니다. 한 줄짜리 요구에서 시작해 역할별 에이전트 팀이 기획했고, 지금은 Expo 프로토타입 단계입니다.",
+    hook: "한 줄짜리 요구를 역할별 에이전트 팀이 기획 문서로 옮기게 하고, 사람이 요구사항을 승인하기 전에는 구현하지 않게 했습니다.",
+    ai: "Claude Code 역할 에이전트(판단 opus · 조사·검증 sonnet · 정리 haiku)",
     tags: ["Expo", "Claude Code", "기획 파이프라인"],
     cases: [
       {
@@ -566,6 +581,8 @@ export const PROJECTS: Project[] = [
     year: "2026",
     summary:
       "수유 시작·종료를 한 번씩 누르면, 끝난 시각에서 정해 둔 시간이 지났을 때 \"맘마먹자\" 알림으로 다음 수유를 알려 주는 앱. 새벽 3시에 한 손으로 쓰는 것만 생각해 기능을 시작·종료·알람 세 가지로 줄였습니다.",
+    hook: "앱이 꺼져 있어도 다음 수유 알람이 울리도록, 알람 시각은 앱이 계산하고 울리는 일은 OS 로컬 알림에 맡겼습니다.",
+    stat: { value: "98%", label: "알람 규칙 등 도메인 로직 줄 커버리지" },
     tags: ["Expo", "React Native", "로컬 알림"],
     cases: [
       {

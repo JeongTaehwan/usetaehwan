@@ -53,3 +53,6 @@ storex-my-titles.txt
 
 # /resume 에서 뽑은 PDF — 지원서 첨부용, 커밋하지 않는다
 /*.pdf
+
+# 지원처별 이력서 버전 — 회사명이 들어 있어 로컬에만 둔다
+/scripts/resume-variants.mts

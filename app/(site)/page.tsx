@@ -1,13 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FEATURED, PROJECTS, getProject } from "../_data/projects";
-import { AWARDS, CERTIFICATIONS, COMPANY, EDUCATION, EXPERIENCE, GROWTH } from "../_data/experience";
-import { PRACTICES } from "../_data/ai-practices";
+import { AWARDS, CAREER_INTRO, CERTIFICATIONS, COMPANY, EDUCATION, EXPERIENCE, GROWTH, GROWTH_VISIBLE, LEAD_ROLE } from "../_data/experience";
+import { AI_SETUP, PRACTICES } from "../_data/ai-practices";
 import { TALKS } from "../_data/talks";
 import { RECORDS, TRAITS } from "../_data/profile";
 import { BLOG_URL, GITHUB_URL, GMAIL_COMPOSE } from "../_data/links";
 import { Chibi } from "../_console/Chibi";
-import { Arrow, ButtonLink, DefList, Pill, Pills, ProjectMark, Prose, SectionTitle, no2 } from "../_site/ui";
+import { Arrow, ButtonLink, DefList, Pill, ProjectMark, Prose, SectionTitle, no2 } from "../_site/ui";
 import { LegacyHash, More, SideNav, TopNav } from "../_site/nav";
 import portrait from "../_site/portrait.jpg";
 import { INTRO } from "../_site/intro";
@@ -22,6 +22,8 @@ const CONTACTS = [
 /** 프로젝트 — 대표는 카드로, 나머지는 접힌 목록으로 */
 const FEATURED_PROJECTS = FEATURED.flatMap((slug) => getProject(slug) ?? []);
 const OTHER_PROJECTS = PROJECTS.filter((p) => !FEATURED.includes(p.slug));
+/** 「기술·AI 활용」 — 카드에서 뺀 기술·AI를 프로젝트별 한 줄로 */
+const TECH_ROWS = [...FEATURED_PROJECTS, ...OTHER_PROJECTS].map((p) => ({ k: p.name, v: [p.tags.join(" · "), p.ai && `AI: ${p.ai}`].filter(Boolean).join(" — ") }));
 
 /** 홈 — 왼쪽은 이름과 목차, 오른쪽은 한 번의 스크롤로 읽히는 본문 */
 export default function Home() {
@@ -101,14 +103,17 @@ export default function Home() {
           <section aria-labelledby="experience" className="mt-24">
             <SectionTitle id="experience">경력</SectionTitle>
             <p className="-mt-3 text-[14px] text-mute">{COMPANY}</p>
-            <ol aria-label="입사 후 성장 과정" className="mt-6 mb-7 flex flex-col gap-2 border-b border-line pb-7">
-              {GROWTH.map((g) => (
-                <li key={g.date} className="grid gap-x-8 gap-y-0.5 sm:grid-cols-[8.5rem_minmax(0,1fr)]">
-                  <p className="font-mono text-[13px] leading-[1.9] text-mute">{g.date}</p>
-                  <p className="text-[15px] leading-[1.75] text-ink-2">{g.text}</p>
-                </li>
-              ))}
-            </ol>
+            <p className="mt-4 mb-7 border-b border-line pb-7 text-[15px] leading-[1.75] text-ink-2">{CAREER_INTRO}</p>
+            {GROWTH_VISIBLE && (
+              <ol aria-label="입사 후 성장 과정" className="mb-7 flex flex-col gap-2 border-b border-line pb-7">
+                {GROWTH.map((g) => (
+                  <li key={g.date} className="grid gap-x-8 gap-y-0.5 sm:grid-cols-[8.5rem_minmax(0,1fr)]">
+                    <p className="font-mono text-[13px] leading-[1.9] text-mute">{g.date}</p>
+                    <p className="text-[15px] leading-[1.75] text-ink-2">{g.text}</p>
+                  </li>
+                ))}
+              </ol>
+            )}
             <ol className="flex flex-col">
               {EXPERIENCE.map((e, i) => (
                 <li key={e.start + e.title} id={anchors.home.experience(i)} className="grid gap-x-8 gap-y-2 border-t border-line py-7 first:border-t-0 first:pt-0 sm:grid-cols-[8.5rem_minmax(0,1fr)]">
@@ -139,7 +144,21 @@ export default function Home() {
               ))}
             </ol>
 
-            <div id={anchors.home.education} className="mt-12 grid gap-8 rounded-xl border border-line p-5 sm:grid-cols-2 sm:p-6">
+            <div id={anchors.home.lead} className="mt-10 grid gap-x-8 gap-y-2 rounded-xl border border-line p-5 sm:grid-cols-[8.5rem_minmax(0,1fr)] sm:p-6">
+              <p className="font-mono text-[13px] leading-[1.9] text-mute">{LEAD_ROLE.period}</p>
+              <div className="min-w-0">
+                <h3 className="text-[15px] font-bold">{LEAD_ROLE.title}</h3>
+                <ul className="mt-1.5 flex flex-col gap-1">
+                  {LEAD_ROLE.lines.map((l) => (
+                    <li key={l} className="text-[15px] leading-[1.75] text-ink-2">
+                      {l}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <div id={anchors.home.education} className="mt-3 grid gap-8 rounded-xl border border-line p-5 sm:grid-cols-2 sm:p-6">
               <div>
                 <h3 className="text-[14px] font-bold">학력</h3>
                 <ul className="mt-3 flex flex-col gap-3">
@@ -160,7 +179,10 @@ export default function Home() {
                   {CERTIFICATIONS.map((c) => (
                     <li key={c.name}>
                       <p className="text-[15px] font-medium">{c.name}</p>
-                      <p className="mt-0.5 text-[13.5px] text-mute">{c.date}</p>
+                      <p className="mt-0.5 text-[13.5px] text-mute">
+                        {c.note && `${c.note} · `}
+                        {c.date}
+                      </p>
                     </li>
                   ))}
                 </ul>
@@ -196,14 +218,13 @@ export default function Home() {
                         <h3 className="text-[17px] font-bold">{p.name}</h3>
                         <span className="shrink-0 font-mono text-[12.5px] text-mute">{p.year}</span>
                       </div>
-                      <p className="mt-1.5 text-[15px] leading-[1.75] text-ink-2">{p.summary}</p>
+                      <p className="mt-1.5 text-[15px] leading-[1.75] text-ink-2">{p.hook}</p>
                       {p.stat && (
                         <p className="mt-3 flex flex-wrap items-baseline gap-x-2">
                           <span className="font-mono text-[18px] leading-tight font-medium whitespace-nowrap text-accent">{p.stat.value}</span>
                           <span className="text-[12.5px] leading-[1.5] text-mute">{p.stat.label}</span>
                         </p>
                       )}
-                      <Pills items={p.tags} className="mt-3" />
                     </div>
                   </>
                 );
@@ -237,7 +258,7 @@ export default function Home() {
                           <h3 className="text-[15px] font-bold">{p.name}</h3>
                           <span className="shrink-0 font-mono text-[12.5px] text-mute">{p.year}</span>
                         </div>
-                        <p className="mt-1 text-[14px] leading-[1.7] text-ink-2">{p.summary}</p>
+                        <p className="mt-1 text-[14px] leading-[1.7] text-ink-2">{p.hook}</p>
                       </>
                     );
                     return (
@@ -255,6 +276,11 @@ export default function Home() {
                 </ul>
               </details>
             )}
+
+            <div id={anchors.home.tech} className="mt-8">
+              <h3 className="text-[15px] font-bold">기술 · AI 활용</h3>
+              <DefList className="mt-3" rows={TECH_ROWS} />
+            </div>
           </section>
 
           {/* AI 노트 */}
@@ -265,6 +291,20 @@ export default function Home() {
             <Prose className="-mt-1 mb-8 text-[15px]">
               AI에게 코드를 맡기되 그냥 믿지 않고, 정해진 절차 안에서 씁니다. 역할을 나누고, 환각을 코드로 막고, 테스트의 정답을 먼저 고정하고, 체감 대신 숫자로 판단하고, 에이전트 팀과 스킬 저장소를 운영한 기록입니다. 회사 코드베이스와 개인 프로젝트에서 실측한 값만 씁니다.
             </Prose>
+            <div id={anchors.home.aiSetup} className="mb-8 rounded-xl border border-line p-5 sm:p-6">
+              <h3 className="text-[15px] font-bold">{AI_SETUP.title}</h3>
+              <ul className="mt-2 flex flex-col gap-1.5">
+                {AI_SETUP.lines.map((l) => (
+                  <li key={l} className="relative pl-4 text-[15px] leading-[1.75] text-ink-2 before:absolute before:top-[0.8em] before:left-0.5 before:h-1 before:w-1 before:rounded-full before:bg-accent">
+                    {l}
+                  </li>
+                ))}
+              </ul>
+              <a href={AI_SETUP.repo.href} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1 text-[13.5px] font-medium text-ink-2 transition-colors hover:text-ink">
+                {AI_SETUP.repo.label}
+                <Arrow external className="h-3.5 w-3.5 text-mute" />
+              </a>
+            </div>
             <ol className="flex flex-col gap-3">
               {PRACTICES.map((p, i) => (
                 <li key={p.slug}>

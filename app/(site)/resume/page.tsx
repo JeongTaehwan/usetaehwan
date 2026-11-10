@@ -2,19 +2,19 @@ import type { Metadata } from "next";
 import { Fragment } from "react";
 import { anchors } from "../../_site/anchors";
 import {
-  AI_NOTES,
-  AI_TALK,
+  AI_SETUP,
   AWARDS,
   CASES,
   COMPANY,
   CONTACTS,
   EDUCATION,
-  GROWTH_LINE,
-  JOB_ETC,
   JOBS,
+  LEAD_ROLE,
+  PROJECT_TECH,
   SIDE_PROJECTS,
   STACK,
   SUMMARY,
+  TALK_LINES,
   type Case,
   type FlowNode,
   type FlowStep,
@@ -98,40 +98,37 @@ function Ext({ href, children }: { href: string; children: React.ReactNode }) {
   );
 }
 
-/* ───────── 1~2쪽 이력서 ───────── */
+/* ───────── 1쪽 이력서 · 2쪽 프로젝트 ───────── */
 
-/** 1쪽에 싣는 경력 수 — 나머지는 2쪽 위에 「경력 (계속)」으로 */
-const P1_JOBS = 4;
+/** 「경력 · 학력 · 자격」 안의 작은 제목 */
+function Sub({ children, className }: { children: React.ReactNode; className?: string }) {
+  return <h3 className={`text-[9pt] font-bold tracking-[0.04em] text-mute ${className ?? ""}`}>{children}</h3>;
+}
 
-function Jobs({ from, to }: { from: number; to?: number }) {
+const dot =
+  "relative text-ink-2 before:absolute before:top-[0.72em] before:-left-3 before:h-[3px] before:w-[3px] before:rounded-full before:bg-mute";
+
+function Jobs() {
   return (
-    <ol className={`flex flex-col gap-2 ${from === 0 ? "mt-2.5" : "mt-2"}`}>
-      {JOBS.slice(from, to).map((j, k) => {
-        const i = from + k;
-        return (
-          <li key={j.title}>
-            <div className="flex items-baseline justify-between gap-4">
-              <h3 className="font-bold">
-                <span className="mr-1.5 text-[var(--brick)]">{i + 1}</span>
-                {j.title}
-              </h3>
-              <p className="shrink-0 text-[9pt] text-mute">
-                {j.period} · {j.mr}
-              </p>
-            </div>
-            <ul className="mt-0.5 flex flex-col gap-0.5 pl-4">
-              {j.lines.map((l) => (
-                <li
-                  key={l}
-                  className="relative text-ink-2 before:absolute before:top-[0.72em] before:-left-3 before:h-[3px] before:w-[3px] before:rounded-full before:bg-mute"
-                >
-                  <Rich text={l} />
-                </li>
-              ))}
-            </ul>
-          </li>
-        );
-      })}
+    <ol data-jobs className="mt-1.5 flex flex-col gap-1.5">
+      {JOBS.map((j, i) => (
+        <li key={j.title}>
+          <div className="flex items-baseline justify-between gap-4">
+            <h3 className="font-bold">
+              <span className="mr-1.5 text-[var(--brick)]">{i + 1}</span>
+              {j.title}
+            </h3>
+            <p className="shrink-0 text-[9pt] text-mute">{j.period}</p>
+          </div>
+          <ul className="mt-0.5 flex flex-col gap-0.5 pl-4">
+            {j.lines.map((l) => (
+              <li key={l} className={dot}>
+                <Rich text={l} />
+              </li>
+            ))}
+          </ul>
+        </li>
+      ))}
     </ol>
   );
 }
@@ -158,14 +155,14 @@ function ResumeFirst() {
         </ul>
       </header>
 
-      <p id={anchors.resume.summary} className="mt-3.5 text-ink-2">
+      <p id={anchors.resume.summary} className="mt-3 text-ink-2">
         {SUMMARY}
       </p>
 
       <Label id={anchors.resume.stack} className="mt-3">
         기술 스택
       </Label>
-      <dl className="mt-2 grid grid-cols-[4.2rem_minmax(0,1fr)] gap-x-3">
+      <dl className="mt-1.5 grid grid-cols-[4.2rem_minmax(0,1fr)] gap-x-3">
         {STACK.map((s) => (
           <div key={s.k} className="contents">
             <dt className="font-bold text-ink">{s.k}</dt>
@@ -175,7 +172,7 @@ function ResumeFirst() {
       </dl>
 
       <Label id={anchors.resume.jobs} className="mt-3">
-        경력
+        경력 · 학력 · 자격
       </Label>
       <div className="mt-2 flex items-baseline justify-between gap-4">
         <p className="text-[11pt] font-bold">
@@ -185,9 +182,47 @@ function ResumeFirst() {
         <p className="shrink-0 text-[9.5pt] text-mute">{COMPANY.period}</p>
       </div>
       <p className="mt-0.5 text-ink-2">{COMPANY.about}</p>
-      <p className="mt-1 text-[9pt] leading-[1.55] text-ink-2">{GROWTH_LINE}</p>
 
-      <Jobs from={0} to={P1_JOBS} />
+      <Jobs />
+
+      <div id={anchors.resume.lead} className="mt-2 grid grid-cols-[4.2rem_minmax(0,1fr)] gap-x-3 border-t border-line pt-1.5">
+        <p className="font-bold text-ink">{LEAD_ROLE.title}</p>
+        <p className="text-ink-2">
+          <span className="text-mute">{LEAD_ROLE.period} </span>
+          {LEAD_ROLE.lines.join(" ")}
+        </p>
+      </div>
+
+      <div className="mt-2 grid grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] gap-x-6">
+        <div id={anchors.resume.education}>
+          <Sub>학력</Sub>
+          <ul className="mt-0.5 flex flex-col gap-0.5">
+            {EDUCATION.map((e) => (
+              <li key={e.name}>
+                <p className="flex items-baseline justify-between gap-3">
+                  <span className="font-medium">{e.name}</span>
+                  <span className="shrink-0 text-[9pt] text-mute">{e.period.split(" ~ ")[1]}</span>
+                </p>
+                {e.note && <p className="text-[9pt] text-mute">{e.note}</p>}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div id={anchors.resume.awards}>
+          <Sub>자격 · 수상</Sub>
+          <ul className="mt-0.5 flex flex-col gap-0.5">
+            {AWARDS.map((a) => (
+              <li key={a.name} className="flex items-baseline justify-between gap-3">
+                <span className="font-medium">
+                  {a.name}
+                  {a.note && <span className="font-normal text-mute"> · {a.note}</span>}
+                </span>
+                <span className="shrink-0 text-[9pt] text-mute">{a.period}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </Sheet>
   );
 }
@@ -195,47 +230,12 @@ function ResumeFirst() {
 function ResumeSecond() {
   return (
     <Sheet page={2}>
-      <Label>경력 (계속)</Label>
-      <Jobs from={P1_JOBS} />
-      <p className="mt-2 text-ink-2">
-        <span className="font-bold text-ink">그 외 · </span>
-        {JOB_ETC}
-      </p>
-
-      <aside id={anchors.resume.aiTalk} className="mt-2 rounded-lg border border-[var(--brick)] bg-[var(--brick-soft)] px-4 py-2">
-        <p className="text-[9pt] font-bold tracking-[0.04em] text-[var(--brick)]">
-          {AI_TALK.label}
-        </p>
-        <p className="mt-0.5 text-[11.5pt] font-bold">「{AI_TALK.title}」</p>
-        <p className="text-[9pt] text-mute">{AI_TALK.venue}</p>
-        <p className="mt-1 text-ink-2">{AI_TALK.body}</p>
-      </aside>
-
-      <Label id={anchors.resume.aiNotes} className="mt-2">
-        AI 노트
-      </Label>
-      <ul className="mt-1 flex flex-col gap-0.5 text-[9pt] leading-[1.5]">
-        {AI_NOTES.map((n) => (
-          <li key={n.href}>
-            <Ext href={n.href}>{n.title}</Ext>
-            <span className="text-ink-2"> — {n.line}</span>
-          </li>
-        ))}
-      </ul>
-
-      <Label id={anchors.resume.sideProjects} className="mt-2">
-        개인 프로젝트
-      </Label>
-      <ul className="mt-1 flex flex-col gap-0.5">
+      <Label id={anchors.resume.projects}>프로젝트</Label>
+      <ul className="mt-2 flex flex-col gap-2">
         {SIDE_PROJECTS.map((p) => (
-          <li key={p.name}>
+          <li key={p.slug}>
             <div className="flex items-baseline justify-between gap-4">
-              <h3 className="font-bold">
-                {p.name}{" "}
-                <span className="ml-1 text-[9pt] font-normal text-mute">
-                  {p.stack}
-                </span>
-              </h3>
+              <h3 className="font-bold">{p.name}</h3>
               <p className="shrink-0 text-[9pt] text-mute">
                 {p.period}
                 {p.live && (
@@ -252,67 +252,83 @@ function ResumeSecond() {
                 )}
               </p>
             </div>
-            {p.body && <p className="mt-0.5 text-ink-2">{p.body}</p>}
-          </li>
-        ))}
-      </ul>
-
-      <Label id={anchors.resume.education} className="mt-2">
-        학력
-      </Label>
-      <ul className="mt-1 flex flex-col gap-0.5">
-        {EDUCATION.map((e) => (
-          <li
-            key={e.name}
-            className="flex items-baseline justify-between gap-4"
-          >
-            <p>
-              <span className="font-bold">{e.name}</span>
-              {e.note && <span className="text-ink-2"> · {e.note}</span>}
+            <p className="mt-0.5 text-ink-2">
+              {p.hook}
+              {p.stat && (
+                <span className="ml-1.5 whitespace-nowrap">
+                  <strong className="r-strong">{p.stat.value}</strong>
+                  <span className="text-[9pt] text-mute"> {p.stat.label}</span>
+                </span>
+              )}
             </p>
-            <p className="shrink-0 text-[9pt] text-mute">{e.period}</p>
           </li>
         ))}
       </ul>
 
-      <Label id={anchors.resume.awards} className="mt-2">
-        자격 · 수상
+      <Label id={anchors.resume.tech} className="mt-4">
+        기술 · AI 활용
       </Label>
-      <ul className="mt-1 grid grid-cols-2 gap-x-6 gap-y-0.5">
-        {AWARDS.map((a) => (
-          <li
-            key={a.name}
-            className="flex items-baseline justify-between gap-3"
-          >
-            <span className="font-medium">{a.name}</span>
-            <span className="shrink-0 text-[9pt] text-mute">{a.period}</span>
-          </li>
+      <dl className="mt-2 grid grid-cols-[7.5rem_minmax(0,1fr)] gap-x-3 gap-y-0.5 text-[9pt] leading-[1.55]">
+        {PROJECT_TECH.map((t) => (
+          <div key={t.name} className="contents">
+            <dt className="font-bold text-ink">{t.name}</dt>
+            <dd className="text-ink-2">
+              {t.stack}
+              {t.ai && <span className="text-mute"> — AI: {t.ai}</span>}
+            </dd>
+          </div>
         ))}
-      </ul>
+      </dl>
 
-      <Label className="mt-2">포트폴리오</Label>
-      <ol className="mt-1 grid grid-cols-2 gap-x-6 gap-y-0.5">
+      <aside id={anchors.resume.aiSetup} className="mt-3 rounded-lg border border-[var(--brick)] bg-[var(--brick-soft)] px-4 py-2.5">
+        <p className="flex items-baseline justify-between gap-4">
+          <span className="text-[9pt] font-bold tracking-[0.04em] text-[var(--brick)]">{AI_SETUP.title}</span>
+          <span className="text-[9pt]">
+            <Ext href={AI_SETUP.repo.href}>{AI_SETUP.repo.label}</Ext>
+          </span>
+        </p>
+        <ul className="mt-1 flex flex-col gap-0.5 pl-4">
+          {AI_SETUP.lines.map((l) => (
+            <li key={l} className={dot}>
+              {l}
+            </li>
+          ))}
+        </ul>
+      </aside>
+
+      <div id={anchors.resume.talks} className="mt-3">
+        <Sub>발표</Sub>
+        <ul className="mt-0.5 flex flex-col gap-0.5">
+          {TALK_LINES.map((t) => (
+            <li key={t.title}>
+              <span className="font-bold">「{t.title}」</span>
+              <span className="text-[9pt] text-mute"> · {t.venue}</span>
+              {t.body && <span className="text-ink-2"> — {t.body}</span>}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <Label className="mt-4">포트폴리오</Label>
+      <ol className="mt-1 flex flex-col gap-0.5">
         {CASES.map((c, i) => (
           <li key={c.slug} className="flex items-baseline gap-2">
-            <span className="shrink-0 font-bold text-[var(--brick)]">
-              {c.no}
-            </span>
+            <span className="shrink-0 font-bold text-[var(--brick)]">{c.no}</span>
             <span className="font-bold">{c.title}</span>
-            <span className="ml-auto shrink-0 text-[9pt] text-mute">
-              {i + 3}쪽
-            </span>
+            <span className="text-ink-2">— {c.tagline}</span>
+            <span className="ml-auto shrink-0 text-[9pt] text-mute">{i + 3}쪽</span>
           </li>
         ))}
       </ol>
       <p className="mt-1 text-[9pt] text-mute">
-        수치는 머지된 MR·테스트 기록, 저장소 문서, 사내 분석 도구에서 확인한 값입니다 · 자세히는{" "}
+        수치는 테스트 기록, 저장소 문서, 사내 분석 도구에서 확인한 값입니다 · 경력·프로젝트 자세히는{" "}
         <Ext href="https://usetaehwan.page">usetaehwan.page</Ext>
       </p>
     </Sheet>
   );
 }
 
-/* ───────── 3~9쪽 포트폴리오 ───────── */
+/* ───────── 3쪽~ 포트폴리오 ───────── */
 
 function Node({ n }: { n: FlowNode }) {
   return (
@@ -450,7 +466,7 @@ function CasePage({ c, page }: { c: Case; page: number }) {
   );
 }
 
-/** /resume — 화면에서는 종이 미리보기, 인쇄하면 A4 8쪽 */
+/** /resume — 화면에서는 종이 미리보기, 인쇄하면 A4 (2 + 포트폴리오 수)쪽 */
 export default function ResumePage() {
   return (
     <main className="resume">

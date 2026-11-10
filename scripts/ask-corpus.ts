@@ -9,8 +9,8 @@
  */
 import { writeFileSync } from "node:fs";
 import { PROJECTS } from "../app/_data/projects";
-import { AWARDS, CERTIFICATIONS, COMPANY as COMPANY_LINE, EDUCATION, EXPERIENCE, GROWTH } from "../app/_data/experience";
-import { PRACTICES } from "../app/_data/ai-practices";
+import { AWARDS, CAREER_INTRO, CERTIFICATIONS, COMPANY as COMPANY_LINE, EDUCATION, EXPERIENCE, GROWTH, GROWTH_VISIBLE, LEAD_ROLE } from "../app/_data/experience";
+import { AI_SETUP, PRACTICES } from "../app/_data/ai-practices";
 import { TALKS } from "../app/_data/talks";
 import { RECORDS, TRAITS } from "../app/_data/profile";
 import { BLOG_URL, EMAIL, GITHUB_URL } from "../app/_data/links";
@@ -40,7 +40,7 @@ docs.push({
       section: "소개",
       text: lines(
         ...INTRO,
-        "성장 과정: " + GROWTH.map((g) => `${g.date} ${g.text}`).join(" · "),
+        GROWTH_VISIBLE && "성장 과정: " + GROWTH.map((g) => `${g.date} ${g.text}`).join(" · "),
         "대표 기록: " + RECORDS.map((r) => `${r.k} ${r.v} (${r.note})`).join(" · "),
         ...TRAITS.map((t) => `${t.k}: ${t.v}`),
       ),
@@ -48,14 +48,19 @@ docs.push({
     ...EXPERIENCE.map((e, i) => ({
       anchor: anchors.home.experience(i),
       section: `경력: ${e.title}`,
-      text: lines(`${COMPANY_LINE}`, `${e.period} · ${e.title}`, e.summary, `수치: ${e.dims.join(" · ")}`),
+      text: lines(`${COMPANY_LINE}`, `${e.period} · ${e.title}`, e.headline, e.summary, `수치: ${e.dims.join(" · ")}`),
     })),
+    {
+      anchor: anchors.home.lead,
+      section: "경력: 리드 역할",
+      text: lines(COMPANY_LINE, CAREER_INTRO, `${LEAD_ROLE.period} ${LEAD_ROLE.title}`, ...LEAD_ROLE.lines),
+    },
     {
       anchor: anchors.home.education,
       section: "학력 · 자격 · 수상",
       text: lines(
         ...EDUCATION.map((e) => `학력: ${e.school} · ${e.program}${e.credential ? ` · ${e.credential}` : ""} · ${e.period}`),
-        ...CERTIFICATIONS.map((c) => `자격: ${c.name} · ${c.date}`),
+        ...CERTIFICATIONS.map((c) => `자격: ${c.name}${c.note ? ` (${c.note})` : ""} · ${c.date}`),
         ...AWARDS.map((a) => `수상: ${a.name} · ${a.issuer} · ${a.date}`),
       ),
     },
@@ -81,7 +86,15 @@ for (const p of PROJECTS) {
       {
         anchor: anchors.project.overview,
         section: "개요",
-        text: lines(`${p.name} — ${d.tagline}`, `역할: ${d.role} · 기간: ${d.period}`, p.summary, d.overview, `스택: ${d.stack.join(", ")}`),
+        text: lines(
+          `${p.name} — ${d.tagline}`,
+          `역할: ${d.role} · 기간: ${d.period}`,
+          p.summary,
+          `해결한 것: ${p.hook}${p.stat ? ` (${p.stat.label} ${p.stat.value})` : ""}`,
+          d.overview,
+          `스택: ${d.stack.join(", ")}`,
+          p.ai && `AI 활용: ${p.ai}`,
+        ),
       },
       ...(p.cases ?? []).map((c, i) => ({
         anchor: anchors.project.case(i),
@@ -121,6 +134,16 @@ for (const a of PRACTICES) {
   });
 }
 
+/* AI 활용 — 스킬 저장소에서 내린 결정 (홈 AI 노트 섹션 위 블록) */
+docs.push({
+  doc_id: "ai-setup",
+  source_path: "app/_data/ai-practices.ts (AI_SETUP)",
+  title: AI_SETUP.title,
+  url: "/",
+  kind: "ai",
+  chunks: [{ anchor: anchors.home.aiSetup, section: AI_SETUP.title, text: lines(...AI_SETUP.lines, `저장소: ${AI_SETUP.repo.href}`) }],
+});
+
 /* 발표 */
 for (const t of TALKS) {
   docs.push({
@@ -153,26 +176,31 @@ docs.push({
     {
       anchor: anchors.resume.jobs,
       section: "경력: 회사",
-      text: lines(`${R.COMPANY.name} · ${R.COMPANY.role} · ${R.COMPANY.period}`, R.COMPANY.about, R.GROWTH_LINE, `그 외: ${R.JOB_ETC}`),
+      text: lines(`${R.COMPANY.name} · ${R.COMPANY.role} · ${R.COMPANY.period}`, R.COMPANY.about, `${R.LEAD_ROLE.title}: ${R.LEAD_ROLE.lines.join(" ")}`),
     },
     ...R.JOBS.map((j) => ({
       anchor: anchors.resume.jobs,
       section: `경력: ${j.title}`,
-      text: lines(`${j.title} · ${j.period} · ${j.mr}`, ...j.lines.map(plain)),
+      text: lines(`${j.title} · ${j.period}`, ...j.lines.map(plain)),
     })),
-    { anchor: anchors.resume.aiTalk, section: R.AI_TALK.label, text: lines(`「${R.AI_TALK.title}」 · ${R.AI_TALK.venue}`, R.AI_TALK.body) },
-    { anchor: anchors.resume.aiNotes, section: "AI 노트", text: lines(...R.AI_NOTES.map((n) => `${n.title} — ${n.line}`)) },
+    { anchor: anchors.resume.talks, section: "발표", text: lines(...R.TALK_LINES.map((t) => `「${t.title}」 · ${t.venue}${t.body ? ` — ${t.body}` : ""}`)) },
+    { anchor: anchors.resume.aiSetup, section: R.AI_SETUP.title, text: lines(...R.AI_SETUP.lines) },
     ...R.SIDE_PROJECTS.map((s) => ({
-      anchor: anchors.resume.sideProjects,
+      anchor: anchors.resume.projects,
       section: `개인 프로젝트: ${s.name}`,
-      text: lines(`${s.name} · ${s.period} · ${s.stack}`, s.body),
+      text: lines(`${s.name} · ${s.period}`, s.hook, s.stat && `${s.stat.label} ${s.stat.value}`),
     })),
+    {
+      anchor: anchors.resume.tech,
+      section: "기술 · AI 활용",
+      text: R.PROJECT_TECH.map((t) => `${t.name}: ${t.stack}${t.ai ? ` — AI: ${t.ai}` : ""}`).join("\n"),
+    },
     {
       anchor: anchors.resume.education,
       section: "학력",
       text: R.EDUCATION.map((e) => `${e.name}${e.note ? ` · ${e.note}` : ""} · ${e.period}`).join("\n"),
     },
-    { anchor: anchors.resume.awards, section: "자격 · 수상", text: R.AWARDS.map((a) => `${a.name} · ${a.period}`).join("\n") },
+    { anchor: anchors.resume.awards, section: "자격 · 수상", text: R.AWARDS.map((a) => `${a.name}${a.note ? ` (${a.note})` : ""} · ${a.period}`).join("\n") },
     ...R.CASES.map((c) => ({
       anchor: anchors.resume.case(c.slug),
       section: `포트폴리오: ${c.title}`,
