@@ -390,3 +390,17 @@ export const PRACTICES: Practice[] = [
 export function getPractice(slug: string): Practice | undefined {
   return PRACTICES.find((p) => p.slug === slug);
 }
+
+/**
+ * 「AI 활용」 블록 — 개인 스킬 저장소(claude-skills)에서 내린 결정 세 가지.
+ * 근거는 그 저장소의 README.md · docs/improvement-plan.md 에 적힌 것만 쓴다. 레퍼런스·개념 개수처럼 양을 보여 주는 숫자는 넣지 않는다.
+ */
+export const AI_SETUP = {
+  title: "AI 활용 — 개인 스킬 저장소 운영",
+  repo: { label: "github.com/JeongTaehwan/claude-skills", href: SKILLS_REPO },
+  lines: [
+    "기계로 판정되는 금지 규칙(main 직접 push · 강제 push · git stash)은 프롬프트 대신 훅으로 옮겨, 토큰을 쓰지 않고 예외 없이 막습니다.",
+    "역할마다 모델을 고정해(판단 opus · 조사 sonnet · 집계 haiku) 집계 같은 단순 작업에 비싼 모델을 쓰지 않게 했습니다.",
+    "매 턴 실리는 글자 수에 상한을 두고 lint로 검사해, 스킬이 7개에서 12개로 늘어도 상시 비용은 그대로입니다(설명 합 2,300 → 2,335자).",
+  ],
+};
